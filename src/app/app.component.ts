@@ -26,10 +26,10 @@ import { SingleMailViewerComponent } from './mailviewer/singlemailviewer.compone
 import { SearchService } from './xapian/searchservice';
 import { PostMessageAction } from './xapian/messageactions';
 
-import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MoveMessageDialogComponent } from './actions/movemessage.action';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -75,7 +75,7 @@ const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
-const TOOLBAR_LIST_BUTTON_WIDTH = 30;
+export const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector

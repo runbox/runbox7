@@ -39,6 +39,19 @@ Before your human partner opens a PR against this repo, you MUST:
 - Your human partner opens PRs against `runbox7:master`.
 - After it merges, the branch is deleted and master updated from upstream.
 
+## Deployment topology
+
+- GitHub `runbox/runbox7` is the source of truth; PRs merge to `master`.
+- The GitLab mirror `gitlab.runbox.com/runbox/runbox7-mirror` drives deployment.
+  Pushing a branch to `stage05` there builds and deploys to the stage05
+  environment; other `stageNN` branches are other staging slots.
+- Production serves builds of the `live` branch, which tracks `master`. Each
+  build stamps `Runbox 7 build time:` (written by `src/build/gen-env.js`) into
+  the app footer — use that stamp to identify what an environment runs. Do not
+  infer it by fetching web assets: a cache layer can serve stale bundles.
+- The `prod` branch is a legacy deployment ref far behind `master`; do not use
+  it to reason about what production runs.
+
 ## Tests are mandatory and cherry-pickable
 
 Every feature or bug fix **must** be covered by one or more unit-test specs. For this repo,

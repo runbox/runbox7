@@ -22,7 +22,7 @@ import { Component, Input } from '@angular/core';
 @Component({
     selector: 'app-account-component-card',
         template: `
-<mat-card style="min-height: 20vh; padding: 20px">
+<mat-card appearance="outlined" style="min-height: 20vh; padding: 20px">
     <a [routerLink]="routerLink" style="text-decoration: none">
         <mat-card-header>
             <mat-card-title style="color: #000"> {{ title }} </mat-card-title>

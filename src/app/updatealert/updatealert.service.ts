@@ -19,7 +19,7 @@
 
 import { Injectable, NgZone } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';

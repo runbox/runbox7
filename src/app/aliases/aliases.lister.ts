@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 import { Component } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
 import { RMM } from '../rmm';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';

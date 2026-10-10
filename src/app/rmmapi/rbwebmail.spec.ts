@@ -20,11 +20,30 @@
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI } from './rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
 import { MessageCache } from './messagecache';
 import { firstValueFrom } from 'rxjs';
+
+// getMessageContents issues its HTTP request only after a real MessageCache
+// lookup completes, and a cold IndexedDB can outlast any fixed sleep; poll
+// the mock backend for the request instead.
+async function waitForMockRequest(
+    httpTestingController: HttpTestingController,
+    url: string,
+    timeoutMs = 5000,
+): Promise<TestRequest> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+        const [request] = httpTestingController.match(url);
+        if (request) {
+            return request;
+        }
+        await new Promise(resolve => setTimeout(resolve, 25));
+    }
+    return httpTestingController.expectOne(url);
+}
 
 describe('RBWebMail', () => {
     beforeEach(() => {
@@ -60,10 +79,7 @@ describe('RBWebMail', () => {
         rmmapi.setRunboxMe({'uid': '11', 'last_name': 'testuser'});
         const httpTestingController = TestBed.inject(HttpTestingController);
 
-        // HACK: crappy solution to get the email request to resolve
-        // see https://github.com/angular/angular/issues/25965
-        await new Promise(resolve => setTimeout(resolve, 500));
-        let req = httpTestingController.expectOne('/rest/v1/email/123');
+        let req = await waitForMockRequest(httpTestingController, '/rest/v1/email/123');
         req.flush({
             status: 'success',
             result: {
@@ -85,8 +101,7 @@ describe('RBWebMail', () => {
         expect(messageContents.subject).toBe('test');
 
         messageContentsObservable = rmmapi.getMessageContents(123, true);
-        await new Promise(resolve => setTimeout(resolve, 0));
-        req = httpTestingController.expectOne('/rest/v1/email/123');
+        req = await waitForMockRequest(httpTestingController, '/rest/v1/email/123');
         req.flush({
             status: 'success',
             result: {
@@ -103,8 +118,7 @@ describe('RBWebMail', () => {
         rmmapi.deleteCachedMessageContents(123);
 
         messageContentsObservable = rmmapi.getMessageContents(123);
-        await new Promise(resolve => setTimeout(resolve, 0));
-        req = httpTestingController.expectOne('/rest/v1/email/123');
+        req = await waitForMockRequest(httpTestingController, '/rest/v1/email/123');
         req.flush({
             status: 'success',
             result: {
@@ -116,7 +130,7 @@ describe('RBWebMail', () => {
         messageContents = await firstValueFrom(messageContentsObservable);
         expect(messageContents.id).toBe(123);
         expect(messageContents.subject).toBe('test3');
-    });
+    }, 10000);
 
     it('should flatten folder tree structure', async () => {
         const listEmailFoldersResponse = {

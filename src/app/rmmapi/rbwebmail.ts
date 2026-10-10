@@ -29,7 +29,7 @@ import { RunboxCalendar } from '../calendar-app/runbox-calendar';
 import { RunboxCalendarEvent } from '../calendar-app/runbox-calendar-event';
 import { Product } from '../account-app/product';
 import { DraftFormModel } from '../compose/draftdesk.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { RunboxLocale } from '../rmmapi/rblocale';
 import { RMM } from '../rmm';

@@ -23,7 +23,7 @@ describe('Profiles settings page', () => {
         cy.get('#add-identity').click();
 
         // open dialog, fill in fields, submit
-        cy.get('app-profiles-edit').should('be.visible');
+        cy.get('mat-dialog-container').should('be.visible');
         cy.get('input[name="email"]').type('newprof@runbox.com');
         cy.get('input[name="from"]').type('My Name');
         cy.get('input[name="name"]').type('My Profile');

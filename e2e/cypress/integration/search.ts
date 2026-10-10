@@ -8,8 +8,8 @@ describe('Search', () => {
     it('should display multiple search field panel', () => {
         cy.visit('/');
         cy.get('mat-toolbar mat-form-field button').click();
-        cy.get('input[data-placeholder=Subject]').type('testsubject');
-        cy.get('mat-toolbar input[data-placeholder="Start typing to search messages"]')
+        cy.get('#multipleSearchFieldsContainer input[formcontrolname="subject"]').type('testsubject');
+        cy.get('mat-toolbar #searchField input')
             .should('have.value', 'subject:"testsubject"');
     });
 });

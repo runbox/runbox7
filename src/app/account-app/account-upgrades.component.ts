@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, NavigationEnd } from '@angular/router';
 import { CartService } from './cart.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';

@@ -1,6 +1,14 @@
-@import '../../../node_modules/@angular/material/theming';
+// mat-card-content adds its own 16px inset on top of the card padding, which
+// left-aligned Subject and body 16px right of the From/To block
+mat-card-content {
+    padding-left: 0;
+    padding-right: 0;
+}
 
-$rmm-default-accent:     mat-palette($mat-blue, 100, 50, 200);
+mat-card-subtitle #fieldFrom {
+    // keep breathing room between the From and To rows
+    margin-bottom: 5px;
+}
 
 #messageTextArea {
     box-sizing: border-box;

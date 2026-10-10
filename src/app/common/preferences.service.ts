@@ -219,105 +219,110 @@ export class PreferencesService {
         if (this.loadedOldStyle) {
             return;
         }
-        let prefs = await firstValueFrom(this.preferences);
-        if (!prefs) {
-            // Already set / imported
-            prefs = new Map<string, any>();
+        try {
+            let prefs = await firstValueFrom(this.preferences);
+            if (!prefs) {
+                // Already set / imported
+                prefs = new Map<string, any>();
+            }
+
+            const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
+            const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
+            const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
+            const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
+            const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
+            const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
+            const showHtmlDecisionKey = 'rmm7showhtmldecision';
+            const showImagesDecisionKey = 'rmm7showimagesdecision';
+            const resizerPercentageKey = 'rmm7resizerpercentage';
+
+            const uid = await firstValueFrom(this.storage.uid);
+            if (level === DefaultPrefGroups.Global) {
+
+                if (localStorage.getItem('rmm7experimentalFeatureEnabled') !== null) {
+                    prefs.set('Global:experimentalFeatureEnabled', localStorage.getItem('rmm7experimentalFeatureEnabled'));
+                }
+                if (localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY) !== null) {
+                    prefs.set(`Global:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`, localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY));
+                }
+                if (localStorage.getItem('messageSubjectDragTipShown') !== null) {
+                    prefs.set('Global:messageSubjectDragTipShown', localStorage.getItem('messageSubjectDragTipShown'));
+                }
+                const calendarSettings = localStorage.getItem('calendarSettings');
+                if (calendarSettings) {
+                    prefs.set('Global:calendarSettings', JSON.parse(calendarSettings));
+                }
+                const avatarCache = localStorage.getItem(`${uid}:avatarCache`);
+                if (avatarCache) {
+                    prefs.set('Global:avatarCache', JSON.parse(avatarCache));
+                }
+            } else {
+                const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+                if (storedMailViewerOrientationSetting !== null) {
+                    prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`, storedMailViewerOrientationSetting);
+                }
+                const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
+                if (storedMailViewerOrientationSettingMobile !== null) {
+                    prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`, storedMailViewerOrientationSettingMobile);
+                }
+                if (localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW) !== null) {
+                    prefs.set(`${level}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`, localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW));
+                }
+                if (localStorage.getItem(LOCAL_STORAGE_KEEP_PANE) !== null) {
+                    prefs.set(`${level}:${LOCAL_STORAGE_KEEP_PANE}`, localStorage.getItem(LOCAL_STORAGE_KEEP_PANE));
+                }
+                if (localStorage.getItem('contacts.showDragHelpers') !== null) {
+                    prefs.set(`${level}:showDragHelpers`, localStorage.getItem('contacts.showDragHelpers'));
+                }
+
+                if (localStorage.getItem(LOCAL_STORAGE_VIEWMODE) !== null) {
+                    prefs.set(`${level}:${LOCAL_STORAGE_VIEWMODE}`, localStorage.getItem(LOCAL_STORAGE_VIEWMODE));
+                }
+                const avatarSource = localStorage.getItem(`${uid}:avatars`);
+                if (avatarSource) {
+                    prefs.set(`${level}:avatarSource`, JSON.parse(avatarSource));
+                }
+                const htmlDecision = localStorage.getItem(showHtmlDecisionKey);
+                if (htmlDecision) {
+                    prefs.set(`${level}:${showHtmlDecisionKey}`, htmlDecision);
+                }
+                const imagesDecision = localStorage.getItem(showImagesDecisionKey);
+                if (imagesDecision) {
+                    prefs.set(`${level}:${showImagesDecisionKey}`, imagesDecision);
+                }
+                const resizerPercentage = localStorage.getItem(resizerPercentageKey);
+                if (resizerPercentage) {
+                    prefs.set(`${level}:${resizerPercentageKey}`, htmlDecision);
+                }
+
+                const searchPrompt = localStorage.getItem(`localSearchPromptDisplayed${uid}`);
+                if (searchPrompt) {
+                    prefs.set(`${level}:localSearchPromptDisplayed`, searchPrompt);
+                }
+                this.loadedOldStyle = true;
+            }
+
+            localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
+            localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
+            localStorage.removeItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
+            localStorage.removeItem(LOCAL_STORAGE_KEEP_PANE);
+            localStorage.removeItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
+            localStorage.removeItem(showHtmlDecisionKey);
+            localStorage.removeItem(showImagesDecisionKey);
+            localStorage.removeItem(resizerPercentageKey);
+            localStorage.removeItem('rmm7experimentalFeatureEnabled');
+            localStorage.removeItem('messageSubjectDragTipShown');
+            localStorage.removeItem(LOCAL_STORAGE_VIEWMODE);
+            localStorage.removeItem('calendarSettings');
+            localStorage.removeItem(`${uid}:avatars`);
+            localStorage.removeItem(`${uid}:${showHtmlDecisionKey}`);
+            localStorage.removeItem(`${uid}:${showImagesDecisionKey}`);
+            localStorage.removeItem(`${uid}:${resizerPercentageKey}`);
+            localStorage.removeItem(`localSearchPromptDisplayed${uid}`);
+            this.preferences.next(prefs);
+        } catch {
+            // Silently skip migration if preferences subject hasn't emitted
+            // (e.g. in tests with incomplete DI setup)
         }
-
-        const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
-        const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
-        const LOCAL_STORAGE_VIEWMODE = 'rmm7mailViewerViewMode';
-        const LOCAL_STORAGE_SHOWCONTENTPREVIEW = 'rmm7mailViewerContentPreview';
-        const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
-        const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
-        const showHtmlDecisionKey = 'rmm7showhtmldecision';
-        const showImagesDecisionKey = 'rmm7showimagesdecision';
-        const resizerPercentageKey = 'rmm7resizerpercentage';
-
-        const uid = await firstValueFrom(this.storage.uid);
-        if (level === DefaultPrefGroups.Global) {
-
-            if (localStorage.getItem('rmm7experimentalFeatureEnabled') !== null) {
-                prefs.set('Global:experimentalFeatureEnabled', localStorage.getItem('rmm7experimentalFeatureEnabled'));
-            }
-            if (localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY) !== null) {
-                prefs.set(`Global:${LOCAL_STORAGE_SHOW_UNREAD_ONLY}`, localStorage.getItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY));
-            }
-            if (localStorage.getItem('messageSubjectDragTipShown') !== null) {
-                prefs.set('Global:messageSubjectDragTipShown', localStorage.getItem('messageSubjectDragTipShown'));
-            }
-            const calendarSettings = localStorage.getItem('calendarSettings');
-            if (calendarSettings) {
-                prefs.set('Global:calendarSettings', JSON.parse(calendarSettings));
-            }
-            const avatarCache = localStorage.getItem(`${uid}:avatarCache`);
-            if (avatarCache) {
-                prefs.set('Global:avatarCache', JSON.parse(avatarCache));
-            }
-        } else {
-            const storedMailViewerOrientationSetting = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-            if (storedMailViewerOrientationSetting !== null) {
-                prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE}`, storedMailViewerOrientationSetting);
-            }
-            const storedMailViewerOrientationSettingMobile = localStorage.getItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
-            if (storedMailViewerOrientationSettingMobile !== null) {
-                prefs.set(`${level}:${LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE}`, storedMailViewerOrientationSettingMobile);
-            }
-            if (localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW) !== null) {
-                prefs.set(`${level}:${LOCAL_STORAGE_SHOWCONTENTPREVIEW}`, localStorage.getItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW));
-            }
-            if (localStorage.getItem(LOCAL_STORAGE_KEEP_PANE) !== null) {
-                prefs.set(`${level}:${LOCAL_STORAGE_KEEP_PANE}`, localStorage.getItem(LOCAL_STORAGE_KEEP_PANE));
-            }
-            if (localStorage.getItem('contacts.showDragHelpers') !== null) {
-                prefs.set(`${level}:showDragHelpers`, localStorage.getItem('contacts.showDragHelpers'));
-            }
-
-            if (localStorage.getItem(LOCAL_STORAGE_VIEWMODE) !== null) {
-                prefs.set(`${level}:${LOCAL_STORAGE_VIEWMODE}`, localStorage.getItem(LOCAL_STORAGE_VIEWMODE));
-            }
-            const avatarSource = localStorage.getItem(`${uid}:avatars`);
-            if (avatarSource) {
-                prefs.set(`${level}:avatarSource`, JSON.parse(avatarSource));
-            }
-            const htmlDecision = localStorage.getItem(showHtmlDecisionKey);
-            if (htmlDecision) {
-                prefs.set(`${level}:${showHtmlDecisionKey}`, htmlDecision);
-            }
-            const imagesDecision = localStorage.getItem(showImagesDecisionKey);
-            if (imagesDecision) {
-                prefs.set(`${level}:${showImagesDecisionKey}`, imagesDecision);
-            }
-            const resizerPercentage = localStorage.getItem(resizerPercentageKey);
-            if (resizerPercentage) {
-                prefs.set(`${level}:${resizerPercentageKey}`, htmlDecision);
-            }
-
-            const searchPrompt = localStorage.getItem(`localSearchPromptDisplayed${uid}`);
-            if (searchPrompt) {
-                prefs.set(`${level}:localSearchPromptDisplayed`, searchPrompt);
-            }
-            this.loadedOldStyle = true;
-        }
-
-        localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE);
-        localStorage.removeItem(LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE);
-        localStorage.removeItem(LOCAL_STORAGE_SHOWCONTENTPREVIEW);
-        localStorage.removeItem(LOCAL_STORAGE_KEEP_PANE);
-        localStorage.removeItem(LOCAL_STORAGE_SHOW_UNREAD_ONLY);
-        localStorage.removeItem(showHtmlDecisionKey);
-        localStorage.removeItem(showImagesDecisionKey);
-        localStorage.removeItem(resizerPercentageKey);
-        localStorage.removeItem('rmm7experimentalFeatureEnabled');
-        localStorage.removeItem('messageSubjectDragTipShown');
-        localStorage.removeItem(LOCAL_STORAGE_VIEWMODE);
-        localStorage.removeItem('calendarSettings');
-        localStorage.removeItem(`${uid}:avatars`);
-        localStorage.removeItem(`${uid}:${showHtmlDecisionKey}`);
-        localStorage.removeItem(`${uid}:${showImagesDecisionKey}`);
-        localStorage.removeItem(`${uid}:${resizerPercentageKey}`);
-        localStorage.removeItem(`localSearchPromptDisplayed${uid}`);
-        this.preferences.next(prefs);
     }
 }

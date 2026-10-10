@@ -4,3 +4,13 @@ mat-expansion-panel-header mat-icon {
 mat-expansion-panel-header span {
     vertical-align: bottom;
 }
+
+// Remove default <p> margins that inflate list item height and break containment
+mat-list-item p[mat-line] {
+    margin: 0;
+}
+
+// Match header icon spacing so text aligns after the icon at the same position
+mat-list-item mat-icon {
+    padding-right: 8px;
+}

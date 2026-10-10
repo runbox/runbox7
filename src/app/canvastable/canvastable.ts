@@ -29,12 +29,12 @@ import {
   DoCheck, NgZone, EventEmitter, OnInit, ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacyMenuModule as MatMenuModule, MatLegacyMenuTrigger as MatMenuTrigger } from '@angular/material/legacy-menu';
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyTooltipModule as MatTooltipModule, MatLegacyTooltip as MatTooltip } from '@angular/material/legacy-tooltip';
+import { MatTooltipModule, MatTooltip } from '@angular/material/tooltip';
 import { BehaviorSubject ,  Subject } from 'rxjs';
 import { MessageDisplay } from '../common/messagedisplay';
 import { CanvasTableColumn } from './canvastablecolumn';
@@ -254,6 +254,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   ngAfterViewInit() {
     this.canv = this.canvRef.nativeElement;
     this.ctx = this.canv.getContext('2d');
+
+    // webfonts often finish loading after the first paint; without this flag
+    // the list keeps rendering rows in the fallback font until the next redraw
+    document.fonts.ready.then(() => (this.hasChanges = true));
 
     this.canv.onwheel = (event: WheelEvent) => {
       event.preventDefault();
