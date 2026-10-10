@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, take } from 'rxjs/operators';
 import {
   Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
@@ -447,7 +447,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.savedAlways = true;
       return;
     }
-    this.contactsservice.contactsSubject.subscribe(contacts => {
+    // decide once per message from the current contacts; the subject
+    // re-emits on every sync and must not re-force an unchecked view
+    this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
       const contact = contacts.find((c) => c.primary_email() === email);
       if (contact && contact.show_html) {
         this.showHTML = true;
@@ -466,7 +468,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.mailContentHTML = this.mailContentHTMLWithImages;
       return;
     }
-    this.contactsservice.contactsSubject.subscribe(contacts => {
+    this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
       const contact = contacts.find((c) => c.primary_email() === email);
       if (contact && contact.show_external_html) {
         this.showImages = true;

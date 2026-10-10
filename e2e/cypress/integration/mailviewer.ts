@@ -209,6 +209,9 @@ describe('Interacting with mailviewer', () => {
         // the checkbox half of the reported symptom: images toggle works
         cy.get('.htmlButtons mat-checkbox[mattooltip="Show external images"]').click()
             .should('have.class', 'mat-mdc-checkbox-checked');
+        // and toggling it off works too
+        cy.get('.htmlButtons mat-checkbox[mattooltip="Show external images"]').click()
+            .should('not.have.class', 'mat-mdc-checkbox-checked');
 
         // real browsers re-dispatch a bubbling click on the input for label
         // clicks; that second click used to revert the view toggle

@@ -60,7 +60,7 @@ import { take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs';
 
 export class ContactsServiceMock {
-    public contactsSubject = of([
+    public contacts = [
         new Contact({
             id: 5,
             nick: 'test',
@@ -75,7 +75,12 @@ export class ContactsServiceMock {
             kind: ContactKind.SETTINGSONLY,
             emails: [{ types: ['home'], value: 'fred@bloggs.com' }]
         })
-    ]);
+    ];
+    public contactsSubject = new ReplaySubject<Contact[]>(1);
+
+    constructor() {
+        this.contactsSubject.next(this.contacts);
+    }
 
     lookupAvatar(_email: string) {
         return Promise.resolve(null);
@@ -231,6 +236,28 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
+    }));
+
+  it('keeps the users images-off choice across contacts refreshes', fakeAsync(() => {
+      const contactsMock = TestBed.inject(ContactsService) as unknown as ContactsServiceMock;
+      component.mailContentHTMLWithImages = '<img>';
+      component.mailContentHTMLWithoutImages = 'no image';
+      component.showImagesDecision = null;
+
+      // sender has show-external-html saved as a contact: images start on
+      component.showImagesForThisSender('fred@bloggs.com');
+      tick();
+      expect(component.showImages).toBe(true);
+
+      // the user unchecks external images
+      component.showImages = false;
+      component.mailContentHTML = component.mailContentHTMLWithoutImages;
+
+      // a periodic contacts sync re-emits the same contacts
+      contactsMock.contactsSubject.next(contactsMock.contacts);
+      tick();
+
+      expect(component.showImages).toBe(false);
     }));
 
   it('renders preview toolbar buttons at the morebuttonindex budget size', fakeAsync(() => {
