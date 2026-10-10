@@ -829,6 +829,7 @@ export class SearchService {
     const temporaryFolder = `${partition.folder}.sync-${operationId}`;
     const temporaryPath = `${this.partitionsdir}/${temporaryFolder}`;
     const finalPath = `${this.partitionsdir}/${partition.folder}`;
+    const backupPath = `${finalPath}.backup-${operationId}`;
     this.ensureDirectory(temporaryPath);
 
     try {
@@ -842,20 +843,27 @@ export class SearchService {
         onProgress(this.initialSyncDownloadedBytes);
       }
       await promoteHistoricalPartition({
-        removeExisting: async () => {
+        backupExisting: async () => {
           await this.prepareWorkerForIndexReplacement();
-          this.removeTemporaryPartition(finalPath);
-          await this.syncFileSystem(false);
+          if (!this.pathExists(finalPath)) {
+            return false;
+          }
+          this.removeTemporaryPartition(backupPath);
+          FS.rename(finalPath, backupPath);
+          return true;
         },
         promote: () => FS.rename(temporaryPath, finalPath),
         persist: () => this.syncFileSystem(false),
-        open: () => this.api.addFolderXapianIndex(finalPath),
         reopenWorker: async () => {
           await this.openInitialWorkerIndex();
         },
-        removePromoted: async () => {
-          this.removeTemporaryPartition(finalPath);
-          await this.syncFileSystem(false);
+        openMainView: () => this.api.addFolderXapianIndex(finalPath),
+        removeBackup: async () => this.removeTemporaryPartition(backupPath),
+        removePromoted: async () => this.removeTemporaryPartition(finalPath),
+        restoreBackup: async () => {
+          if (this.pathExists(backupPath)) {
+            FS.rename(backupPath, finalPath);
+          }
         }
       });
       this.indexReloadedSubject.next(undefined);
@@ -864,6 +872,15 @@ export class SearchService {
       onProgress(startingDownloadedBytes);
       this.removeTemporaryPartition(temporaryPath);
       throw error;
+    }
+  }
+
+  private pathExists(path: string): boolean {
+    try {
+      FS.stat(path);
+      return true;
+    } catch (_error) {
+      return false;
     }
   }
 

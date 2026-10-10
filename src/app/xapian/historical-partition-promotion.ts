@@ -17,26 +17,62 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
+import { IndexSyncError } from './index-sync.types';
+
 export interface HistoricalPartitionPromotionDependencies {
-  removeExisting: () => Promise<void>;
+  backupExisting: () => Promise<boolean | void>;
   promote: () => void;
   persist: () => Promise<void>;
-  open: () => void;
   reopenWorker: () => Promise<void>;
+  openMainView: () => void;
+  removeBackup: () => Promise<void>;
   removePromoted: () => Promise<void>;
+  restoreBackup: () => Promise<void>;
 }
 
 export async function promoteHistoricalPartition(
   dependencies: HistoricalPartitionPromotionDependencies
 ): Promise<void> {
-  await dependencies.removeExisting();
-  dependencies.promote();
+  let rollbackRequired = false;
+  let hasBackup = false;
   try {
+    hasBackup = await dependencies.backupExisting() !== false;
+    rollbackRequired = hasBackup;
+    if (hasBackup) {
+      await dependencies.persist();
+    }
+    rollbackRequired = true;
+    dependencies.promote();
     await dependencies.persist();
     await dependencies.reopenWorker();
-    dependencies.open();
+    dependencies.openMainView();
+    rollbackRequired = false;
+    if (hasBackup) {
+      await dependencies.removeBackup();
+      await dependencies.persist();
+    }
   } catch (error) {
-    await dependencies.removePromoted();
+    if (!rollbackRequired) {
+      throw error;
+    }
+    try {
+      await dependencies.removePromoted();
+      await dependencies.restoreBackup();
+      await dependencies.persist();
+    } catch (rollbackError) {
+      throw new IndexSyncError({
+        operationId: '',
+        phase: 'downloading-history',
+        page: null,
+        partition: null,
+        attempt: 1,
+        category: 'rollback',
+        recoverable: false,
+        message: `Unable to restore the previous historical partition: ${
+          rollbackError instanceof Error ? rollbackError.message : String(rollbackError)
+        }`
+      }, error);
+    }
     throw error;
   }
 }
