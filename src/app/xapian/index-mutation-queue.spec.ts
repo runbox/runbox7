@@ -23,8 +23,12 @@ describe('IndexMutationQueue', () => {
   it('processes batches in FIFO order and waits for active persistence', async () => {
     const timeline: string[] = [];
     let releasePersistence: () => void;
+    let markPersistenceStarted: () => void;
     const firstPersistence = new Promise<void>(resolve => {
       releasePersistence = resolve;
+    });
+    const persistenceStarted = new Promise<void>(resolve => {
+      markPersistenceStarted = resolve;
     });
     let persistCalls = 0;
     const queue = new IndexMutationQueue({
@@ -33,6 +37,7 @@ describe('IndexMutationQueue', () => {
         timeline.push('persist');
         persistCalls++;
         if (persistCalls === 1) {
+          markPersistenceStarted();
           await firstPersistence;
         }
       },
@@ -46,8 +51,7 @@ describe('IndexMutationQueue', () => {
     const second = queue.enqueue([
       async () => timeline.push('second')
     ], false);
-    await Promise.resolve();
-    await Promise.resolve();
+    await persistenceStarted;
 
     expect(timeline).toEqual(['first-1', 'first-2', 'commit', 'persist']);
     releasePersistence();
@@ -95,20 +99,26 @@ describe('IndexMutationQueue', () => {
 
   it('keeps whenIdle pending until persistence and publication finish', async () => {
     let releasePublication: () => void;
+    let markPublicationStarted: () => void;
     const publication = new Promise<void>(resolve => {
       releasePublication = resolve;
+    });
+    const publicationStarted = new Promise<void>(resolve => {
+      markPublicationStarted = resolve;
     });
     let idle = false;
     const queue = new IndexMutationQueue({
       commit: async () => undefined,
       persist: async () => undefined,
-      publishLegacy: async () => publication
+      publishLegacy: async () => {
+        markPublicationStarted();
+        await publication;
+      }
     });
 
     const batch = queue.enqueue([async () => undefined], true);
     void queue.whenIdle().then(() => idle = true);
-    await Promise.resolve();
-    await Promise.resolve();
+    await publicationStarted;
 
     expect(idle).toBeFalse();
     releasePublication();
