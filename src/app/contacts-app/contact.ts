@@ -191,8 +191,10 @@ export class Contact {
             const propValue = prop.getValues();
             if (!propValue) {
                 values = [];
+            } else if (Array.isArray(propValue[0])) {
+                values = propValue[0].slice();
             } else {
-                values = propValue[0];
+                values = propValue.slice();
             }
         } else {
             prop = new ICAL.Property(name, this.component);
