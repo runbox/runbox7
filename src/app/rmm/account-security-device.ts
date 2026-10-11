@@ -53,14 +53,16 @@ export class AccountSecurityDevice {
         return req;
     }
 
-    update(data): Observable<any> {
+    update(data, refresh = true): Observable<any> {
         this.is_busy = true;
         data = data || {
         };
         const req = this.app.ua.http.put('/ajax/ajax_mfa_device', data).pipe(timeout(60000), share());
         req.subscribe(
           reply => {
-            this.list();
+            if (refresh) {
+                this.list();
+            }
             this.is_busy = false;
             if ( reply['status'] === 'error' ) {
                 this.app.show_error( reply['error'].join( '' ), 'Dismiss' );

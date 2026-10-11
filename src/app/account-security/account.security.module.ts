@@ -41,6 +41,7 @@ import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
+import { DialogModule } from '../dialog/dialog.module';
 import {
     ModalPasswordComponent,
     ModalUnlockcodeComponent,
@@ -86,6 +87,7 @@ import { AccountPasswordComponent } from './account-password.component';
         MatTabsModule,
         MatToolbarModule,
         MatTooltipModule,
+        DialogModule,
         MenuModule,
         QRCodeModule,
         RunboxComponentModule,
