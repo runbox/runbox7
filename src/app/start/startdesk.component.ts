@@ -76,6 +76,7 @@ export class StartDeskComponent implements OnInit {
 
     regularOverview: ContactHilights[] = [];
     mailingListOverview: ContactHilights[] = [];
+    allOverview: ContactHilights[] = [];
     emailsShownPerName = new Map<string, number>();
 
     // exposing enums to the template
@@ -199,14 +200,9 @@ export class StartDeskComponent implements OnInit {
             }
         );
 
-        this.regularOverview.sort((a, b) => {
-            switch (this.sortOrder) {
-                case SortOrder.COUNT:
-                    return b.emails.length - a.emails.length;
-                case SortOrder.SENDER:
-                    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-            }
-        });
+        this.regularOverview = this.sortOverview(this.regularOverview);
+        this.mailingListOverview = this.sortOverview(this.mailingListOverview);
+        this.allOverview = this.sortOverview(this.regularOverview.concat(this.mailingListOverview));
 
         this.totalEmailCount = messages.length;
         this.regularEmailCount = otherMessages.length;
@@ -288,6 +284,24 @@ export class StartDeskComponent implements OnInit {
         }
 
         return mailingLists;
+    }
+
+    private sortOverview(overview: ContactHilights[]): ContactHilights[] {
+        return overview.sort((a, b) => {
+            switch (this.sortOrder) {
+                case SortOrder.COUNT: {
+                    const countDiff = b.emails.length - a.emails.length;
+                    return countDiff !== 0 ? countDiff : this.compareSenderNames(a, b);
+                }
+                case SortOrder.SENDER:
+                    return this.compareSenderNames(a, b);
+            }
+            return 0;
+        });
+    }
+
+    private compareSenderNames(a: ContactHilights, b: ContactHilights): number {
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
     }
 
     public showMoreFor(sender: ContactHilights) {
