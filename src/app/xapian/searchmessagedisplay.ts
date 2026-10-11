@@ -54,6 +54,15 @@ export class SearchMessageDisplay extends MessageDisplay {
   filterBy(options: Map<string, any>) {
   }
 
+  private isSentFolder(folder: string): boolean {
+    return folder === 'Sent' || folder.startsWith('Sent.');
+  }
+
+  private isSentFolderForRow(rowIndex: number): boolean {
+    const folder = this.searchService.getDocData(this.getRowId(rowIndex)).folder || '';
+    return this.isSentFolder(folder);
+  }
+
   // columns
   // app is a Component (currently)
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
@@ -75,12 +84,14 @@ export class SearchMessageDisplay extends MessageDisplay {
         getValue: (rowIndex): string => this.searchService.api.getStringValue(this.getRowId(rowIndex), 2),
         getFormattedValue: (datestring) => MessageTableRowTool.formatTimestampFromStringWithoutSeparators(datestring)
       },
-      (app.selectedFolder.indexOf('Sent') === 0 && !app.displayFolderColumn) ? {
+      (this.isSentFolder(app.selectedFolder || '') && !app.displayFolderColumn) ? {
         name: 'To',
         draggable: true,
         cacheKey: 'from',
         sortColumn: null,
-        getValue: (rowIndex): string => this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', '),
+        getValue: (rowIndex): string => this.isSentFolderForRow(rowIndex)
+          ? this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', ')
+          : this.searchService.getDocData(this.getRowId(rowIndex)).from,
       } :
         {
           name: 'From',
@@ -88,7 +99,9 @@ export class SearchMessageDisplay extends MessageDisplay {
           cacheKey: 'from',
           sortColumn: 0,
           getValue: (rowIndex): string => {
-            return this.searchService.getDocData(this.getRowId(rowIndex)).from;
+            return this.isSentFolderForRow(rowIndex)
+              ? this.searchService.getDocData(this.getRowId(rowIndex)).recipients.join(', ')
+              : this.searchService.getDocData(this.getRowId(rowIndex)).from;
           },
         },
       {
