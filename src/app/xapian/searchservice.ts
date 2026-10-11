@@ -169,6 +169,7 @@ export class SearchService {
   private initialSyncCoordinator: IndexSyncCoordinator = null;
   private initialSyncOperationNumber = 0;
   private initialSyncDownloadedBytes = 0;
+  private initialSyncReportedBytes = 0;
   private initialSyncOperation = new IndexSyncOperation();
   private readonly initialSyncStateSubject =
     new BehaviorSubject<IndexSyncState | null>(null);
@@ -597,6 +598,7 @@ export class SearchService {
     const operationId = `index-sync-${++this.initialSyncOperationNumber}`;
     this.initialSyncOperation = new IndexSyncOperation();
     this.initialSyncDownloadedBytes = 0;
+    this.initialSyncReportedBytes = 0;
     this.indexDownloadingInProgress = true;
     this.stopIndexDownloadingInProgress = false;
     this.notifyOnNewMessages = false;
@@ -668,6 +670,7 @@ export class SearchService {
     manifest: NormalizedIndexManifest,
     onProgress: (downloadedBytes: number) => void
   ): Promise<void> {
+    const startingDownloadedBytes = this.initialSyncDownloadedBytes;
     await this.prepareWorkerForIndexReplacement();
     await this.init();
 
@@ -688,14 +691,20 @@ export class SearchService {
       { filename: 'termlist.glass', fileno: 3 },
       { filename: 'postlist.glass', fileno: 4 }
     ];
-    for (const file of files) {
-      const data = await this.downloadIndexFile(
-        `/mail/download_xapian_index?ngsw-bypass=1&fileno=${file.fileno}`,
-        loaded => onProgress(this.initialSyncDownloadedBytes + loaded)
-      );
-      FS.writeFile(`${XAPIAN_GLASS_WR}/${file.filename}`, data, { encoding: 'binary' });
-      this.initialSyncDownloadedBytes += data.length;
-      onProgress(this.initialSyncDownloadedBytes);
+    try {
+      for (const file of files) {
+        const data = await this.downloadIndexFile(
+          `/mail/download_xapian_index?ngsw-bypass=1&fileno=${file.fileno}`,
+          loaded => this.reportInitialSyncProgress(onProgress, loaded)
+        );
+        FS.writeFile(`${XAPIAN_GLASS_WR}/${file.filename}`, data, { encoding: 'binary' });
+        this.initialSyncDownloadedBytes += data.length;
+        this.reportInitialSyncProgress(onProgress);
+      }
+    } catch (error) {
+      this.initialSyncDownloadedBytes = startingDownloadedBytes;
+      this.reportInitialSyncProgress(onProgress);
+      throw error;
     }
 
     this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
@@ -836,11 +845,11 @@ export class SearchService {
       for (const file of partition.files) {
         const data = await this.downloadIndexFile(
           `/rest/v1/searchindex/file/${partition.folder}/${file.filename}?ngsw-bypass=1`,
-          loaded => onProgress(this.initialSyncDownloadedBytes + loaded)
+          loaded => this.reportInitialSyncProgress(onProgress, loaded)
         );
         FS.writeFile(`${temporaryPath}/${file.filename}`, data, { encoding: 'binary' });
         this.initialSyncDownloadedBytes += data.length;
-        onProgress(this.initialSyncDownloadedBytes);
+        this.reportInitialSyncProgress(onProgress);
       }
       await promoteHistoricalPartition({
         backupExisting: async () => {
@@ -869,10 +878,21 @@ export class SearchService {
       this.indexReloadedSubject.next(undefined);
     } catch (error) {
       this.initialSyncDownloadedBytes = startingDownloadedBytes;
-      onProgress(startingDownloadedBytes);
+      this.reportInitialSyncProgress(onProgress);
       this.removeTemporaryPartition(temporaryPath);
       throw error;
     }
+  }
+
+  private reportInitialSyncProgress(
+    onProgress: (downloadedBytes: number) => void,
+    attemptLoadedBytes = 0
+  ): void {
+    this.initialSyncReportedBytes = Math.max(
+      this.initialSyncReportedBytes,
+      this.initialSyncDownloadedBytes + attemptLoadedBytes
+    );
+    onProgress(this.initialSyncReportedBytes);
   }
 
   private pathExists(path: string): boolean {

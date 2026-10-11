@@ -100,7 +100,7 @@ export class IndexSyncCoordinator {
       const manifest = await this.runDependency(() => this.dependencies.discoverManifest());
       this.updateState({
         totalPartitions: manifest.partitions.length,
-        totalBytes: manifest.totalCompressedBytes
+        totalBytes: manifest.totalUncompressedBytes
       });
       if (await this.finishCancellation()) {
         return;
