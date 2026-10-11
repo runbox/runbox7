@@ -194,6 +194,9 @@
     </div>
 
     <div class="messageActionButtonsRight">
+      <button mat-icon-button *ngIf="isDraftMessage()" matTooltip="Edit draft" (click)="editDraft()">
+        <mat-icon svgIcon="pencil"></mat-icon>
+      </button>
       <button mat-icon-button matTooltip="Print message (Please consider the environment before printing this email)" (click)="print()" id="buttonPrint">
 	<mat-icon svgIcon="printer"></mat-icon>
       </button>
