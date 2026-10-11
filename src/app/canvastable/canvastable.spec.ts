@@ -33,11 +33,8 @@ describe('canvastable', () => {
     it('should activate draggable column overlay on mouseover', async () => {
         const fixture = TestBed.createComponent(CanvasTableContainerComponent);
         fixture.componentInstance.canvastableselectlistener = {
-            rowSelected: (rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void => {
-
-            },
-            saveColumnWidthsPreference: (widths: any): void => {
-            }
+            rowSelected: (): void => undefined,
+            saveColumnWidthsPreference: (): void => undefined
         };
         fixture.componentInstance.canvastable.columns = [
             {
@@ -73,4 +70,79 @@ describe('canvastable', () => {
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
     });
+
+    it('should select a checkbox range with shift click', () => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        const messageList = new MessageList([
+            { id: 1, seenFlag: false, subject: 'one' },
+            { id: 2, seenFlag: false, subject: 'two' },
+            { id: 3, seenFlag: false, subject: 'three' },
+            { id: 4, seenFlag: false, subject: 'four' },
+            { id: 5, seenFlag: false, subject: 'five' },
+        ]);
+
+        fixture.componentInstance.canvastableselectlistener = {
+            rowSelected: (rowIndex: number, colIndex: number, multiSelect?: boolean): void => {
+                messageList.rowSelected(rowIndex, colIndex, multiSelect);
+            },
+            saveColumnWidthsPreference: (): void => undefined
+        };
+        fixture.componentInstance.canvastable.columns = [
+            {
+                name: '',
+                cacheKey: 'selectbox',
+                sortColumn: null,
+                getValue: (rowIndex: number) => messageList.isSelectedRow(rowIndex),
+                width: 40,
+                checkbox: true
+            },
+            {
+                name: 'Subject',
+                cacheKey: 'subject',
+                sortColumn: null,
+                getValue: (rowIndex: number) => messageList.getRow(rowIndex).subject,
+                width: 200
+            },
+        ];
+        fixture.componentInstance.canvastable.rows = messageList;
+        fixture.componentInstance.canvastable.rowWrapMode = false;
+        fixture.detectChanges();
+
+        const canvas = fixture.componentInstance.canvastable.canvRef.nativeElement;
+        spyOn(canvas, 'getBoundingClientRect').and.returnValue({
+            left: 0,
+            top: 0,
+            right: 300,
+            bottom: 200,
+            width: 300,
+            height: 200,
+            x: 0,
+            y: 0,
+            toJSON: () => ({})
+        } as DOMRect);
+
+        clickCanvas(canvas, 5, 14);
+        clickCanvas(canvas, 5, 98, true);
+
+        expect(messageList.isSelectedRow(0)).toBeTrue();
+        expect(messageList.isSelectedRow(1)).toBeTrue();
+        expect(messageList.isSelectedRow(2)).toBeTrue();
+        expect(messageList.isSelectedRow(3)).toBeTrue();
+        expect(messageList.isSelectedRow(4)).toBeFalse();
+    });
 });
+
+function clickCanvas(canvas: HTMLCanvasElement, clientX: number, clientY: number, shiftKey = false): void {
+    canvas.dispatchEvent(new MouseEvent('mousedown', {
+        bubbles: true,
+        clientX,
+        clientY,
+        shiftKey
+    }));
+    canvas.dispatchEvent(new MouseEvent('mouseup', {
+        bubbles: true,
+        clientX,
+        clientY,
+        shiftKey
+    }));
+}
