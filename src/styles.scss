@@ -123,7 +123,7 @@ p {
 }
 
 mat-form-field {
-    /* This is for iOS not to zoom in when focusing on text fields */
+    /* Compact default form fields; the login screen overrides this to avoid iOS focus zoom. */
     font-size: 13px !important;
 }
 
@@ -515,6 +515,11 @@ div.loginScreen {
     #runbox6, #norwegian {
         margin: 0 0.5em;
 	    font-size: 16px;
+    }
+
+    mat-form-field {
+        /* iOS Safari zooms focused fields below 16px and can keep the app zoomed after login. */
+        font-size: 16px !important;
     }
 
     #loginArea {
