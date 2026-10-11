@@ -34,11 +34,10 @@ import { PostMessageAction } from './messageactions';
 import { InitialIndexWorkerSync } from './initial-index-worker-sync';
 import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
 import { runInitialIndexOpen } from './initial-index-open';
+import { IndexMutationQueue } from './index-mutation-queue';
 import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
-import { executeIndexMutation } from './index-mutation';
 import { clearFailedIndexUpdate } from './index-update-failure-policy';
 import { openStoredPartitions as openPartitionPaths } from './stored-partition-open';
-import { completeIndexBatch } from './index-batch-completion';
 import { formatIndexSyncProgressMessage } from './index-sync-progress-message';
 import {
   closeIndexedDatabaseConnections,
@@ -124,11 +123,9 @@ class SearchIndexService {
   // Listing all messages happens in chunks of 1000 - page is controlled here
   public listAllMessagesPage = 0;
   public processMessageHistoryCount = 0;
-  public processMessageHistoryProgress = 0;
   public processMessageHistorySkipLiveTableUpdates = true;
   public skipLiveUpdatesIndexingMessageContent = false;
   pendingIndexVerifications: {[id: string]: SearchIndexDocumentData} = {};
-  pendingMessagesToProcess: SearchIndexDocumentUpdate[];
   persistIndexInProgressSubject: AsyncSubject<any> = null;
   indexNotPersisted = false;
   /**
@@ -136,8 +133,14 @@ class SearchIndexService {
    * (workaround while waiting for deleted_messages support, but also a good extra check)
    */
 
-  messageProcessingInProgressSubject: AsyncSubject<any> = null;
-  processMessageIndex = 0;
+  private readonly mutationQueue = new IndexMutationQueue({
+    commit: () => this.api.commitXapianUpdates(),
+    persist: async () => {
+      this.indexNotPersisted = true;
+      await lastValueFrom(this.persistIndex());
+    },
+    publishLegacy: () => ctx.postMessage({'action': PostMessageAction.indexUpdated})
+  });
 
   /**
    * what the indexer update is currently working on
@@ -238,9 +241,7 @@ class SearchIndexService {
 
   private async reloadInitialIndex(): Promise<number> {
     try {
-      if (this.messageProcessingInProgressSubject) {
-        await firstValueFrom(this.messageProcessingInProgressSubject);
-      }
+      await this.mutationQueue.whenIdle();
       this.api.closeXapianDatabase();
       await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
         error ? reject(error) : resolve()
@@ -786,15 +787,6 @@ not matching with rest api counts for current folder`);
       }
     } catch (err) {
       console.error('Worker: Failed updating with new changes (will retry in 10 secs)', err);
-      if (this.messageProcessingInProgressSubject &&
-        this.messageProcessingInProgressSubject.isStopped) {
-        // stopped/errored because localSearchActivated changed
-        // during processing, reset
-        this.messageProcessingInProgressSubject = null;
-        this.pendingMessagesToProcess = null;
-        this.processMessageHistoryProgress = null;
-        this.processMessageIndex = 0;
-      }
       if (providedChanges) {
         clearFailedIndexUpdate(this.currentIndexUpdateMessageIds);
         this.finishIndexUpdate();
@@ -816,9 +808,7 @@ not matching with rest api counts for current folder`);
     if (this.activeIndexUpdates > 0) {
       await this.waitForIndexUpdatesToFinish();
     }
-    if (this.messageProcessingInProgressSubject) {
-      await firstValueFrom(this.messageProcessingInProgressSubject);
-    }
+    await this.mutationQueue.whenIdle();
     if (this.localSearchActivated && this.api) {
       this.api.closeXapianDatabase();
       this.localSearchActivated = false;
@@ -887,103 +877,41 @@ not matching with rest api counts for current folder`);
       return of();
     }
 
-    if (!this.pendingMessagesToProcess) {
-      this.pendingMessagesToProcess = newMessagesToProcess;
-      this.messageProcessingInProgressSubject = new AsyncSubject();
-
-      const getProgressSnackBarMessageText = () => formatIndexSyncProgressMessage(
-        this.processMessageIndex,
-        this.pendingMessagesToProcess.length
-      );
-      let hasProgressSnackBar = false;
-      if (this.pendingMessagesToProcess.length > 10) {
-        hasProgressSnackBar = true;
-        ctx.postMessage({'action': PostMessageAction.openProgressSnackBar });
-        ctx.postMessage({'action': PostMessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
-      }
-
-      const processMessage = async () => {
-        if (!this.localSearchActivated) {
-          // Handle that index is deleted in the middle of an indexing process
-          this.messageProcessingInProgressSubject.error('Worker: Search index deleted in the middle of indexing process');
-          return;
-        } else if (this.processMessageIndex < this.pendingMessagesToProcess.length) {
-          this.processMessageHistoryProgress = Math.round(this.processMessageIndex * 100 / this.pendingMessagesToProcess.length);
-
-          console.log('Worker: Adding to (or removing from) index', (this.pendingMessagesToProcess.length - this.processMessageIndex), 'to go');
-          if (hasProgressSnackBar) {
-            ctx.postMessage({'action': PostMessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
-          }
-
-          // TODO: it'd be more efficient to just update the cache instead of forcing the redownload
-          ctx.postMessage({'action': PostMessageAction.refreshContentCache,
-                           'messageId': this.pendingMessagesToProcess[this.processMessageIndex].id});
-
-          const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
-          try {
-            await executeIndexMutation(nextMessage.updateFunction);
-          } catch (error) {
-            this.messageProcessingInProgressSubject.error(error);
-            this.messageProcessingInProgressSubject = null;
-            this.pendingMessagesToProcess = null;
-            this.processMessageIndex = 0;
-            return;
-          }
-
-          if (this.persistIndexInProgressSubject) {
-            // Wait for persistence of index to finish before doing more work on the index
-            await firstValueFrom(this.persistIndexInProgressSubject);
-          }
-          setTimeout(() => processMessage(), 1);
-
-        } else {
-          console.log('Worker: All messages added');
-          if (this.processMessageIndex > 0) {
-            this.processMessageIndex = 0;
-            this.indexNotPersisted = true;
-          }
-          try {
-            await completeIndexBatch(
-              () => this.api.commitXapianUpdates(),
-              async () => {
-                await lastValueFrom(this.persistIndex());
-              }
-            );
-          } catch (error) {
-            this.messageProcessingInProgressSubject.error(error);
-            this.messageProcessingInProgressSubject = null;
-            this.pendingMessagesToProcess = null;
-            this.processMessageIndex = 0;
-            return;
-          }
-
-          if (hasProgressSnackBar) {
-            ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
-            hasProgressSnackBar = false;
-          }
-
-          this.processMessageHistoryProgress = null;
-          this.pendingMessagesToProcess = null;
-
-          this.messageProcessingInProgressSubject.next(true);
-          this.messageProcessingInProgressSubject.complete();
-          this.messageProcessingInProgressSubject = null;
-
-          if (postLegacyIndexUpdated) {
-            ctx.postMessage({'action': PostMessageAction.indexUpdated});
-          }
-        }
-      };
+    let processed = 0;
+    let hasProgressSnackBar = false;
+    const mutations = [async () => {
       if (this.persistIndexInProgressSubject) {
-        // Wait for persistence of index to finish before doing more work on the index
-        this.persistIndexInProgressSubject.subscribe(() => processMessage());
-      } else {
-        processMessage();
+        await firstValueFrom(this.persistIndexInProgressSubject);
       }
-    } else {
-      this.pendingMessagesToProcess = this.pendingMessagesToProcess.concat(newMessagesToProcess);
-    }
-    return this.messageProcessingInProgressSubject;
+    }].concat(newMessagesToProcess.map(message => async () => {
+      if (!this.localSearchActivated) {
+        throw new Error('Worker: Search index deleted in the middle of indexing process');
+      }
+      if (!hasProgressSnackBar && newMessagesToProcess.length > 10) {
+        hasProgressSnackBar = true;
+        ctx.postMessage({'action': PostMessageAction.openProgressSnackBar});
+      }
+      if (hasProgressSnackBar) {
+        ctx.postMessage({
+          'action': PostMessageAction.updateProgressSnackBar,
+          'value': formatIndexSyncProgressMessage(processed, newMessagesToProcess.length)
+        });
+      }
+      ctx.postMessage({
+        'action': PostMessageAction.refreshContentCache,
+        'messageId': message.id
+      });
+      await message.updateFunction();
+      processed++;
+      await new Promise<void>(resolve => setTimeout(resolve, 1));
+    }));
+    const result = this.mutationQueue.enqueue(mutations, postLegacyIndexUpdated)
+      .finally(() => {
+        if (hasProgressSnackBar) {
+          ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
+        }
+      });
+    return from(result);
 
   }
 
