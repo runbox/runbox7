@@ -274,6 +274,88 @@ describe('SearchService worker boundary', () => {
             runtime.FS = originalFileSystem;
         }
     });
+
+    it('keeps decoded download progress monotonic when an HTTP retry restarts', async () => {
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            null,
+            null,
+            null,
+            messageListService,
+            () => ({ postMessage: () => undefined } as unknown as Worker)
+        );
+        const internal = searchService as unknown as {
+            prepareWorkerForIndexReplacement: () => Promise<void>;
+            init: () => Promise<void>;
+            ensureDirectory: (path: string) => void;
+            syncFileSystem: (populate: boolean) => Promise<void>;
+            downloadIndexFile: (
+                url: string,
+                progress: (loaded: number) => void
+            ) => Promise<Uint8Array>;
+            downloadInitialMainPartition: (
+                manifest: NormalizedIndexManifest,
+                progress: (downloadedBytes: number) => void
+            ) => Promise<void>;
+        };
+        spyOn(internal, 'prepareWorkerForIndexReplacement').and.resolveTo();
+        spyOn(internal, 'init').and.resolveTo();
+        spyOn(internal, 'ensureDirectory');
+        spyOn(internal, 'syncFileSystem').and.resolveTo();
+        spyOn(searchService, 'updateIndexLastUpdateTime').and.returnValue(true);
+        let downloadCalls = 0;
+        spyOn(internal, 'downloadIndexFile').and.callFake(async (_url, progress) => {
+            downloadCalls++;
+            progress(downloadCalls === 1 ? 80 : 10);
+            if (downloadCalls === 1) {
+                throw new Error('download interrupted');
+            }
+            return new Uint8Array(25);
+        });
+        searchService.api = {
+            initXapianIndexReadOnly: () => undefined
+        } as unknown as XapianAPI;
+        const runtime = globalThis as unknown as {
+            FS?: { writeFile: () => void };
+        };
+        const originalFileSystem = runtime.FS;
+        runtime.FS = { writeFile: () => undefined };
+        const progress: number[] = [];
+        const manifest = {
+            partitions: [{
+                number: 0,
+                folder: 'downloadable',
+                numberOfMessages: 100,
+                files: []
+            }],
+            totalCompressedBytes: 10,
+            totalUncompressedBytes: 100,
+            totalMessages: 100
+        } as NormalizedIndexManifest;
+
+        try {
+            await expectAsync(internal.downloadInitialMainPartition(
+                manifest,
+                value => progress.push(value)
+            )).toBeRejectedWithError(/download interrupted/);
+            await internal.downloadInitialMainPartition(manifest, value => progress.push(value));
+        } finally {
+            runtime.FS = originalFileSystem;
+        }
+
+        expect(progress.every((value, index) =>
+            index === 0 || value >= progress[index - 1]
+        )).toBeTrue();
+        expect(progress[progress.length - 1]).toBe(100);
+    });
 });
 
 describe('SearchService', () => {

@@ -139,6 +139,7 @@ describe('IndexSyncCoordinator', () => {
       'periodic'
     ]);
     expect(baselines).toEqual([1234, 1234]);
+    expect(coordinator.state.value.totalBytes).toBe(300);
     expect(phases).toEqual([
       'discovering',
       'downloading-main',
@@ -568,6 +569,64 @@ describe('IndexSyncCoordinator', () => {
       index === 0 || value >= observedBytes[index - 1]
     )).toBeTrue();
     expect(coordinator.state.value.downloadedBytes).toBe(80);
+  });
+
+  it('keeps message counters monotonic when a recent retry restarts from zero', async () => {
+    let attempts = 0;
+    const observedFetched: number[] = [];
+    const observedCommitted: number[] = [];
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+      catchUpRecent: async (_baseline, finalizeWatermark, onChunk) => {
+        if (finalizeWatermark) {
+          return {
+            fetchedMessages: 0,
+            committedMessages: 0,
+            watermarkCandidate: 2000
+          };
+        }
+        attempts++;
+        const messages = attempts === 1 ? 100 : 10;
+        await onChunk({
+          ...chunk(messages),
+          fetchedMessages: messages,
+          cumulativeCommitted: messages
+        });
+        if (attempts === 1) {
+          throw new IndexSyncError({
+            operationId: 'sync-1',
+            phase: 'catching-up-recent',
+            page: 0,
+            partition: null,
+            attempt: attempts,
+            category: 'transport',
+            recoverable: true,
+            message: 'Recent synchronization interrupted'
+          });
+        }
+        return {
+          fetchedMessages: messages,
+          committedMessages: messages,
+          watermarkCandidate: 2000
+        };
+      }
+    }));
+    coordinator.state.subscribe(state => {
+      observedFetched.push(state.fetchedMessages);
+      observedCommitted.push(state.committedMessages);
+    });
+
+    await coordinator.start();
+
+    expect(observedFetched.every((value, index) =>
+      index === 0 || value >= observedFetched[index - 1]
+    )).toBeTrue();
+    expect(observedCommitted.every((value, index) =>
+      index === 0 || value >= observedCommitted[index - 1]
+    )).toBeTrue();
+    expect(coordinator.state.value).toEqual(jasmine.objectContaining({
+      fetchedMessages: 100,
+      committedMessages: 100
+    }));
   });
 
   it('does not restart message fetching when local publication fails', async () => {
