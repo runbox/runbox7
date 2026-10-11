@@ -134,8 +134,7 @@ describe('incremental index synchronization orchestration', () => {
 
   it('does not retry after cancellation wins during backoff', async () => {
     let attempts = 0;
-    let coordinator: IndexSyncCoordinator;
-    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
       catchUpRecent: async () => {
         attempts++;
         throw new IndexSyncError({
@@ -159,8 +158,7 @@ describe('incremental index synchronization orchestration', () => {
   });
 
   it('reports failed when cancellation cleanup cannot roll back storage', async () => {
-    let coordinator: IndexSyncCoordinator;
-    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
       downloadMainPartition: async () => coordinator.cancel(),
       discardIncompleteIndex: async () => {
         throw new Error('rollback failed');

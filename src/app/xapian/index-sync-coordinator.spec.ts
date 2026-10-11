@@ -494,8 +494,7 @@ describe('IndexSyncCoordinator', () => {
 
   it('does not start another retry after cancellation during backoff', async () => {
     let attempts = 0;
-    let coordinator: IndexSyncCoordinator;
-    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
       catchUpRecent: async () => {
         attempts++;
         throw new IndexSyncError({
@@ -519,8 +518,7 @@ describe('IndexSyncCoordinator', () => {
   });
 
   it('reports cancellation cleanup failure instead of successful cancellation', async () => {
-    let coordinator: IndexSyncCoordinator;
-    coordinator = new IndexSyncCoordinator('sync-1', dependencies({
+    const coordinator = new IndexSyncCoordinator('sync-1', dependencies({
       downloadMainPartition: async () => coordinator.cancel(),
       discardIncompleteIndex: async () => {
         throw new Error('cleanup blocked');
