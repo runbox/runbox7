@@ -357,27 +357,48 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   public toggleHtml(event) {
     event.preventDefault();
 
+    this.setHtmlView(this.showHTML ? 'Plain' : 'HTML');
+  }
+
+  public setHtmlView(viewMode: 'Plain' | 'HTML') {
+    if (viewMode === 'Plain') {
+      if (!this.showHTML) {
+        return;
+      }
+      this.savedAlways = false;
+      this.savedForThisSender = false;
+      this.showHTML = false;
+      return;
+    }
+
+    if (this.showHTML) {
+      return;
+    }
+
     this.savedAlways = false;
     this.savedForThisSender = false;
-    if (!this.showHTML) {
-      console.log(this.showHTMLDecision);
-      const decisionObservable = this.showHTMLDecision ?
-        of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
+    const decisionObservable = this.showHTMLDecision ?
+      of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
 
-      decisionObservable.subscribe(result => {
-        this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
-        this.showHTMLDecision = result;
-        this.showHTML = true;
-      });
-    } else {
-      this.showHTML = false;
-    }
+    decisionObservable.subscribe(result => {
+      this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
+      this.showHTMLDecision = result;
+      this.showHTML = true;
+    });
   }
 
   public showExternalImages(event) {
     event.preventDefault();
 
-    this.showImages = !this.showImages;
+    this.setExternalImages(!this.showImages);
+  }
+
+  public setExternalImages(showImages: boolean) {
+    if (this.showImages === showImages) {
+      return;
+    }
+
+    this.showImages = showImages;
     this.savedAlways = false;
     this.savedForThisSender = false;
     // turn on:
