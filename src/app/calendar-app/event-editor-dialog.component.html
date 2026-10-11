@@ -79,12 +79,12 @@
           </ng-container>
         </p>
         <ng-container *ngIf="recurring_frequency === 'MONTHLY' || recurring_frequency === 'YEARLY'" style="margin-top: 10px;display: flex;">
-          <p style="display: flex; justify-content: space-between; align-items: center;">
+          <p class="calendarRecurrenceRuleRow">
             on the
-            <mat-select style="width:auto;" (selectionChange)="updateMonthlyNth($event)" [(value)]="recur_by_monthyeardays" multiple [disabled]="!event_recurs">
+            <mat-select class="calendarRecurrenceNthSelect" (selectionChange)="updateMonthlyNth($event)" [(value)]="recur_by_monthyeardays" multiple [disabled]="!event_recurs">
               <mat-option *ngFor="let mnthday of month_year_days" [value]="mnthday.val" ngDefaultControl>{{ mnthday.name }}</mat-option>
             </mat-select>
-            <mat-select style="width:auto;" (selectionChange)="updateWeekday($event)" [(value)]="recur_by_weekdays" multiple [disabled]="!event_recurs">
+            <mat-select class="calendarRecurrenceWeekdaySelect" (selectionChange)="updateWeekday($event)" [(value)]="recur_by_weekdays" multiple [disabled]="!event_recurs">
               <mat-option value="day">day</mat-option>
               <mat-option *ngFor="let wday of weekdays"[value]="wday.val" ngDefaultControl>{{ wday.name }}</mat-option>
             </mat-select>
@@ -93,7 +93,7 @@
             </span>
             <span *ngIf="recurring_frequency === 'YEARLY'">
               of
-              <mat-select style="width:auto;" (selectionChange)="updateMonths($event)" [(value)]="recur_by_months" multiple [disabled]="!event_recurs">
+              <mat-select class="calendarRecurrenceMonthSelect" (selectionChange)="updateMonths($event)" [(value)]="recur_by_months" multiple [disabled]="!event_recurs">
                 <mat-option *ngFor="let month of year_months" [value]="month.val" ngDefaultControl>{{ month.name }}</mat-option>
               </mat-select>
           </span>
