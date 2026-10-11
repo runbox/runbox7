@@ -279,6 +279,30 @@ END:VCALENDAR
         expect(events.length).toBe(1, 'events are back on the screen');
     });
 
+    it('should show an add event action in week and day views', () => {
+        spyOn(component, 'addEvent');
+        fixture.detectChanges();
+
+        expect(fixture.debugElement.nativeElement.querySelector('button#addEventInViewButton'))
+            .toBeFalsy('month view already has per-day add event buttons');
+
+        component.setView(component.RunboxCalendarView.Week);
+        fixture.detectChanges();
+        let addEventButton = fixture.debugElement.nativeElement.querySelector('button#addEventInViewButton');
+        expect(addEventButton).toBeTruthy('week view has an add event action');
+
+        addEventButton.click();
+        expect(component.addEvent).toHaveBeenCalledOnceWith(component.viewDate);
+
+        component.setView(component.RunboxCalendarView.Day);
+        fixture.detectChanges();
+        addEventButton = fixture.debugElement.nativeElement.querySelector('button#addEventInViewButton');
+        expect(addEventButton).toBeTruthy('day view has an add event action');
+
+        addEventButton.click();
+        expect(component.addEvent).toHaveBeenCalledWith(component.viewDate);
+    });
+
     it('should display recurring events', () => {
         mockData['events'] = recurringEvents;
         component.calendarservice.syncCaldav(true);
