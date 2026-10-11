@@ -66,6 +66,7 @@ export class ContactDetailsComponent {
 
     contactIcon: string;
     avatarSource: string;
+    isSaving = false;
 
     contactIsDragged = false;
     memberIsDragged  = false;
@@ -276,7 +277,12 @@ export class ContactDetailsComponent {
     newUrl():      void { this.addFGtoFA(this.createEmailFG([]), 'urls');      }
     newRelative(): void { this.addFGtoFA(this.createEmailFG([]), 'related');   }
 
-    save(): void {
+    save(): Promise<void> {
+        if (this.isSaving) {
+            return Promise.resolve();
+        }
+
+        this.isSaving = true;
         for (const name of Object.keys(this.contactForm.controls)) {
             const ctl = this.contactForm.get(name);
             if (ctl.dirty) {
@@ -293,11 +299,13 @@ export class ContactDetailsComponent {
             this.contact.members = this.groupMembers;
         }
         console.log('Saving contact:', this.contact);
-        this.contactsservice.saveContact(this.contact).then(
-            id => this.router.navigateByUrl('/contacts/' + id)
-        ).catch(err => {
+        return this.contactsservice.saveContact(this.contact).then(async id => {
+            await this.router.navigateByUrl('/contacts/' + id);
+        }).catch(err => {
             console.error(err);
-            return this.snackBar.open(err.message, 'Ok');
+            this.snackBar.open(err.message, 'Ok');
+        }).finally(() => {
+            this.isSaving = false;
         });
     }
 
