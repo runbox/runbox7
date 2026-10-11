@@ -210,6 +210,70 @@ describe('SearchService worker boundary', () => {
             totalMessages: 0
         }, () => undefined)).toBeRejectedWith(readinessFailure);
     });
+
+    it('routes bursty legacy updates through one serialized follow-up publication', async () => {
+        const fakeWorker = {
+            onmessage: null,
+            onerror: null,
+            postMessage: () => undefined
+        } as unknown as Worker;
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER,
+            refreshFolderList: () => undefined
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            null,
+            null,
+            null,
+            messageListService,
+            () => fakeWorker
+        );
+        const internal = searchService as unknown as {
+            rehydratePublishedLocalIndex: () => Promise<void>;
+        };
+        let releaseFirst: () => void;
+        let markSecondStarted: () => void;
+        const firstGate = new Promise<void>(resolve => releaseFirst = resolve);
+        const secondStarted = new Promise<void>(resolve => markSecondStarted = resolve);
+        const rehydrate = spyOn(internal, 'rehydratePublishedLocalIndex')
+            .and.callFake(async () => {
+                if (rehydrate.calls.count() === 1) {
+                    await firstGate;
+                } else {
+                    markSecondStarted();
+                }
+            });
+        const runtime = globalThis as unknown as {
+            FS?: { syncfs: (populate: boolean, done: () => void) => void };
+        };
+        const originalFileSystem = runtime.FS;
+        runtime.FS = { syncfs: (_populate, done) => done() };
+        searchService.api = {
+            reloadXapianDatabase: () => undefined
+        } as XapianAPI;
+
+        try {
+            searchService.indexUpdatedSubject.next(undefined);
+            searchService.indexUpdatedSubject.next(undefined);
+            searchService.indexUpdatedSubject.next(undefined);
+            expect(rehydrate).toHaveBeenCalledTimes(1);
+            if (rehydrate.calls.count() !== 1) {
+                return;
+            }
+
+            releaseFirst();
+            await secondStarted;
+            expect(rehydrate).toHaveBeenCalledTimes(2);
+        } finally {
+            runtime.FS = originalFileSystem;
+        }
+    });
 });
 
 describe('SearchService', () => {

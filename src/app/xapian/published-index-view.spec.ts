@@ -69,4 +69,33 @@ describe('published index view', () => {
       'fallback'
     ]);
   });
+
+  it('falls back and rejects when a historical partition cannot be opened', async () => {
+    const timeline: string[] = [];
+    const failure = new Error('invalid historical partition');
+
+    await expectAsync(rehydratePublishedIndexView({
+      close: () => timeline.push('close'),
+      removeLocalCopy: () => timeline.push('remove-local'),
+      populate: async () => {
+        timeline.push('populate');
+      },
+      openMainPartition: () => timeline.push('open-main'),
+      openHistoricalPartitions: () => {
+        timeline.push('open-history');
+        throw failure;
+      },
+      activate: () => timeline.push('activate'),
+      fallback: () => timeline.push('fallback')
+    })).toBeRejectedWith(failure);
+
+    expect(timeline).toEqual([
+      'close',
+      'remove-local',
+      'populate',
+      'open-main',
+      'open-history',
+      'fallback'
+    ]);
+  });
 });
