@@ -58,6 +58,7 @@ import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
 import { INDEX_WORKER_FACTORY, IndexWorkerFactory } from './index-worker.factory';
 import { IndexWorkerClient } from './index-worker-client';
+import { IndexPublicationQueue } from './index-publication-queue';
 import { normalizeIndexManifest } from './index-sync-manifest';
 import { canStartInitialSync } from './initial-sync-start-policy';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
@@ -119,6 +120,9 @@ export class SearchService {
 
   public localSearchActivated = false;
   private initializationReady: Promise<void> = null;
+  private readonly publicationQueue = new IndexPublicationQueue({
+    rehydrate: () => this.rehydratePublishedLocalIndex()
+  });
   public downloadProgress: number = null;
   partitionDownloadProgress: number = null;
 
@@ -323,16 +327,9 @@ export class SearchService {
       });
 
     this.indexUpdatedSubject.subscribe(() => {
-      FS.syncfs(true, () => {
-          // console.log('Main: Syncd files:');
-          // console.log(FS.stat(XAPIAN_GLASS_WR));
-          // FS.readdir(this.partitionsdir).forEach((f) => {
-            // console.log(`${f}`);
-            // console.log(FS.stat(`${this.partitionsdir}/${f}`));
-          // });
-        this.api.reloadXapianDatabase();
-        this.indexReloadedSubject.next(undefined);
-      });
+      void this.publicationQueue.publish('legacy').catch(error =>
+        console.error('Unable to publish a worker index update', error)
+      );
     });
     this.indexReloadedSubject.subscribe(() => {
       // console.log('searchservice updating folderCounts');
@@ -494,7 +491,7 @@ export class SearchService {
     return this.initializationReady;
   }
 
-  private openStoredPartitions() {
+  private openStoredPartitions(strict = false) {
     try {
       FS.readdir(this.partitionsdir).forEach((f) => {
         if ( f !== '.' && f !== '..' &&
@@ -505,6 +502,9 @@ export class SearchService {
         }
       });
     } catch (e) {
+      if (strict) {
+        throw e;
+      }
       console.error(e);
     }
   }
@@ -783,21 +783,20 @@ export class SearchService {
   }
 
   private async publishInitialLocalIndex(): Promise<void> {
-    await this.rehydratePublishedLocalIndex();
-    this.messagelistservice.refreshFolderList();
+    await this.publicationQueue.publish('acknowledged');
   }
 
   private async reloadPublishedLocalIndex(): Promise<void> {
-    await this.rehydratePublishedLocalIndex();
+    await this.publicationQueue.publish('acknowledged');
   }
 
-  private rehydratePublishedLocalIndex(): Promise<void> {
-    return rehydratePublishedIndexView({
+  private async rehydratePublishedLocalIndex(): Promise<void> {
+    await rehydratePublishedIndexView({
       close: () => this.api.closeXapianDatabase(),
       removeLocalCopy: () => this.removeLocalMainPartition(),
       populate: () => this.syncFileSystem(true),
       openMainPartition: () => this.openStoredMainPartition(),
-      openHistoricalPartitions: () => this.openStoredPartitions(),
+      openHistoricalPartitions: () => this.openStoredPartitions(true),
       activate: () => {
         this.localSearchActivated = true;
       },
@@ -806,6 +805,7 @@ export class SearchService {
         this.messagelistservice.fetchFolderMessages();
       }
     });
+    this.indexReloadedSubject.next(undefined);
   }
 
   private removeLocalMainPartition(): void {
