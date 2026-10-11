@@ -24,17 +24,21 @@ describe('Profiles settings page', () => {
 
         // open dialog, fill in fields, submit
         cy.get('app-profiles-edit').should('be.visible');
-        cy.get('input[name="email"]').type('newprof@runbox.com');
+        cy.get('input[name="email"]').type('newprof+tag@runbox.com');
         cy.get('input[name="from"]').type('My Name');
         cy.get('input[name="name"]').type('My Profile');
         cy.get('textarea[name="signature"]').type('My Sig');
 
-        cy.intercept('POST', '/rest/v1/profile', {
-            statusCode: 200,
-            body: {
-                status: 'success',
-                result: {id: 1}
-            }
+        cy.intercept('POST', '/rest/v1/profile', (req) => {
+            expect(req.body.email).to.equal('newprof+tag@runbox.com');
+            expect(req.body.type).to.equal('external_email');
+            req.reply({
+                statusCode: 200,
+                body: {
+                    status: 'success',
+                    result: {id: 1}
+                }
+            });
         }).as('postProfile');
         cy.get('button#save').click();
         cy.wait('@postProfile');

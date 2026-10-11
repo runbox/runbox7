@@ -40,6 +40,7 @@ describe('Identity', () => {
 
 describe('ProfileService', () => {
     let service: ProfileService;
+    let createdProfile: Partial<Identity>;
 
     const DEFAULT_EMAIL = 'a2@example.com';
     const PROFILES =        [{
@@ -137,6 +138,7 @@ describe('ProfileService', () => {
     const ALLOWED_DOMAINS = ['runbox.com', 'example.com'];
 
     beforeEach(waitForAsync(() => {
+        createdProfile = null;
         TestBed.configureTestingModule({
             imports: [
                 HttpClientTestingModule,
@@ -146,6 +148,7 @@ describe('ProfileService', () => {
                     me: of({first_name: 'Test', last_name: 'User'}),
                     getProfiles: () => of(PROFILES),
                     createProfile: (newprofile) => {
+                        createdProfile = newprofile;
                         newprofile['reference_type'] = 'aliases';
                         PROFILES.unshift(newprofile);
                         return of(PROFILES.length);
@@ -190,12 +193,15 @@ describe('ProfileService', () => {
 
     it('adds a new profile on create', (done) => {
         service.create({ name: 'New Profile Name',
-                         email: 'newp@runbox.com',
+                         email: 'newp+tag@runbox.com',
                          from_name: 'New Profile',
                          signature: 'My sig'})
             .subscribe((res) => {
                 expect(res).toBeTruthy();
-                expect(PROFILES.length).toBe(PROFILES.length);
+                expect(createdProfile).toEqual(jasmine.objectContaining({
+                    email: 'newp+tag@runbox.com',
+                    type: 'external_email'
+                }));
                 done();
             });
                              
