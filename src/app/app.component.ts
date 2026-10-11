@@ -76,6 +76,13 @@ const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
+const FOLDER_HAS_RULE_MESSAGE = 'folder_has_rule';
+
+export function isFolderDeleteBlockedByRule(response: unknown): boolean {
+  const deleteResponse = response as { status?: string, result?: { msg?: string } };
+  return deleteResponse?.status === 'success'
+    && deleteResponse?.result?.msg === FOLDER_HAS_RULE_MESSAGE;
+}
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -569,7 +576,18 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
   deleteFolder(folderId: number) {
     this.rmmapi.deleteFolder(folderId).subscribe(
-      () => this.messagelistservice.refreshFolderList()
+      res => {
+        if (isFolderDeleteBlockedByRule(res)) {
+          const snackbarRef = this.snackBar.open(
+            'Folder cannot be deleted while a filter rule saves mail to it. Remove the rule first, then try again.',
+            'Open filters'
+          );
+          snackbarRef.onAction().subscribe(() => window.open('/mail/rules', 'rmm6'));
+          return;
+        }
+
+        this.messagelistservice.refreshFolderList();
+      }
     );
   }
 
