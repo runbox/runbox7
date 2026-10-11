@@ -19,7 +19,7 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxDomain, RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 export interface FromPriority {
     from_priority: number;
@@ -69,13 +69,21 @@ export class ProfileService {
     public validProfiles: BehaviorSubject<Identity[]> = new BehaviorSubject([]);
     public composeProfile: Identity;
     public me: RunboxMe;
-    public global_domains = [];
+    public meSubject: BehaviorSubject<RunboxMe | null> = new BehaviorSubject(null);
+    public global_domains: RunboxDomain[] = [];
+    public globalDomains: BehaviorSubject<RunboxDomain[]> = new BehaviorSubject([]);
     constructor(
         public rmmapi: RunboxWebmailAPI
     ) {
         this.refresh();
-        this.rmmapi.getRunboxDomains().subscribe(domains => this.global_domains = domains);
-        this.rmmapi.me.subscribe(me => this.me = me);
+        this.rmmapi.getRunboxDomains().subscribe(domains => {
+            this.global_domains = domains;
+            this.globalDomains.next(domains);
+        });
+        this.rmmapi.me.subscribe(me => {
+            this.me = me;
+            this.meSubject.next(me);
+        });
     }
 
     refresh() {

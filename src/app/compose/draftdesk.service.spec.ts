@@ -430,9 +430,15 @@ describe('DraftDeskService', () => {
         // Mock ProfileService
         mockProfileService = {
             validProfiles: new BehaviorSubject([
-                Identity.fromObject({ email: 'test@runbox.com', name: 'Test User' })
+                Identity.fromObject({ email: 'test@runbox.com', name: 'Test User', type: 'main' })
             ]),
-            composeProfile: Identity.fromObject({ email: 'test@runbox.com', name: 'Test User' })
+            composeProfile: Identity.fromObject({ email: 'test@runbox.com', name: 'Test User', type: 'main' }),
+            globalDomains: new BehaviorSubject([
+                { id: 1, name: 'runbox.com' },
+                { id: 2, name: 'rbx.email' }
+            ]),
+            me: { uid: 42, username: 'testuser' },
+            meSubject: new BehaviorSubject({ uid: 42, username: 'testuser' })
         };
 
         // Mock HttpClient
@@ -474,6 +480,87 @@ describe('DraftDeskService', () => {
                 expect(froms[0].email).toBe('test@runbox.com');
                 done();
             });
+        });
+
+        it('should include Runbox global domain addresses for the username identity', () => {
+            const froms = draftDeskService.fromsSubject.value;
+
+            expect(froms.map(from => from.email)).toContain('testuser@runbox.com');
+            expect(froms.map(from => from.email)).toContain('testuser@rbx.email');
+        });
+
+        it('should update Runbox global domain addresses when the username loads', () => {
+            const meSubject = new BehaviorSubject(null);
+            mockProfileService.meSubject = meSubject;
+            draftDeskService = new DraftDeskService(
+                mockRmmapi,
+                mockMessageListService,
+                mockProfileService,
+                mockHttp
+            );
+
+            expect(draftDeskService.fromsSubject.value.map(from => from.email)).toContain('test@rbx.email');
+
+            meSubject.next({ uid: 42, username: 'testuser' });
+
+            const emails = draftDeskService.fromsSubject.value.map(from => from.email);
+            expect(emails).toContain('testuser@rbx.email');
+            expect(emails).not.toContain('test@rbx.email');
+        });
+
+        it('should include Runbox global domain addresses for Runbox aliases', () => {
+            mockProfileService.validProfiles.next([
+                Identity.fromObject({ email: 'test@runbox.com', type: 'main' }),
+                Identity.fromObject({ email: 'sales@runbox.com', type: 'aliases' })
+            ]);
+
+            const emails = draftDeskService.fromsSubject.value.map(from => from.email);
+
+            expect(emails).toContain('sales@rbx.email');
+            expect(emails.filter(email => email === 'sales@runbox.com').length).toBe(1);
+        });
+
+        it('should not generate Runbox global domain addresses for virtual domain aliases', () => {
+            mockProfileService.validProfiles.next([
+                Identity.fromObject({ email: 'test@runbox.com', type: 'main' }),
+                Identity.fromObject({
+                    email: 'sales@example.com',
+                    type: 'aliases',
+                    reference: {
+                        virtual_domainid: 16,
+                        virtual_domain: { name: 'example.com' }
+                    }
+                })
+            ]);
+
+            const emails = draftDeskService.fromsSubject.value.map(from => from.email);
+
+            expect(emails).toContain('sales@example.com');
+            expect(emails).not.toContain('sales@runbox.com');
+            expect(emails).not.toContain('sales@rbx.email');
+        });
+
+        it('should reply from the Runbox global domain address that received the message', () => {
+            const draft = DraftFormModel.reply({
+                headers: {
+                    'message-id': 'themessageid12123abcdef',
+                },
+                from: [
+                    {address: 'from@runbox.com', name: 'From'}
+                ],
+                to: [
+                    {address: 'testuser@rbx.email', name: 'Test User'}
+                ],
+                date: new Date(2017, 6, 1),
+                subject: 'Test subject',
+                text: 'blabla',
+                rawtext: 'blabla',
+                html: '<p>blabla</p>'
+            },
+            draftDeskService.fromsSubject.value,
+            false, false);
+
+            expect(draft.from).toBe('testuser@rbx.email');
         });
 
         it('should emit new draftModels when drafts are added', async () => {
