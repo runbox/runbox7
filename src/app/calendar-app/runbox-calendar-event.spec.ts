@@ -275,6 +275,48 @@ describe('RunboxCalendarEvent', () => {
         expect(sut.toIcal()).toContain('DTSTART:20210201T100000');
     });
 
+    it('should update all recurring event times from a later occurrence', () => {
+        const sut = new RunboxCalendarEvent(
+            'testcal/unittestcase-all-times', new ICAL.Event(new ICAL.Component([
+                'vevent', [
+                  [ 'dtstart', {}, 'date-time',  '2021-01-25T09:00:00' ],
+                  [ 'dtend',   {}, 'date-time',  '2021-01-25T10:00:00' ],
+                  [ 'summary', {}, 'text',  'Weekly event' ],
+                  [ 'uid',     {}, 'text',  'unittestcase-all-times' ],
+                  [ 'rrule',   {}, 'recur', {
+                      'freq': 'WEEKLY',
+                      'byhour': [9],
+                      'byminute': [0],
+                      'bysecond': [0],
+                  } ],
+                ]
+            ])),
+            ICAL.Time.fromDateTimeString('2021-02-01T09:00:00'),
+            ICAL.Time.fromDateTimeString('2021-02-01T10:00:00'),
+            'Europe/London'
+        );
+
+        sut.updateEvent(
+            moment('2021-02-01T10:00:00'),
+            moment('2021-02-01T11:00:00'),
+            false,
+            sut.calendar,
+            RecurSaveType.ALL_OCCURENCES,
+            'Weekly event', undefined, undefined,
+            true,
+            sut.recurringFrequency,
+            sut.recurInterval,
+            ['MO'], [], [],
+        );
+
+        expect(sut.toIcal()).toContain('DTSTART:20210125T100000');
+        expect(sut.toIcal()).toContain('DTEND:20210125T110000');
+        expect(sut.toIcal()).toContain('BYHOUR=10');
+        expect(sut.toIcal()).toContain('BYMINUTE=0');
+        expect(sut.toIcal()).toContain('BYSECOND=0');
+        expect(sut.toIcal()).not.toContain('RECURRENCE-ID');
+    });
+
     it('should be possible to add a special case to a recurring event (with timezone)', () => {
          // mostly taken straight out of the jCal spec: https://tools.ietf.org/html/rfc7265#page-30
       const jcal = ICAL.parse(

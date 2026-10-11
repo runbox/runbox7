@@ -454,6 +454,62 @@ export class RunboxCalendarEvent implements CalendarEvent {
         // regenerate this.event to sort out the exceptions/recurrences?
     }
 
+    private isEditingRecurrenceStart(): boolean {
+        return this._dtstart.toJSDate().toString() === this.recurStart.toString();
+    }
+
+    private keepRecurrenceDateWithSelectedTime(base: ICAL.Time, selected: ICAL.Time): ICAL.Time {
+        const updated = base.clone();
+        updated.hour = selected.hour;
+        updated.minute = selected.minute;
+        updated.second = selected.second;
+        updated.isDate = selected.isDate;
+        updated.zone = selected.zone;
+        return updated;
+    }
+
+    private updateBaseRecurringEventTime(dtstart: moment.Moment, dtend: moment.Moment): void {
+        const selectedStart = this.momentToIcalTime(
+            dtstart,
+            this.event.startDate ? this.event.startDate.zone : null
+        );
+        const baseStart = this.keepRecurrenceDateWithSelectedTime(this.event.startDate, selectedStart);
+
+        this._dtstart = baseStart;
+        this.event.startDate = baseStart;
+
+        if (dtend) {
+            const selectedEnd = this.momentToIcalTime(
+                dtend,
+                this.event.endDate ? this.event.endDate.zone : selectedStart.zone
+            );
+            const baseEnd = baseStart.clone();
+            baseEnd.addDuration(selectedEnd.subtractDate(selectedStart));
+            baseEnd.isDate = selectedEnd.isDate;
+
+            this._dtend = baseEnd;
+            this.event.endDate = baseEnd;
+        }
+    }
+
+    private updateRecurringRuleTime(start: ICAL.Time): void {
+        const recur = this.event.component.getFirstPropertyValue('rrule');
+        if (!recur || start.isDate) {
+            return;
+        }
+
+        if (recur.getComponent('byhour').length) {
+            recur.setComponent('byhour', [start.hour]);
+        }
+        if (recur.getComponent('byminute').length) {
+            recur.setComponent('byminute', [start.minute]);
+        }
+        if (recur.getComponent('bysecond').length) {
+            recur.setComponent('bysecond', [start.second]);
+        }
+        this.event.component.updatePropertyWithValue('rrule', recur);
+    }
+
     // set values from edit dialog, inc logic for recurring
     // parts + exception creation.
     updateEvent(
@@ -484,8 +540,14 @@ export class RunboxCalendarEvent implements CalendarEvent {
                 location);
         } else {
             this._allDay     = allDay;
-            this.dtstart     = dtstart;
-            this.dtend       = dtend;
+            if (this.recurs
+                && recur_save_type === RecurSaveType.ALL_OCCURENCES
+                && !this.isEditingRecurrenceStart()) {
+                this.updateBaseRecurringEventTime(dtstart, dtend);
+            } else {
+                this.dtstart = dtstart;
+                this.dtend   = dtend;
+            }
             this.calendar    = calendar;
             if (title) {
                 this.title       = title;
@@ -550,6 +612,7 @@ export class RunboxCalendarEvent implements CalendarEvent {
                         }
                     }
                 }
+                this.updateRecurringRuleTime(this.event.startDate);
             }
         }
     }
