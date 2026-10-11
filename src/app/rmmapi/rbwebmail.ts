@@ -126,6 +126,23 @@ export class RunboxMe {
     }
 }
 
+export interface LoginInfo {
+    service: string;
+    login: string;
+    ip: string;
+    hostname?: string;
+    created: string;
+    success: number | string | boolean;
+}
+
+export function getPreviousSuccessfulLogin(logins: LoginInfo[]): LoginInfo | null {
+    const successfulLogins = (logins || []).filter(login =>
+        login.success === 1 || login.success === '1' || login.success === true
+    );
+
+    return successfulLogins.length > 1 ? successfulLogins[1] : null;
+}
+
 export class MessageTextpart {
     type: string;
     textAsHtml: string;
@@ -339,6 +356,22 @@ export class RunboxWebmailAPI {
 
     public updateLastOn(): Observable<any> {
         return this.http.put('/rest/v1/last_on', {});
+    }
+
+    public getLastLogins(params: { [param: string]: string | number | boolean } = {}): Observable<LoginInfo[]> {
+        const queryParams = new URLSearchParams();
+        Object.keys(params).forEach((key) => {
+            const value = params[key];
+            if (value !== undefined && value !== null && value !== '') {
+                queryParams.set(key, String(value));
+            }
+        });
+        const queryString = queryParams.toString();
+        const url = '/rest/v1/acl/logins' + (queryString ? '?' + queryString : '');
+
+        return this.http.get(url).pipe(
+            map((res: any) => res.status === 'success' ? (res.last_logins || []) : [])
+        );
     }
 
     public listDeletedMessagesSince(sincechangeddate: Date): Observable<number[]> {
