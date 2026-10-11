@@ -60,10 +60,10 @@ import { CalendarEventCardComponent } from './calendar-event-card.component';
 
 // See https://momentjs.com/docs/#/displaying/format/
 export const MOMENT_FORMATS = {
-    parseInput: 'l LT',
-    fullPickerInput: 'l LT',
+    parseInput: 'l HH:mm',
+    fullPickerInput: 'l HH:mm',
     datePickerInput: 'l',
-    timePickerInput: 'LT',
+    timePickerInput: 'HH:mm',
     monthYearLabel: 'MMM YYYY',
     dateA11yLabel: 'LL',
     monthYearA11yLabel: 'MMMM YYYY',
