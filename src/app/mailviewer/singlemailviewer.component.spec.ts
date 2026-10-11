@@ -231,6 +231,47 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('can switch opened message sent time between local and origin time', () => {
+    interface ProcessedMail {
+      date: Date;
+      dateOriginTimezone: string;
+    }
+
+    const mail = (component as unknown as {
+      processMessageContents(messageContents: MessageContents): ProcessedMail;
+    }).processMessageContents(Object.assign(new MessageContents(), {
+      headers: {
+        from: {
+          value: [{ address: 'sender@example.com', name: 'Sender' }]
+        },
+        date: '2024-01-02T09:30:00.000+02:30',
+        subject: 'Time zone test'
+      },
+      text: {
+        text: 'body',
+        html: null,
+        textAsHtml: 'body'
+      },
+      attachments: [],
+      sanitized_html: '',
+      sanitized_html_without_images: ''
+    }));
+
+    component.mailObj = mail;
+
+    expect(mail.date.getTime()).toBe(new Date('2024-01-02T09:30:00.000+02:30').getTime());
+    expect(mail.dateOriginTimezone).toBe('+0230');
+    expect(component.messageDateModeLabel).toBe('Local time');
+    expect(component.messageDateFormat).toBe('yyyy-MM-dd HH:mm');
+    expect(component.messageDateTimezone).toBeUndefined();
+
+    component.toggleMessageDateMode();
+
+    expect(component.messageDateModeLabel).toBe('Origin time');
+    expect(component.messageDateFormat).toBe('yyyy-MM-dd HH:mm ZZZZZ');
+    expect(component.messageDateTimezone).toBe('+0230');
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
