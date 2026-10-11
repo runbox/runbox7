@@ -406,6 +406,7 @@
 	<app-multiple-search-fields-input
           *ngIf="showMultipleSearchFields && searchService.downloadProgress===null"
           [currentFolder]="selectedFolder"
+          [searchExpression]="searchText"
           (close)="showMultipleSearchFields = false"
           (searchexpression)="searchFor($event)">
         </app-multiple-search-fields-input>
