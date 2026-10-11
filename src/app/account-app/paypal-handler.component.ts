@@ -19,6 +19,7 @@
 
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { combineLatest, take } from 'rxjs';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CartService } from './cart.service';
 
@@ -38,12 +39,21 @@ export class PaypalHandlerComponent {
         private route:  ActivatedRoute,
         private router: Router,
     ) {
-        // TODO: this assumes /paypal/confirm. We should handle /paypal/cancel too
-        this.route.queryParams.subscribe(params => {
+        combineLatest([this.route.params, this.route.queryParams]).pipe(take(1)).subscribe(([routeParams, params]) => {
+            if (routeParams['action'] !== 'confirm') {
+                this.router.navigateByUrl('/account/cart');
+                return;
+            }
+
             // yes, the capitalization of params is inconsistent
             // there's not typo: it's just Paypal :)
             const payment_id = params['paymentId'];
             const payer_id   = params['PayerID'];
+            if (!payment_id || !payer_id) {
+                this.router.navigateByUrl('/account/cart');
+                return;
+            }
+
             this.rmmapi.confirmPaypalPayment(payment_id, payer_id).subscribe(res => {
                 console.log(res);
                 this.cart.clear();
