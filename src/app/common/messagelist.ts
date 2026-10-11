@@ -19,6 +19,7 @@
 
 import { MessageDisplay } from '../common/messagedisplay';
 import { MessageInfo } from './messageinfo';
+import { MailAddressInfo } from './mailaddressinfo';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
@@ -60,6 +61,22 @@ export class MessageList extends MessageDisplay {
       rowobj.to[0].name ? rowobj.to[0].name :
       rowobj.to[0].address :
     '';
+  }
+
+  getRecipientColumnValueForRow(rowIndex: number): string {
+    const rowobj = this.rows[rowIndex];
+    return this.formatRecipientAddresses([].concat(rowobj.to || [], rowobj.cc || []));
+  }
+
+  private formatRecipientAddresses(recipients: MailAddressInfo[]): string {
+    return recipients
+      .map((mailAddr) => mailAddr.address || mailAddr.nameAndAddress || '')
+      .filter((address) => address.length > 0)
+      .join(', ');
+  }
+
+  private shouldShowRecipientColumn(app: { displayRecipientColumn: boolean; selectedFolder: string }): boolean {
+    return app.displayRecipientColumn && app.selectedFolder.indexOf('Sent') !== 0;
   }
 
   // filter visible rows by whatever options the frontend has
@@ -154,6 +171,18 @@ export class MessageList extends MessageDisplay {
         tooltipText: 'Flagged'
       }
     ];
+
+    if (this.shouldShowRecipientColumn(app)) {
+      columns.splice(3, 0, {
+        name: 'Recipient',
+        cacheKey: 'recipient',
+        sortColumn: null,
+        rowWrapModeHidden: true,
+        getValue: (rowIndex: number): string => this.getRecipientColumnValueForRow(rowIndex),
+        draggable: true,
+        width: 220
+      });
+    }
 
     return columns;
   }
