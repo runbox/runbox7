@@ -347,6 +347,17 @@
                 Inline previews
               </mat-checkbox>
             </mat-list-item>
+            <mat-list-item>
+              <mat-checkbox [(ngModel)]="showFromEmailColumn"
+                            matLine
+                            (change)="saveFromEmailColumnSetting()"
+                            (click)="$event.stopPropagation()"
+                            class="tableViewOptionsMenuElement"
+                            >
+                <mat-icon  svgIcon="email" class="tableViewOptionsMenuElement" matTooltip="Show sender email address"></mat-icon>
+                Sender email
+              </mat-checkbox>
+            </mat-list-item>
             <!-- currently only supporting threading for local index -->
             <mat-list-item>
               <mat-checkbox [(ngModel)]="conversationGroupingCheckbox"
