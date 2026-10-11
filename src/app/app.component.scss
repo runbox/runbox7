@@ -10,6 +10,19 @@
     vertical-align: middle !important;
 }
 
+.messageListLastUpdated {
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 12px;
+    margin-left: 8px;
+    white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+    .messageListLastUpdated {
+        display: none;
+    }
+}
+
 .contextToolButtonsRegular {
     position: absolute;
     display: flex;

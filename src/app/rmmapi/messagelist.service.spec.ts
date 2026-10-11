@@ -20,7 +20,7 @@
 import { MessageListService } from './messagelist.service';
 import { FolderListEntry } from '../common/folderlistentry';
 
-import { Subject, Observable, AsyncSubject, firstValueFrom } from 'rxjs';
+import { Subject, Observable, AsyncSubject, firstValueFrom, of } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
 describe('MessageListService', () => {
@@ -75,6 +75,30 @@ describe('MessageListService', () => {
                 expect(Array.isArray(messages)).toBe(true);
                 done();
             });
+        });
+
+        it('lastUpdatedSubject should emit when folder messages are fetched', (done) => {
+            const msglistservice = new MessageListService({
+                messageFlagChangeSubject: new Subject(),
+                getFolderList: () => new Observable(),
+                listAllMessages: () => of([
+                    {
+                        id: 123,
+                        folder: 'Inbox',
+                        deletedFlag: false,
+                    }
+                ])
+            } as any);
+
+            msglistservice.lastUpdatedSubject.pipe(
+                filter(lastUpdated => lastUpdated !== null),
+                take(1)
+            ).subscribe(lastUpdated => {
+                expect(lastUpdated instanceof Date).toBe(true);
+                done();
+            });
+
+            msglistservice.fetchFolderMessages(true);
         });
 
         it('folderListSubject should update when folders are loaded', (done) => {

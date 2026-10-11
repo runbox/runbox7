@@ -242,6 +242,12 @@
               <mat-icon svgIcon="close"></mat-icon>
             </button>
           </mat-form-field>
+          <span
+            class="messageListLastUpdated"
+            *ngIf="messagelistservice.lastUpdatedSubject | async as lastUpdated"
+            matTooltip="Last message list update">
+            Last updated: {{ lastUpdated | date:'HH:mm:ss' }}
+          </span>
         </ng-template>
 	    
         <button mat-icon-button (click)="updateViewMode('conversations')" *ngIf="!searchtextfieldfocused && viewmode==='singleconversation'"
