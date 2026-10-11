@@ -566,7 +566,10 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     res.sanitized_html = this.expandAttachmentData(res.attachments, res.sanitized_html);
     res.visible_attachment_count = res.attachments.filter((att) => !att.internal).length;
 
-    res.sanitized_html_without_images = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
+    const sanitizedHtmlWithoutImages = this.expandAttachmentData(res.attachments, res.sanitized_html_without_images);
+    res.sanitized_html_without_images = res.sanitized_html
+      ? this.removeExternalImages(res.attachments, res.sanitized_html)
+      : sanitizedHtmlWithoutImages;
 
     // Remove style tag otherwise angular sanitazion will display style tag content as text
 
@@ -661,6 +664,33 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
     }
     return html;
+  }
+
+  private removeExternalImages(attachments: Array<{ internal?: boolean; downloadURL?: string }>, html: string): string {
+    const internalImageSources = new Set(
+      attachments
+        .filter((att) => att.internal && att.downloadURL)
+        .map((att) => att.downloadURL)
+    );
+    const parsedDocument = new DOMParser().parseFromString(html, 'text/html');
+
+    parsedDocument.body.querySelectorAll('img').forEach((img) => {
+      const src = img.getAttribute('src');
+      if (!src || !internalImageSources.has(src)) {
+        img.remove();
+        return;
+      }
+      img.removeAttribute('srcset');
+    });
+    parsedDocument.body.querySelectorAll('source[srcset]').forEach((source) => source.remove());
+    parsedDocument.body.querySelectorAll('[style]').forEach((element) => {
+      if (/(^|[;\s])background(-image)?\s*:.*url\s*\(/i.test(element.getAttribute('style') || '')) {
+        element.removeAttribute('style');
+      }
+    });
+    parsedDocument.body.querySelectorAll('[background]').forEach((element) => element.removeAttribute('background'));
+
+    return parsedDocument.body.innerHTML;
   }
 
   saveShowHTMLDecision() {

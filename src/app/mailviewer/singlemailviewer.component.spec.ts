@@ -231,6 +231,43 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('shows embedded cid images when external images are disabled', () => {
+    component['_messageId'] = 42;
+
+    const processed = component['processMessageContents'](Object.assign(new MessageContents(), {
+      mid: 42,
+      headers: {
+        from: {
+          value: [{
+            address: 'sender@example.com',
+            name: 'Sender'
+          }]
+        },
+        date: new Date(2026, 0, 1).toJSON(),
+        subject: 'Embedded image'
+      },
+      text: {
+        text: 'Plain body',
+        html: '<p>HTML body</p>',
+        textAsHtml: '<p>Plain body</p>'
+      },
+      sanitized_html:
+        '<p>Inline: <img src="cid:inline-logo"></p>' +
+        '<p>Remote: <img src="https://example.com/tracker.png"></p>',
+      sanitized_html_without_images: '<p>Inline: </p><p>Remote: </p>',
+      attachments: [{
+        filename: 'logo.png',
+        cid: 'inline-logo',
+        contentType: 'image/png',
+        size: 1024
+      }]
+    }));
+
+    const htmlWithoutExternalImages = processed.html_without_images.changingThisBreaksApplicationSecurity;
+    expect(htmlWithoutExternalImages).toContain('/rest/v1/email/42/attachment/0?download=true');
+    expect(htmlWithoutExternalImages).not.toContain('https://example.com/tracker.png');
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
