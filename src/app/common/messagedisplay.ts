@@ -20,6 +20,7 @@ import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
 
 export abstract class MessageDisplay {
   public openedRowIndex: number;
+  public openedMessageId: number;
   public selectedRowId: number;
   //  public openedRowId: number;
   public msgIdsSelected: { [key: number]: boolean } = {};
@@ -40,6 +41,7 @@ export abstract class MessageDisplay {
   setRows(rows: any) {
     this._rows = rows;
     this.rows = rows;
+    this.refreshOpenedRowIndex();
   }
 
   // rows:
@@ -86,6 +88,7 @@ export abstract class MessageDisplay {
   }
 
   public getCurrentRow(): any {
+    this.refreshOpenedRowIndex();
     return this.rows[this.openedRowIndex];
   }
 
@@ -103,6 +106,7 @@ export abstract class MessageDisplay {
       }
     });
     this.rows = filteredRows;
+    this.refreshOpenedRowIndex();
   }
 
   public rowSelected(rowIndex: number, columnIndex: number, multiSelect?: boolean) {
@@ -157,6 +161,7 @@ export abstract class MessageDisplay {
       // stays attached to the opened email
 //      this.openedRowId = this.selectedRowId;
       this.openedRowIndex = rowIndex;
+      this.openedMessageId = this.getRowMessageId(rowIndex);
 
       this.hasChanges = true;
     }
@@ -185,6 +190,9 @@ export abstract class MessageDisplay {
   }
 
   isOpenedRow(index: number): boolean {
+    if (this.openedMessageId) {
+      return this.rowExists(index) && this.getRowMessageId(index) === this.openedMessageId;
+    }
     return index === this.openedRowIndex;
   }
 
@@ -196,6 +204,14 @@ export abstract class MessageDisplay {
 
   clearOpenedRow() {
     this.openedRowIndex = null;
+    this.openedMessageId = null;
+  }
+
+  protected refreshOpenedRowIndex() {
+    if (this.openedMessageId) {
+      const openedRowIndex = this.findRowByMessageId(this.openedMessageId);
+      this.openedRowIndex = openedRowIndex > -1 ? openedRowIndex : null;
+    }
   }
 
   // filtering:

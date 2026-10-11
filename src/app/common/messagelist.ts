@@ -68,6 +68,7 @@ export class MessageList extends MessageDisplay {
     if (options.has('unreadOnly') && options.get('unreadOnly')) {
       this.rows = this._rows.filter((msg) => !msg.seenFlag);
     }
+    this.refreshOpenedRowIndex();
   }
 
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
