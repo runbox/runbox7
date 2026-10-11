@@ -426,6 +426,90 @@ describe('SingleMailViewerComponent', () => {
       );
     }));
 
+    it('should warn before opening a link whose visible URL differs from its href', fakeAsync(() => {
+      const dialogRef = {
+        componentInstance: {},
+        afterClosed: () => of(false)
+      } as any;
+      const dialogOpenSpy = spyOn(component.dialog, 'open').and.returnValue(dialogRef);
+      const link = document.createElement('a');
+      link.setAttribute('href', 'https://phishing.example/login');
+      link.textContent = 'https://runbox.com/login';
+      messageContentsElement.appendChild(link);
+
+      component['initMailtoInterceptor']();
+      tick();
+
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      Object.defineProperty(clickEvent, 'target', { value: link, writable: false });
+      const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
+
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      expect(dialogOpenSpy).toHaveBeenCalled();
+      expect(dialogRef.componentInstance.question).toContain('https://runbox.com/login');
+      expect(dialogRef.componentInstance.question).toContain('https://phishing.example/login');
+      expect(dialogRef.componentInstance.yesOptionHref).toBe('https://phishing.example/login');
+    }));
+
+    it('should render the accepted mismatched link as a dialog action href', fakeAsync(() => {
+      const dialogRef = {
+        componentInstance: {},
+        afterClosed: () => of(true)
+      } as any;
+      spyOn(component.dialog, 'open').and.returnValue(dialogRef);
+      const link = document.createElement('a');
+      link.setAttribute('href', 'https://phishing.example/login');
+      link.textContent = 'https://runbox.com/login';
+      messageContentsElement.appendChild(link);
+
+      component['initMailtoInterceptor']();
+      tick();
+
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      Object.defineProperty(clickEvent, 'target', { value: link, writable: false });
+
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      expect(dialogRef.componentInstance.yesOptionHref).toBe('https://phishing.example/login');
+    }));
+
+    it('should not warn when the visible URL matches the href', fakeAsync(() => {
+      const dialogOpenSpy = spyOn(component.dialog, 'open');
+      const link = document.createElement('a');
+      link.setAttribute('href', 'https://runbox.com/login');
+      link.textContent = 'https://runbox.com/login';
+      messageContentsElement.appendChild(link);
+
+      component['initMailtoInterceptor']();
+      tick();
+
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      });
+      Object.defineProperty(clickEvent, 'target', { value: link, writable: false });
+      const preventDefaultSpy = spyOn(clickEvent, 'preventDefault');
+
+      messageContentsElement.dispatchEvent(clickEvent);
+      tick();
+
+      expect(preventDefaultSpy).not.toHaveBeenCalled();
+      expect(dialogOpenSpy).not.toHaveBeenCalled();
+    }));
+
     it('should remove old event listener when re-initializing', fakeAsync(() => {
       mailtoLink = document.createElement('a');
       mailtoLink.href = 'mailto:first@example.com';
