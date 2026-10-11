@@ -32,6 +32,11 @@
                 <p mat-line>Settings</p>
             </mat-list-item>
 
+            <a mat-list-item target="_blank" href="https://help.runbox.com/runbox-7-contacts/" class="contactListButton">
+                <mat-icon mat-list-icon svgIcon="sync"></mat-icon>
+                <p mat-line>CardDAV Sync Guide</p>
+            </a>
+
             <mat-divider></mat-divider>
 
             <mat-list-item routerLink="/contacts/" class="contactListButton" [ngClass]="!shownGroup ? 'selectedFolder' : ''">
