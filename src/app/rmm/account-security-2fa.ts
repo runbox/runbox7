@@ -142,9 +142,18 @@ export class AccountSecurity2fa {
         this.is_busy = true;
         this.new_totp_code = this.generate_totp_code();
         this.totp_label = this.app.me.data.username;
+        this.update_totp_qr_code();
+    }
+
+    update_totp_qr_code() {
+        if (!this.new_totp_code) {
+            this.qr_code_value = undefined;
+            return;
+        }
+
         const otpa = new OTPAuth.TOTP({
             issuer: 'Runbox',
-            label: this.totp_label,
+            label: this.totp_label || this.app.me.data.username,
             secret: this.new_totp_code
         });
         this.qr_code_value = new URL(otpa.toString());
