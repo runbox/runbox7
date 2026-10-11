@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { DraftFormModel, DraftDeskService } from './draftdesk.service';
+import { DraftFormModel, DraftDeskService, ForwardedAttachment } from './draftdesk.service';
 import { Identity } from '../profiles/profile.service';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -123,6 +123,67 @@ Subject: Test subject <br />
 // Subject: Test subject <br/>
 // <span>To: <span>"To" &lt;to@runbox.com&gt;</span></span> <br /><br />
 // <p>blabla</p><p>abcde</p>`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Send again: copies a sent HTML message into a new draft', (done) => {
+        const draft = DraftFormModel.sendAgain({
+            mid: 123,
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ],
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            cc: [
+                {address: 'cc@runbox.com', name: 'CC'}
+            ],
+            bcc: [
+                {address: 'bcc@runbox.com', name: 'BCC'}
+            ],
+            attachments: [
+                {cid: 'inline-image'}
+            ],
+            subject: 'Test subject',
+            rawtext: 'blabla\nabcde',
+            sanitized_html: '<p>blabla</p><p>abcde</p>'
+        },
+        [
+            Identity.fromObject({'email':'fallback@runbox.com'}),
+            Identity.fromObject({'email':'from@runbox.com'})
+        ]);
+
+        expect(draft.subject).toBe('Test subject');
+        expect(draft.from).toBe('from@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"To" <to@runbox.com>');
+        expect(draft.cc[0].nameAndAddress).toBe('"CC" <cc@runbox.com>');
+        expect(draft.bcc[0].nameAndAddress).toBe('"BCC" <bcc@runbox.com>');
+        expect(draft.msg_body).toBe('blabla\nabcde');
+        expect(draft.html).toBe('<p>blabla</p><p>abcde</p>');
+        expect(draft.useHTML).toBe(true);
+        expect(draft.skipSignature).toBe(true);
+        expect(draft.attachments[0] instanceof ForwardedAttachment).toBeTrue();
+        expect((draft.attachments[0] as ForwardedAttachment).messageId).toBe('123');
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
+    it('Send again: falls back to the default identity for a non-matching sender', (done) => {
+        const draft = DraftFormModel.sendAgain({
+            from: [
+                {address: 'old-address@runbox.com', name: 'Old'}
+            ],
+            to: null,
+            attachments: [],
+            subject: 'Plain subject',
+            rawtext: 'plain body'
+        },
+        [ Identity.fromObject({'email':'default@runbox.com'}) ]);
+
+        expect(draft.subject).toBe('Plain subject');
+        expect(draft.from).toBe('default@runbox.com');
+        expect(draft.to).toEqual([]);
+        expect(draft.msg_body).toBe('plain body');
+        expect(draft.useHTML).toBe(false);
         expect(draft.isUnsaved()).toBe(true);
         done();
     });

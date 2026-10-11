@@ -29,6 +29,7 @@ export interface MessageActions {
   reply(useHTML?: boolean);
   replyToAll(useHTML?: boolean);
   forward(useHTML?: boolean);
+  sendAgain();
   markSeen(seen_flag_value?: number);
   trainSpam(params: any);
   blockSender(param: string)

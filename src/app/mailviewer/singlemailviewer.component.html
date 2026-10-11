@@ -36,7 +36,10 @@
       <button *ngIf="morebuttonindex>4" mat-icon-button matTooltip="Forward" (click)="messageActionsHandler.forward(showHTML)">
         <mat-icon svgIcon="forward"></mat-icon>
       </button>
-      <ng-container *ngIf="morebuttonindex>5">
+      <button *ngIf="isSentFolder && morebuttonindex>5" mat-icon-button matTooltip="Send again" (click)="messageActionsHandler.sendAgain()">
+        <mat-icon svgIcon="send"></mat-icon>
+      </button>
+      <ng-container *ngIf="morebuttonindex>toolbarIndex(5)">
         <button *ngIf="mailObj.seen_flag===1" mat-icon-button matTooltip="Mark unread" (click)="messageActionsHandler.markSeen(0)">
         <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
         </button>
@@ -44,7 +47,7 @@
         <mat-icon svgIcon="email-open"></mat-icon>
         </button>
        </ng-container>
-      <ng-container *ngIf="morebuttonindex>6">
+      <ng-container *ngIf="morebuttonindex>toolbarIndex(6)">
         <button mat-icon-button *ngIf="mailObj.flagged_flag===0" matTooltip="Flag" (click)="messageActionsHandler.flag()">
           <mat-icon svgIcon="flag"></mat-icon>
         </button>
@@ -55,7 +58,7 @@
 	  </svg>
         </button>
       </ng-container>
-      <ng-container *ngIf="morebuttonindex>7">
+      <ng-container *ngIf="morebuttonindex>toolbarIndex(7)">
         <button mat-icon-button *ngIf="folder!==this.messagelistservice.spamFolderName" matTooltip="Report spam" (click)="messageActionsHandler.trainSpam({is_spam:1})">
           <mat-icon svgIcon="alert-octagon"></mat-icon>
         </button>
@@ -63,21 +66,21 @@
           <mat-icon svgIcon="alert-octagon-outline"></mat-icon>
         </button>
       </ng-container>
-      <button mat-icon-button *ngIf="morebuttonindex>8" matTooltip="Block/Allow Sender" [matMenuTriggerFor]="senderRulesMenu">
+      <button mat-icon-button *ngIf="morebuttonindex>toolbarIndex(8)" matTooltip="Block/Allow Sender" [matMenuTriggerFor]="senderRulesMenu">
         <mat-icon svgIcon="filter-cog"></mat-icon>
       </button>
-      <a *ngIf="morebuttonindex>9" mat-icon-button
+      <a *ngIf="morebuttonindex>toolbarIndex(9)" mat-icon-button
         matTooltip="View source" [href]="'/rest/v1/email/'+messageId+'/raw'" target="_blank">
         <mat-icon svgIcon="code-tags"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>10" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
+      <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>toolbarIndex(10)" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
         <mat-icon svgIcon="cog"></mat-icon>
       </button>
-      <a *ngIf="mailContentHTML && morebuttonindex>11" mat-icon-button
+      <a *ngIf="mailContentHTML && morebuttonindex>toolbarIndex(11)" mat-icon-button
         matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
         <mat-icon svgIcon="alert"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="morebuttonindex < 12" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
+      <button mat-icon-button *ngIf="morebuttonindex < toolbarIndex(12)" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
 
@@ -148,11 +151,15 @@
           <mat-icon svgIcon="forward"></mat-icon>
           <span>Forward</span>
         </button>
-        <button *ngIf="morebuttonindex<6" mat-menu-item (click)="messageActionsHandler.markSeen(0)">
+        <button *ngIf="isSentFolder && morebuttonindex<6" mat-menu-item (click)="messageActionsHandler.sendAgain()">
+          <mat-icon svgIcon="send"></mat-icon>
+          <span>Send again</span>
+        </button>
+        <button *ngIf="morebuttonindex<toolbarIndex(6)" mat-menu-item (click)="messageActionsHandler.markSeen(0)">
           <mat-icon svgIcon="email-mark-as-unread"></mat-icon>
           <span>Mark unread</span>
         </button>
-        <ng-container *ngIf="morebuttonindex<7">
+        <ng-container *ngIf="morebuttonindex<toolbarIndex(7)">
           <button mat-menu-item *ngIf="mailObj.flagged_flag===0" (click)="messageActionsHandler.flag()">
             <mat-icon svgIcon="flag"></mat-icon>
             <span>Flag</span>
@@ -162,7 +169,7 @@
             <span>Remove flag</span>
           </button>
         </ng-container>
-        <ng-container *ngIf="morebuttonindex<8">
+        <ng-container *ngIf="morebuttonindex<toolbarIndex(8)">
           <button mat-menu-item *ngIf="folder!=='Spam'" (click)="messageActionsHandler.trainSpam({is_spam:1})">
             <mat-icon svgIcon="alert-octagon"></mat-icon>
             <span>Report spam</span>
@@ -172,20 +179,20 @@
             <span>Not spam</span>
           </button>
         </ng-container>
-        <button mat-menu-item *ngIf="morebuttonindex<9" [matMenuTriggerFor]="blockSenderMenu">
+        <button mat-menu-item *ngIf="morebuttonindex<toolbarIndex(9)" [matMenuTriggerFor]="blockSenderMenu">
           <mat-icon svgIcon="block"></mat-icon>
           <span>Block Sender/Domain</span>
         </button>
-        <a *ngIf="morebuttonindex<9" mat-menu-item
+        <a *ngIf="morebuttonindex<toolbarIndex(10)" mat-menu-item
           [href]="'/rest/v1/email/'+messageId+'/raw'" target="_blank">
           <mat-icon svgIcon="code-tags"></mat-icon>
           <span>View source</span>
         </a>
-        <button mat-menu-item *ngIf="mailContentHTML && morebuttonindex<10" [matMenuTriggerFor]="htmlSettingsMenu">
+        <button mat-menu-item *ngIf="mailContentHTML && morebuttonindex<toolbarIndex(11)" [matMenuTriggerFor]="htmlSettingsMenu">
           <mat-icon svgIcon="cog"></mat-icon>
           <span>HTML settings</span>
         </button>
-	<a *ngIf="mailContentHTML && morebuttonindex<11" mat-menu-item
+	<a *ngIf="mailContentHTML && morebuttonindex<toolbarIndex(12)" mat-menu-item
           [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
           <mat-icon svgIcon="alert"></mat-icon>
 	  <span>Original HTML</span>
