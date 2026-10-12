@@ -59,4 +59,24 @@ describe('listAllMessages', () => {
     await expectAsync(listDeletedMessagesSince(new Date(0)))
       .toBeRejectedWithError(/Service Unavailable/);
   });
+
+  it('passes cancellation to an active deleted-message request', async () => {
+    const controller = new AbortController();
+    spyOn(window, 'fetch').and.callFake((_url, options) =>
+      new Promise((_resolve, reject) => {
+        options.signal.addEventListener('abort', () => {
+          reject(new DOMException('Request cancelled', 'AbortError'));
+        });
+      })
+    );
+
+    const request = listDeletedMessagesSince(new Date(0), controller.signal);
+    controller.abort();
+
+    await expectAsync(request).toBeRejectedWithError(DOMException, /cancelled/i);
+    expect(window.fetch).toHaveBeenCalledWith(
+      jasmine.any(String),
+      jasmine.objectContaining({ signal: controller.signal })
+    );
+  });
 });
