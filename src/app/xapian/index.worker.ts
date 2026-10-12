@@ -1007,7 +1007,8 @@ const initialIndexWorkerSync = new InitialIndexWorkerSync({
       initialSyncAbortController.signal
     ),
   fetchDeletedMessages: (baseline) => listDeletedMessagesSince(
-    new Date(baseline - new Date().getTimezoneOffset() * 60 * 1000)
+    new Date(baseline - new Date().getTimezoneOffset() * 60 * 1000),
+    initialSyncAbortController.signal
   ),
   commitBatch: async (messages, deletedMessageIds) => {
     await searchIndexService.updateIndexWithNewChanges({

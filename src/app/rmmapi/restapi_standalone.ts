@@ -96,7 +96,10 @@ export function listAllMessages(
 
 }
 
-export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number[]> {
+export function listDeletedMessagesSince(
+  sincechangeddate: Date,
+  signal?: AbortSignal
+): Promise<number[]> {
         const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
         const url = `/rest/v1/list/deleted_messages/${datestring}`;
 
@@ -106,6 +109,7 @@ export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number
       headers: {
         'Content-Type': 'application/json',
       },
+      signal,
     }
   ).then((response) => {
     if (!response.ok) {
