@@ -353,7 +353,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngDoCheck(): void {
-    if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
+    const downloadingIndex = this.indexSyncState && [
+      'downloading-main', 'downloading-history'
+    ].includes(this.indexSyncState.phase);
+    const synchronizingRecent = this.indexSyncState && [
+      'catching-up-recent', 'local-index-ready', 'final-reconciliation'
+    ].includes(this.indexSyncState.phase);
+    if (downloadingIndex) {
+      this.dynamicSearchFieldPlaceHolder =
+        'Start typing to search messages (downloading search index from server)';
+    } else if (synchronizingRecent) {
+      const searchableMessages = this.searchService.localIndexMessageCount ??
+        this.xapianDocCount ?? 0;
+      this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
+        searchableMessages + ' messages (synchronizing most recent messages)';
+    } else if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
         this.xapianDocCount
         + ' messages';
@@ -1048,6 +1062,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.enableNotification();
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
+    this.offerInitialLocalIndex = false;
     this.searchService.startInitialIndexSynchronization();
   }
 
@@ -1073,7 +1088,7 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
 
     if (state.phase === 'failed') {
       this.indexSyncError = state.error?.message || null;
-      this.offerInitialLocalIndex = !this.hasCutOverToLocalIndex;
+      this.offerInitialLocalIndex = false;
       return;
     }
     if (state.phase === 'cancelled') {

@@ -20,7 +20,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 
 import {
   AsyncSubject,
@@ -52,7 +52,6 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { ProgressDialog } from '../dialog/progress.dialog';
 import { MessageListService } from '../rmmapi/messagelist.service';
 import { ConfirmDialog } from '../dialog/confirmdialog.component';
-import { SyncProgressComponent } from './syncprogress.component';
 import { xapianLoadedSubject } from './xapianwebloader';
 import { PostMessageAction } from './messageactions';
 import { objectEqualWithKeys } from '../common/util';
@@ -61,6 +60,7 @@ import { IndexWorkerClient } from './index-worker-client';
 import { IndexPublicationQueue } from './index-publication-queue';
 import { normalizeIndexManifest } from './index-sync-manifest';
 import { canStartInitialSync } from './initial-sync-start-policy';
+import { createEmptyInitialIndex } from './empty-initial-index';
 import { promoteHistoricalPartition } from './historical-partition-promotion';
 import { closeIndexedDatabaseConnections } from './index-storage-cleanup';
 import { rehydratePublishedIndexView } from './published-index-view';
@@ -119,6 +119,7 @@ export class SearchService {
   public indexUpdatedSubject: Subject<any> = new Subject();
 
   public localSearchActivated = false;
+  public localIndexMessageCount = 0;
   private initializationReady: Promise<void> = null;
   private readonly publicationQueue = new IndexPublicationQueue({
     rehydrate: () => this.rehydratePublishedLocalIndex()
@@ -139,8 +140,6 @@ export class SearchService {
 
   public indexLastUpdateTime = 0; // Epoch time
   public indexUpdateIntervalId: any = null;
-
-  progressSnackBar: MatSnackBarRef<SyncProgressComponent>;
 
   processedUpdatesMap = {};
 
@@ -178,7 +177,7 @@ export class SearchService {
 
   constructor(public rmmapi: RunboxWebmailAPI,
        private httpclient: HttpClient,
-       private snackbar: MatSnackBar,
+       _snackbar: MatSnackBar,
        private dialog: MatDialog,
        private messagelistservice: MessageListService,
        @Inject(INDEX_WORKER_FACTORY) workerFactory: IndexWorkerFactory) {
@@ -199,17 +198,12 @@ export class SearchService {
           this.indexUpdatedSubject.next(undefined);
         } else if (data['action'] === PostMessageAction.refreshContentCache) {
           this.rmmapi.deleteCachedMessageContents(data['messageId']);
-        } else if (data['action'] === PostMessageAction.openProgressSnackBar) {
-          this.progressSnackBar = this.snackbar.openFromComponent(SyncProgressComponent);
-        } else if (data['action'] === PostMessageAction.updateProgressSnackBar) {
-          this.progressSnackBar.instance.messagetextsubject.next(data['value']);
-        } else if (data['action'] === PostMessageAction.closeProgressSnackBar) {
-          this.progressSnackBar.dismiss();
         } else if (data['action'] === PostMessageAction.updateMessageListService) {
           this.messagelistservice.updateStaleFolders(data['foldersUpdated']);
           this.messagelistservice.applyChanges([], data['deletedMessages']);
           this.messagelistservice.refreshFolderList();
         } else if (data['action'] === PostMessageAction.indexDeleted) {
+          this.localIndexMessageCount = 0;
           this.indexDeletionResultSubject.next(null);
           this.stopIndexDownloadingInProgress = false;
           console.log('Closing progress dialog');
@@ -502,6 +496,7 @@ export class SearchService {
           this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
         }
       });
+      this.refreshLocalIndexMessageCount();
     } catch (e) {
       if (strict) {
         throw e;
@@ -520,6 +515,11 @@ export class SearchService {
 
   private openStoredMainPartition() {
     this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR);
+    this.refreshLocalIndexMessageCount();
+  }
+
+  private refreshLocalIndexMessageCount(): void {
+    this.localIndexMessageCount = this.api.getXapianDocCount();
   }
   /**
    * Returns false if unable to get dates from xapian index (corrupt index)
@@ -660,6 +660,17 @@ export class SearchService {
   }
 
   private async discoverIndexManifest(): Promise<NormalizedIndexManifest> {
+    const downloadableIndexExists = await firstValueFrom(
+      this.checkIfDownloadableIndexExists()
+    );
+    if (!downloadableIndexExists) {
+      return {
+        partitions: [],
+        totalCompressedBytes: 0,
+        totalUncompressedBytes: 0,
+        totalMessages: 0
+      };
+    }
     const manifest = await firstValueFrom(
       this.httpclient.get<DownloadableSearchIndexMap>('/rest/v1/searchindex/partitions')
     );
@@ -682,7 +693,18 @@ export class SearchService {
 
     const mainPartition = manifest.partitions.find(partition => partition.number === 0);
     if (!mainPartition) {
-      throw new Error('Index manifest has no main partition');
+      this.indexLastUpdateTime = 0;
+      this.localIndexMessageCount = await createEmptyInitialIndex({
+        openWritable: () => this.api.initXapianIndex(XAPIAN_GLASS_WR),
+        writeBaseline: baseline => FS.writeFile(
+          'indexLastUpdateTime', `${baseline}`, { encoding: 'utf8' }
+        ),
+        closeWritable: () => this.api.closeXapianDatabase(),
+        persist: () => this.syncFileSystem(false),
+        openReadOnly: () => this.api.initXapianIndexReadOnly(XAPIAN_GLASS_WR),
+        getMessageCount: () => this.api.getXapianDocCount()
+      });
+      return;
     }
 
     const files = [
@@ -808,9 +830,11 @@ export class SearchService {
       openHistoricalPartitions: () => this.openStoredPartitions(true),
       activate: () => {
         this.localSearchActivated = true;
+        this.refreshLocalIndexMessageCount();
       },
       fallback: () => {
         this.localSearchActivated = false;
+        this.localIndexMessageCount = 0;
         this.messagelistservice.fetchFolderMessages();
       }
     });
@@ -866,7 +890,10 @@ export class SearchService {
         reopenWorker: async () => {
           await this.openInitialWorkerIndex();
         },
-        openMainView: () => this.api.addFolderXapianIndex(finalPath),
+        openMainView: () => {
+          this.api.addFolderXapianIndex(finalPath);
+          this.refreshLocalIndexMessageCount();
+        },
         removeBackup: async () => this.removeTemporaryPartition(backupPath),
         removePromoted: async () => this.removeTemporaryPartition(finalPath),
         restoreBackup: async () => {
@@ -991,6 +1018,7 @@ export class SearchService {
 
   private async discardInitialLocalIndex(): Promise<void> {
     this.localSearchActivated = false;
+    this.localIndexMessageCount = 0;
     try {
       this.api?.closeXapianDatabase();
     } catch (_error) {

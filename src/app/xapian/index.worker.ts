@@ -38,7 +38,10 @@ import { IndexMutationQueue } from './index-mutation-queue';
 import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
 import { clearFailedIndexUpdate } from './index-update-failure-policy';
 import { openStoredPartitions as openPartitionPaths } from './stored-partition-open';
-import { formatIndexSyncProgressMessage } from './index-sync-progress-message';
+import {
+  fetchFolderMessagesForCountComparison,
+  LegacyIndexUpdateCancellation
+} from './legacy-index-update-cancellation';
 import {
   closeIndexedDatabaseConnections,
   deleteIndexedDatabase
@@ -102,6 +105,7 @@ class SearchIndexService {
   private activeIndexUpdates = 0;
   private indexUpdateIdleResolvers: Array<() => void> = [];
   private indexReplacementPending = false;
+  private readonly legacyUpdateCancellation = new LegacyIndexUpdateCancellation();
 
   public localSearchActivated = false;
 
@@ -396,7 +400,9 @@ class SearchIndexService {
   async compareAndUpdateFolderCounts(
     currentFolder: FolderListEntry,
     numberOfMessages: number,
-    numberOfUnreadMessages: number): Promise<any[]> {
+    numberOfUnreadMessages: number,
+    signal: AbortSignal
+  ): Promise<any[]> {
     let folderMessages = [];
     if (
       numberOfMessages !== currentFolder.totalMessages ||
@@ -407,10 +413,11 @@ class SearchIndexService {
 not matching with index for current folder`);
 
       try {
-        folderMessages = await listAllMessages(
-          0, 0, 0,
-          MAX_DISCREPANCY_CHECK_LIMIT,
-          true, currentFolder.folderPath);
+        folderMessages = await fetchFolderMessagesForCountComparison(
+          currentFolder.folderPath,
+          signal,
+          listAllMessages
+        );
       } catch (err) {
         console.error(err);
         if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
@@ -454,6 +461,7 @@ not matching with index for current folder`);
     set_next_update_time: boolean }, providedChanges?: ProvidedIndexChanges) {
     this.activeIndexUpdates++;
     clearTimeout(this.indexUpdateIntervalId);
+    const legacyUpdateSignal = this.legacyUpdateCancellation.signal;
 
     // console.log('Worker: updateIndexWithNewChanges');
 
@@ -494,6 +502,7 @@ not matching with index for current folder`);
                       headers: {
                         'Content-Type': 'application/json',
                       },
+                      signal: legacyUpdateSignal,
                       body: JSON.stringify(
                         {
                           indexEntriesToVerify: filteredpendingIndexVerificationsArray
@@ -505,7 +514,17 @@ not matching with index for current folder`);
       let msginfos: MessageInfo[] = providedChanges ? [...providedChanges.messages] : [];
       if (!providedChanges) {
         try {
-          msginfos = await listAllMessages(...next_update['list_messages_args']);
+          const [page, startId, startDate, limit, skip, folder] =
+            next_update['list_messages_args'];
+          msginfos = await listAllMessages(
+            page,
+            startId,
+            startDate,
+            limit,
+            skip,
+            folder,
+            legacyUpdateSignal
+          );
         } catch (err) {
           console.error(err);
           if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
@@ -530,7 +549,8 @@ not matching with index for current folder`);
         await listDeletedMessagesSince(
           new Date(
             // Subtract timezone offset to get UTC
-            this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
+            this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000),
+          legacyUpdateSignal
         );
 
         if (!providedChanges && this.numberOfMessagesSyncedLastTime === 0) {
@@ -548,7 +568,12 @@ not matching with index for current folder`);
               this.api.listFolders().find(f => f[0] === folderPath)
                ) {
               const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
-              const folderMessages = await this.compareAndUpdateFolderCounts(currentFolder, numberOfMessages, numberOfUnreadMessages);
+              const folderMessages = await this.compareAndUpdateFolderCounts(
+                currentFolder,
+                numberOfMessages,
+                numberOfUnreadMessages,
+                legacyUpdateSignal
+              );
               msginfos = msginfos.concat(folderMessages);
             } else {
               // Compare rest api counts with rest api folder list:
@@ -786,7 +811,9 @@ not matching with rest api counts for current folder`);
         }
       }
     } catch (err) {
-      console.error('Worker: Failed updating with new changes (will retry in 10 secs)', err);
+      if (!legacyUpdateSignal.aborted) {
+        console.error('Worker: Failed updating with new changes (will retry in 10 secs)', err);
+      }
       if (providedChanges) {
         clearFailedIndexUpdate(this.currentIndexUpdateMessageIds);
         this.finishIndexUpdate();
@@ -804,7 +831,7 @@ not matching with rest api counts for current folder`);
 
   public async prepareIndexReplacement(): Promise<void> {
     this.indexReplacementPending = true;
-    clearTimeout(this.indexUpdateIntervalId);
+    this.stopIndexUpdates();
     if (this.activeIndexUpdates > 0) {
       await this.waitForIndexUpdatesToFinish();
     }
@@ -813,6 +840,11 @@ not matching with rest api counts for current folder`);
       this.api.closeXapianDatabase();
       this.localSearchActivated = false;
     }
+  }
+
+  public stopIndexUpdates(): void {
+    clearTimeout(this.indexUpdateIntervalId);
+    this.legacyUpdateCancellation.cancelActive();
   }
 
   private waitForIndexUpdatesToFinish(): Promise<void> {
@@ -877,8 +909,6 @@ not matching with rest api counts for current folder`);
       return of();
     }
 
-    let processed = 0;
-    let hasProgressSnackBar = false;
     const mutations = [async () => {
       if (this.persistIndexInProgressSubject) {
         await firstValueFrom(this.persistIndexInProgressSubject);
@@ -887,30 +917,14 @@ not matching with rest api counts for current folder`);
       if (!this.localSearchActivated) {
         throw new Error('Worker: Search index deleted in the middle of indexing process');
       }
-      if (!hasProgressSnackBar && newMessagesToProcess.length > 10) {
-        hasProgressSnackBar = true;
-        ctx.postMessage({'action': PostMessageAction.openProgressSnackBar});
-      }
-      if (hasProgressSnackBar) {
-        ctx.postMessage({
-          'action': PostMessageAction.updateProgressSnackBar,
-          'value': formatIndexSyncProgressMessage(processed, newMessagesToProcess.length)
-        });
-      }
       ctx.postMessage({
         'action': PostMessageAction.refreshContentCache,
         'messageId': message.id
       });
       await message.updateFunction();
-      processed++;
       await new Promise<void>(resolve => setTimeout(resolve, 1));
     }));
-    const result = this.mutationQueue.enqueue(mutations, postLegacyIndexUpdated)
-      .finally(() => {
-        if (hasProgressSnackBar) {
-          ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
-        }
-      });
+    const result = this.mutationQueue.enqueue(mutations, postLegacyIndexUpdated);
     return from(result);
 
   }
@@ -1124,7 +1138,7 @@ ctx.addEventListener('message', ({ data }) => {
     } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
       searchIndexService.updateIndexWithNewChanges(data['args']);
     } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
-      clearTimeout(searchIndexService.indexUpdateIntervalId);
+      searchIndexService.stopIndexUpdates();
     } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
       searchIndexService.deleteLocalIndex().subscribe({
         next: () => searchIndexService.updateIndexWithNewChanges(),

@@ -213,8 +213,7 @@
           </mat-list>
         </div>
         <ng-template #searchBar>
-          <mat-form-field id="searchField" floatLabel="auto"
-                          *ngIf="searchService.downloadProgress===null">
+          <mat-form-field id="searchField" floatLabel="auto">
             <input matInput #searchInputField type="text"
                    (focus)="searchTextFieldFocus()"
                    (blur)="searchTextFieldBlur()" [placeholder]="dynamicSearchFieldPlaceHolder ? dynamicSearchFieldPlaceHolder: 'Start typing to search messages'"
@@ -398,6 +397,7 @@
       [mode]="indexSyncState.totalBytes > 0 ? 'determinate' : 'indeterminate'"
       [value]="indexSyncProgress(indexSyncState)">
     </mat-progress-bar>
+    <p *ngIf="indexSyncError" role="alert">{{ indexSyncError }}</p>
     <mat-progress-bar *ngIf="websocketsearchservice.searchInProgress" mode="indeterminate">
     </mat-progress-bar>
 
