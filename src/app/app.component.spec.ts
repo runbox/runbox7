@@ -64,6 +64,56 @@ describe('AppComponent initial index synchronization', () => {
     expect(searchService.downloadPartitions).not.toHaveBeenCalled();
   });
 
+  it('dismisses the introductory prompt when synchronization starts', () => {
+    const component = componentWithoutConstructor();
+    const searchService = jasmine.createSpyObj<SearchService>(
+      'SearchService',
+      ['startInitialIndexSynchronization']
+    );
+    component.searchService = searchService;
+    component.offerInitialLocalIndex = true;
+    Object.assign(component, {
+      storage: { set: jasmine.createSpy('set') }
+    });
+    spyOn(component, 'enableNotification');
+
+    component.downloadIndexFromServer();
+
+    expect(component.offerInitialLocalIndex).toBeFalse();
+  });
+
+  it('describes the server index download in the search field', () => {
+    const component = componentWithoutConstructor();
+    component.searchService = { api: null } as SearchService;
+    component.indexSyncState = state('downloading-main');
+    component.usewebsocketsearch = true;
+    spyOn(component, 'calculateWidthDependentElements');
+
+    component.ngDoCheck();
+
+    expect(component.dynamicSearchFieldPlaceHolder).toBe(
+      'Start typing to search messages (downloading search index from server)'
+    );
+  });
+
+  it('describes recent synchronization with the searchable message count', () => {
+    const component = componentWithoutConstructor();
+    component.searchService = {
+      api: {},
+      localIndexMessageCount: 456
+    } as SearchService;
+    component.indexSyncState = state('catching-up-recent');
+    component.usewebsocketsearch = false;
+    component.xapianDocCount = 123;
+    spyOn(component, 'calculateWidthDependentElements');
+
+    component.ngDoCheck();
+
+    expect(component.dynamicSearchFieldPlaceHolder).toBe(
+      'Start typing to search 456 messages (synchronizing most recent messages)'
+    );
+  });
+
   it('cancels the coordinated synchronization while it is active', () => {
     const component = componentWithoutConstructor();
     const searchService = jasmine.createSpyObj<SearchService>(
@@ -138,6 +188,7 @@ describe('AppComponent initial index synchronization', () => {
   it('keeps the database display when synchronization fails before cutover', () => {
     const component = componentWithoutConstructor();
     component.usewebsocketsearch = true;
+    component.offerInitialLocalIndex = true;
     spyOn(component, 'afterUpdateIndex');
 
     component.handleInitialIndexSyncState(state('failed', {
@@ -154,6 +205,7 @@ describe('AppComponent initial index synchronization', () => {
     }));
 
     expect(component.usewebsocketsearch).toBeTrue();
+    expect(component.offerInitialLocalIndex).toBeFalse();
     expect(component.afterUpdateIndex).not.toHaveBeenCalled();
     expect(component.indexSyncError).toContain('Unable to synchronize');
   });

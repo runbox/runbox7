@@ -19,7 +19,7 @@
 
 import { SearchService, XAPIAN_GLASS_WR } from './searchservice';
 import { Type } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, flushMicrotasks, TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { MessageCache } from '../rmmapi/messagecache';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -39,6 +39,54 @@ declare let FS;
 declare let IDBFS;
 
 describe('SearchService worker boundary', () => {
+    it('refreshes the searchable count after opening historical partitions', () => {
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            null,
+            null,
+            null,
+            messageListService,
+            () => ({ postMessage: () => undefined } as unknown as Worker)
+        );
+        searchService.partitionsdir = '/partitions';
+        searchService.api = {
+            addFolderXapianIndex: () => undefined,
+            getXapianDocCount: () => 456
+        } as unknown as XapianAPI;
+        const internal = searchService as unknown as {
+            openStoredPartitions: () => void;
+        };
+        const runtime = globalThis as unknown as {
+            FS?: {
+                readdir: () => string[];
+                stat: () => { mode: number };
+                isDir: () => boolean;
+            };
+        };
+        const originalFileSystem = runtime.FS;
+        runtime.FS = {
+            readdir: () => ['.', '..', 'xapianglass_1'],
+            stat: () => ({ mode: 0 }),
+            isDir: () => true
+        };
+
+        try {
+            internal.openStoredPartitions();
+        } finally {
+            runtime.FS = originalFileSystem;
+        }
+
+        expect(searchService.localIndexMessageCount).toBe(456);
+    });
+
     it('uses the injected worker and routes index update events', () => {
         const fakeWorker = {
             onmessage: null,
@@ -73,7 +121,7 @@ describe('SearchService worker boundary', () => {
         expect(searchService.localSearchActivated).toBeTrue();
     });
 
-    it('discovers the partition manifest before downloading index files', () => {
+    it('discovers the partition manifest before downloading index files', fakeAsync(() => {
         TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
         const httpclient = TestBed.inject(HttpClient);
         const httpController = TestBed.inject(HttpTestingController);
@@ -109,9 +157,159 @@ describe('SearchService worker boundary', () => {
             .subscribe(state => phases.push(state.phase));
 
         expect(phases).toEqual(['discovering']);
+        httpController.expectOne(
+            '/mail/download_xapian_index?ngsw-bypass=1&exists=check'
+        ).flush({ exists: true, size: 10, uncompressedsize: 100 });
+        flushMicrotasks();
         httpController.expectOne('/rest/v1/searchindex/partitions');
         httpController.expectNone(request =>
             request.url.startsWith('/mail/download_xapian_index'));
+    }));
+
+    it('starts an empty local index when a fresh account has no downloadable index', fakeAsync(() => {
+        TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+        const httpclient = TestBed.inject(HttpClient);
+        const httpController = TestBed.inject(HttpTestingController);
+        const postedActions: string[] = [];
+        const fakeWorker = {
+            onmessage: null,
+            onerror: null,
+            postMessage: (message: { action: string }) => postedActions.push(message.action)
+        } as unknown as Worker;
+        const rmmapi = {
+            me: NEVER,
+            messageFlagChangeSubject: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER,
+            updateStaleFolders: () => undefined,
+            applyChanges: () => undefined,
+            refreshFolderList: () => undefined,
+            fetchFolderMessages: () => undefined
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            httpclient,
+            null,
+            null,
+            messageListService,
+            () => fakeWorker
+        );
+        const phases: string[] = [];
+
+        searchService.startInitialIndexSynchronization()
+            .subscribe(state => phases.push(state.phase));
+        httpController.expectOne(
+            '/mail/download_xapian_index?ngsw-bypass=1&exists=check'
+        ).flush({ exists: false, size: 0, uncompressedsize: 0 });
+        flushMicrotasks();
+
+        expect(phases).toContain('downloading-main');
+        expect(postedActions).toContain('prepareIndexReplacement');
+        httpController.expectNone('/rest/v1/searchindex/partitions');
+    }));
+
+    it('completes fresh-account catch-up after bootstrapping an empty index', fakeAsync(() => {
+        TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+        const httpclient = TestBed.inject(HttpClient);
+        const httpController = TestBed.inject(HttpTestingController);
+        const postedActions: string[] = [];
+        const fakeWorker = {
+            onmessage: null,
+            onerror: null,
+            postMessage: (message: { action: string; operationId: string }) => {
+                postedActions.push(message.action);
+                if (message.action === 'openIndex') {
+                    fakeWorker.onmessage(new MessageEvent('message', {
+                        data: {
+                            action: 'workerIndexReady',
+                            operationId: message.operationId,
+                            baseline: 0
+                        }
+                    }));
+                } else if (message.action === 'catchUpRecent') {
+                    fakeWorker.onmessage(new MessageEvent('message', {
+                        data: {
+                            action: 'recentCatchUpComplete',
+                            operationId: message.operationId,
+                            fetchedMessages: 0,
+                            committedMessages: 0,
+                            watermarkCandidate: 0
+                        }
+                    }));
+                }
+            }
+        } as unknown as Worker;
+        const rmmapi = {
+            me: NEVER,
+            messageFlagChangeSubject: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER,
+            refreshFolderList: () => undefined
+        } as unknown as MessageListService;
+        const searchService = new SearchService(
+            rmmapi,
+            httpclient,
+            null,
+            null,
+            messageListService,
+            () => fakeWorker
+        );
+        spyOn(searchService as never, 'downloadInitialMainPartition').and.resolveTo();
+        spyOn(searchService as never, 'publishInitialLocalIndex').and.resolveTo();
+        const phases: string[] = [];
+
+        searchService.startInitialIndexSynchronization()
+            .subscribe(state => phases.push(state.phase));
+        httpController.expectOne(
+            '/mail/download_xapian_index?ngsw-bypass=1&exists=check'
+        ).flush({ exists: false, size: 0, uncompressedsize: 0 });
+        flushMicrotasks();
+
+        expect(phases[phases.length - 1]).toBe('complete');
+        expect(postedActions.filter(action => action === 'catchUpRecent').length).toBe(2);
+        expect(postedActions).toContain('startPeriodicSync');
+        httpController.expectNone('/rest/v1/searchindex/partitions');
+        httpController.expectNone(request =>
+            request.url.includes('/mail/download_xapian_index?ngsw-bypass=1&fileno='));
+    }));
+
+    it('ignores legacy synchronization progress events instead of opening a snackbar', () => {
+        const fakeWorker = {
+            onmessage: null,
+            onerror: null,
+            postMessage: () => undefined
+        } as unknown as Worker;
+        const snackbar = {
+            openFromComponent: jasmine.createSpy('openFromComponent')
+        };
+        const rmmapi = {
+            me: NEVER,
+            deleteCachedMessageContents: () => undefined
+        } as unknown as RunboxWebmailAPI;
+        const messageListService = {
+            searchservice: new AsyncSubject<SearchService>(),
+            folderListSubject: NEVER
+        } as unknown as MessageListService;
+        new SearchService(
+            rmmapi,
+            null,
+            snackbar as never,
+            null,
+            messageListService,
+            () => fakeWorker
+        );
+
+        fakeWorker.onmessage(new MessageEvent('message', {
+            data: { action: 'openProgressSnackBar' }
+        }));
+
+        expect(snackbar.openFromComponent).not.toHaveBeenCalled();
     });
 
     it('closes an open history confirmation when synchronization is cancelled', async () => {
