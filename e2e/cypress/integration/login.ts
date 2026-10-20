@@ -48,6 +48,16 @@ describe('Login', () => {
         cy.get('canvastable canvas:first-of-type').click({ x: 15, y: 40 });
         cy.get('.messageListActionButtonsRight').should('be.visible');
         cy.get('.messageListActionButtonsRight > button').its('length').should('be.greaterThan', 2);
+        cy.get('.messageListActionButtonsRight > button').eq(1).find('mat-icon')
+            .should('have.attr', 'svgicon', 'delete');
+        cy.get('.messageListActionButtonsRight > button').then(($buttons) => {
+            const actionArea = $buttons[0].parentElement.getBoundingClientRect();
+            for (let i = 0; i < 2; i++) {
+                const button = $buttons[i].getBoundingClientRect();
+                expect(button.left).to.be.at.least(actionArea.left);
+                expect(button.right).to.be.at.most(actionArea.right);
+            }
+        });
     });
 
     it('should log in with 2fa', () => {
