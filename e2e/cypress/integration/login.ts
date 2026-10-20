@@ -35,6 +35,21 @@ describe('Login', () => {
         expectWebmail();
     });
 
+    it('keeps message actions visible while offering the initial index', () => {
+        cy.viewport(1100, 600);
+        cy.request('/rest/e2e/logout');
+        cy.request('/rest/e2e/disable2fa');
+
+        expectLoginPage();
+        enterCredentials();
+        clickLogin();
+
+        cy.get('#offerLocalIndex').should('be.visible');
+        cy.get('canvastable canvas:first-of-type').click({ x: 15, y: 40 });
+        cy.get('.messageListActionButtonsRight').should('be.visible');
+        cy.get('.messageListActionButtonsRight > button').its('length').should('be.greaterThan', 2);
+    });
+
     it('should log in with 2fa', () => {
         cy.request('/rest/e2e/logout');
         cy.request('/rest/e2e/require2fa');
