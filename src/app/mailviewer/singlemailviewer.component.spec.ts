@@ -231,6 +231,37 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('should hide sanitized HTML notification when printing message', fakeAsync(() => {
+    fixture.detectChanges();
+    component.messageId = 22;
+    fixture.detectChanges();
+    tick(1);
+    component.showHTML = true;
+    fixture.detectChanges();
+
+    const liveNotification = fixture.nativeElement.querySelector('.notificationContainer') as HTMLElement;
+    expect(liveNotification).toBeTruthy();
+    expect(liveNotification.textContent).toContain('This HTML message has been sanitized for your security.');
+
+    let printableContent = '';
+    const OriginalBlob = window.Blob;
+    spyOn(window, 'Blob').and.callFake(function(parts: BlobPart[], options?: BlobPropertyBag) {
+      printableContent = parts.join('');
+      return new OriginalBlob(parts, options);
+    } as unknown as typeof Blob);
+    spyOn(URL, 'createObjectURL').and.returnValue('about:blank');
+
+    component.print();
+    component.printFrame.nativeElement.onload = null;
+
+    const container = document.createElement('div');
+    container.innerHTML = printableContent;
+    const printedNotification = container.querySelector('.notificationContainer') as HTMLElement;
+    expect(printedNotification).toBeTruthy();
+    expect(printedNotification.style.display).toBe('none');
+    expect(liveNotification.style.display).toBe('block');
+  }));
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
