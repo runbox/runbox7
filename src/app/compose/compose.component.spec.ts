@@ -21,7 +21,7 @@ import { Location } from '@angular/common';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { DialogService } from '../dialog/dialog.service';
@@ -39,9 +39,10 @@ describe('ComposeComponent autosave after sending', () => {
             email: 'sender@example.com', from_name: 'Sender', id: 7, folder: 'sent',
         });
         const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+        const messageContents = new Subject<unknown>();
         const rmmapi = {
             me: of({ username: 'tester' }),
-            getMessageContents: jasmine.createSpy('getMessageContents').and.returnValue(of({ text: { text: 'Message body' } })),
+            getMessageContents: jasmine.createSpy('getMessageContents').and.returnValue(messageContents.asObservable()),
             saveDraft: jasmine.createSpy('saveDraft').and.returnValue(sendResult),
             deleteCachedMessageContents: jasmine.createSpy('deleteCachedMessageContents'),
         };
@@ -49,13 +50,14 @@ describe('ComposeComponent autosave after sending', () => {
         http.post.and.returnValue(of({ mid: 100 }));
         const draftDeskservice = {
             fromsSubject: new BehaviorSubject<Identity[]>([identity]),
-            isEditing: -1,
+            isEditing: mid,
             composingNewDraft: null,
             shouldReturnToPreviousPage: false,
         };
         const preferenceService = {
             prefGroup: 'compose',
             preferences: new BehaviorSubject(new Map<string, string>()),
+            set: jasmine.createSpy('set'),
         };
         const component = new ComposeComponent(
             router,
@@ -74,6 +76,19 @@ describe('ComposeComponent autosave after sending', () => {
         component.model = DraftFormModel.create(mid, identity, 'recipient@example.com', 'Draft');
         component.model.msg_body = 'Message body';
         component.ngOnInit();
+        if (mid > 0) {
+            messageContents.next({
+                mid,
+                headers: {
+                    from: { value: [{ name: 'undefined', address: 'sender@example.com' }] },
+                    to: { value: [{ name: '', address: 'recipient@example.com' }] },
+                    subject: 'Draft',
+                },
+                text: { text: 'Message body' },
+            });
+            expect(component.editing).toBeTrue();
+            expect(rmmapi.getMessageContents).toHaveBeenCalledWith(mid);
+        }
         return { component, http, rmmapi, router };
     }
 
