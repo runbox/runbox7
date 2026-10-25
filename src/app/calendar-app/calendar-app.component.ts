@@ -132,16 +132,22 @@ export class CalendarAppComponent implements OnDestroy {
             }
             this.updateEventColors();
             this.cdr.markForCheck();
-            // see if we're told to import some email-ICS
+            // see if we're told to import some email-ICS or create an event from an email
             this.route.queryParams.subscribe(params => {
                 const icsUrl = params.import_from;
-                if (!icsUrl)  { return; }
-                this.http.get(icsUrl, { responseType: 'blob' }).subscribe((res) => {
-                    (new Response(res).text().then(text => {
-                        this.processIcsImport(text);
-                    }));
-                });
-                this.router.navigate(['/calendar'], { queryParams: {}, replaceUrl: true });
+                if (icsUrl) {
+                    this.http.get(icsUrl, { responseType: 'blob' }).subscribe((res) => {
+                        (new Response(res).text().then(text => {
+                            this.processIcsImport(text);
+                        }));
+                    });
+                    this.router.navigate(['/calendar'], { queryParams: {}, replaceUrl: true });
+                    return;
+                }
+                if (params.title !== undefined || params.description !== undefined) {
+                    this.addEvent(undefined, params.title, params.description);
+                    this.router.navigate(['/calendar'], { queryParams: {}, replaceUrl: true });
+                }
             });
         });
         this.calendarservice.eventSubject.subscribe(events => {
@@ -180,10 +186,16 @@ export class CalendarAppComponent implements OnDestroy {
         return formatDate(this.viewDate, titleFormat, 'en');
     }
 
-    addEvent(on?: Date): void {
+    addEvent(on?: Date, title?: string, description?: string): void {
         // setup new event
         const new_event = RunboxCalendarEvent.newEmpty(this.calendarservice.me.timezone);
         new_event.timezone = this.calendarservice.me.timezone;
+        if (title) {
+            new_event.title = title;
+        }
+        if (description) {
+            new_event.description = description;
+        }
         const dialogRef = this.dialog.open(EventEditorDialogComponent, {
             data: { event: new_event, calendars: this.calendars, settings: this.settings, start: on, is_new: true } }
         );
