@@ -24,7 +24,7 @@ import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/lega
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MessageCache } from './messagecache';
-import { firstValueFrom } from 'rxjs';
+import { AsyncSubject, firstValueFrom } from 'rxjs';
 
 describe('RBWebMail', () => {
     beforeEach(() => {
@@ -49,20 +49,19 @@ describe('RBWebMail', () => {
 
     it('should cache message contents', async () => {
         const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const testMessageCache = TestBed.inject(MessageCache);
+        const messageCacheSubject = new AsyncSubject<MessageCache>();
+        messageCacheSubject.next(testMessageCache);
+        messageCacheSubject.complete();
+        Object.assign(rmmapi, { messageCache: messageCacheSubject });
 
         let messageContentsObservable = rmmapi.getMessageContents(123);
         // We need this nonsense because httpTestingController's asserts expect results *right now*
         // this is a good enough cheat to have the actual request kick in early enough.
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        // We now expect login / httpauth to set the runboxme values
-        // so we set it directly here
-        rmmapi.setRunboxMe({'uid': '11', 'last_name': 'testuser'});
         const httpTestingController = TestBed.inject(HttpTestingController);
 
-        // HACK: crappy solution to get the email request to resolve
-        // see https://github.com/angular/angular/issues/25965
-        await new Promise(resolve => setTimeout(resolve, 500));
         let req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
             status: 'success',
