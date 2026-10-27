@@ -72,6 +72,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     public editing = false;
     public isUnsaved = false;
     public savingInProgress = false;
+    private sentSuccessfully = false;
     // public uploadprogress: number = null;
     public uploadingFiles: File[] = [];
     public uploadRequest: Subscription = null;
@@ -687,6 +688,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     public submit(send = false) {
+        // A queued autosave can fire after a quick send, even once this view
+        // has started navigating away. Never turn the sent message into a draft.
+        if (!send && this.sentSuccessfully) {
+            return;
+        }
         const isTemplate = Boolean(this.isTemplate ?? this.model.tid);
 
         if (this.savingInProgress) {
@@ -771,6 +777,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                         return;
                     }
 
+                    this.sentSuccessfully = true;
                     this.model.mid = parseInt(res[2], 10);
                     this.rmmapi.deleteCachedMessageContents(this.model.mid);
                     this.snackBar.open(res[1], null, { duration: 3000 });
