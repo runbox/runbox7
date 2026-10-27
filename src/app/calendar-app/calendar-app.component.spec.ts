@@ -41,6 +41,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import moment from 'moment';
 import ICAL from 'ical.js';
 import { RunboxCalendarView } from './runbox-calendar-view';
+import { EventEditorDialogComponent } from './event-editor-dialog.component';
 
 describe('CalendarAppComponent', () => {
     let component: CalendarAppComponent;
@@ -322,5 +323,21 @@ END:VCALENDAR
         expect(first_occurence.getDate()).toBe(1, 'day matches');
         expect(first_occurence.getHours()).toBe(12, 'hour matches');
         expect(first_occurence.getMinutes()).toBe(34, 'minute matches');
+    });
+
+    it('should pre-fill title and description in event editor dialog when creating an event from an email', () => {
+        component.calendarservice.syncCaldav(true);
+        fixture.detectChanges();
+
+        const dialogOpenSpy = spyOn(component['dialog'], 'open').and.callThrough();
+
+        component['addEvent'](undefined, 'Test email subject', 'Plain text email body');
+
+        expect(dialogOpenSpy).toHaveBeenCalled();
+        const dialogRef = dialogOpenSpy.calls.mostRecent().returnValue;
+        const dialogInstance = dialogRef.componentInstance as EventEditorDialogComponent;
+        expect(dialogInstance.event_title).toBe('Test email subject');
+        expect(dialogInstance.event_description).toBe('Plain text email body');
+        dialogRef.close();
     });
 });

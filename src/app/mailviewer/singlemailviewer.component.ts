@@ -766,6 +766,22 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       });
   }
 
+  public createCalendarEvent() {
+    if (!this.mailObj) {
+      return;
+    }
+    const title = this.mailObj.subject || '';
+    const description = (this.mailObj.rawtext && this.mailObj.rawtext !== 'undefined')
+      ? this.mailObj.rawtext
+      : (typeof this.mailObj.text === 'string' && this.mailObj.text !== 'undefined' ? this.mailObj.text : '');
+    this.router.navigate(['/calendar'], {
+      queryParams: {
+        title,
+        description,
+      }
+    });
+  }
+
   public openAttachment(attachment: any) {
     if (attachment.contentType.indexOf('text/calendar') > -1) {
       this.router.navigate(['/calendar'], { queryParams: { import_from: attachment.downloadURL }});
