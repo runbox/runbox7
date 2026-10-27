@@ -1003,6 +1003,8 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 }
 .messageListActionButtonsRight {
     flex-grow: 1;
+    // Keep two primary actions and the overflow menu reachable while the index prompt is shown.
+    min-width: 90px;
     overflow: hidden;
 }
 

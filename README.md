@@ -126,6 +126,9 @@ You can run the individual tests using one of the following commands:
 Or run them all at once with `npm run ci-tests` -- this option will run the tests with the same settings as our CI setup,
 making sure that any errors will be caught before your code becomes public.
 
+The login end-to-end spec covers the first-run synchronization prompt at a narrow desktop width. It checks that
+message actions and the prompt buttons remain usable together, guarding against toolbar layout regressions.
+
 ## Further help
 
 To get more help on the Angular CLI use `npx ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
