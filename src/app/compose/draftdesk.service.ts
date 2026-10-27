@@ -74,7 +74,10 @@ export class DraftFormModel {
                          message_date?: Date): DraftFormModel {
         const ret = new DraftFormModel();
         ret.from = fromAddress.email;
-        ret.mid = draftId;
+        // Preserve the unique negative mid from newDraftCount for unsaved drafts (#1077)
+        if (draftId > 0) {
+            ret.mid = draftId;
+        }
         ret.to = to ? MailAddressInfo.parse(to) : [];
         ret.subject = subject;
         if (preview) {
@@ -307,6 +310,10 @@ export class DraftDeskService {
     }
 
     public deleteDraft(messageId: number) {
+        // Clear composingNewDraft when the active unsaved draft is deleted (#1077)
+        if (this.composingNewDraft && this.composingNewDraft.mid === messageId) {
+            this.composingNewDraft = null;
+        }
         let models = this.draftModels.value;
         models = models.filter(dm => dm.mid !== messageId);
         this.draftModels.next(models);
