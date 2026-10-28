@@ -184,7 +184,7 @@ class SearchIndexService {
           FS.mount(IDBFS, {}, this.partitionsdir);
 
           try {
-            console.log('Worker: Last index timestamp ', FS.stat('xapianglasswr/docdata.glass').mtime);
+            console.log('Worker: Last index timestamp ', FS.stat('xapianglasswr/iamglass').mtime);
 
             this.openStoredMainPartition();
 
