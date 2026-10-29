@@ -41,6 +41,43 @@ const formatDate = (date) => {
 describe('DraftDesk', () => {
     const mailDate = new Date(2017, 6, 1);
 
+    it('Create: decodes MIME encoded draft subject and recipient name', () => {
+        const draft = DraftFormModel.create(
+            12,
+            Identity.fromObject({'email':'to@runbox.com'}),
+            '=?UTF-8?Q?Koteck=C3=BD?= <k@example.com>',
+            '=?UTF-8?Q?[Par_S=C3=A9rie]?= renewal'
+        );
+
+        expect(draft.subject).toBe('[Par S\u00e9rie] renewal');
+        expect(draft.to[0].nameAndAddress).toBe('"Koteck\u00fd" <k@example.com>');
+    });
+
+    it('Reply: decodes MIME encoded subject and sender name', () => {
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+            },
+            from: [
+                {address: 'from@runbox.com', name: '=?UTF-8?Q?Koteck=C3=BD?='}
+            ],
+            to: [
+                {address: 'to@runbox.com', name: 'To'}
+            ],
+            date: mailDate,
+            subject: '=?UTF-8?Q?[Par_S=C3=A9rie]?= renewal',
+            text: 'blabla',
+            rawtext: 'blabla',
+            html: '<p>blabla</p>'
+        },
+        [ Identity.fromObject({'email':'to@runbox.com'})],
+        false, false);
+
+        expect(draft.subject).toBe('Re: [Par S\u00e9rie] renewal');
+        expect(draft.to[0].nameAndAddress).toBe('"Koteck\u00fd" <from@runbox.com>');
+        expect(draft.msg_body).toContain('"Koteck\u00fd" <from@runbox.com> wrote:');
+    });
+
     it('Forward: froms, plain text', (done) => {
         // fromObj, identities, all (t/f), html (t/f)
         const draft = DraftFormModel.forward({
