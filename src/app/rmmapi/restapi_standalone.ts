@@ -28,7 +28,8 @@ export function listAllMessages(
   sincechangeddate = 0,
   pagesize: number = LIST_ALL_MESSAGES_CHUNK_SIZE,
   skipContent = false,
-  folder?: string)
+  folder?: string,
+  signal?: AbortSignal)
 : Promise<MessageInfo[]> {
   // TODO: Need a JSON based REST api endpoint for this
   const url = '/mail/download_xapian_index?ngsw-bypass=1' +
@@ -45,6 +46,7 @@ export function listAllMessages(
     headers: {
       'Content-Type': 'text/plain',
     },
+    signal,
   }).then((response) => {
     if (!response.ok) {
       throw new Error('Failed to fetch download_xapian_index?listallmessages ' + response.statusText);
@@ -90,15 +92,14 @@ export function listAllMessages(
         return ret;
       });
       return msgs;
-    })
-    .catch((error) => {
-      console.error(error);
-      return [];
     });
 
 }
 
-export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number[]> {
+export function listDeletedMessagesSince(
+  sincechangeddate: Date,
+  signal?: AbortSignal
+): Promise<number[]> {
         const datestring = sincechangeddate.toJSON().replace('T', ' ').substr(0, 'yyyy-MM-dd HH:mm:ss'.length);
         const url = `/rest/v1/list/deleted_messages/${datestring}`;
 
@@ -108,6 +109,7 @@ export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number
       headers: {
         'Content-Type': 'application/json',
       },
+      signal,
     }
   ).then((response) => {
     if (!response.ok) {
@@ -117,10 +119,6 @@ export function listDeletedMessagesSince(sincechangeddate: Date): Promise<number
   })
     .then((r) => {
       return r.message_ids as number[];
-    })
-    .catch((error) => {
-      console.error(error);
-      return [];
     });
 }
 
