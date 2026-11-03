@@ -284,11 +284,13 @@
     
       <ng-container>
         <mat-list>
-          <mat-list-item class="link-pointer" *ngFor="let att of mailObj.attachments; let i=index" (click)="openAttachment(att)">
-            <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
+          <ng-container *ngFor="let att of mailObj.attachments">
+            <mat-list-item class="link-pointer"
+              *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)"
+              (click)="openAttachment(att)">
               <mat-icon mat-list-icon svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon> <span>{{att.filename}}</span><span style="flex-grow: 1"></span><span>{{att.sizeDisplay}}</span>
-            </ng-container>
-          </mat-list-item>
+            </mat-list-item>
+          </ng-container>
         </mat-list>
       </ng-container>
     </mat-expansion-panel>
@@ -388,33 +390,32 @@
     <mat-card #attachmentsSection *ngIf="showAttachments">
       <mat-card-content>
         <mat-grid-list [cols]="attachmentAreaCols" gutterSize="5px">
-          <mat-grid-tile
-            *ngFor="let att of mailObj.attachments; let i=index"
-            (click)="openAttachment(att)"
-            style="max-width: 150px">
-            <mat-grid-tile-header>
-              <span class="string-ellipsis">{{att.sizeDisplay}}</span>
-            </mat-grid-tile-header>
-              <ng-container *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)">
-                <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
-                  <img  matListAvatar
-                    [src]="att.thumbnailURL" />
-                </ng-container>
-                <ng-template #attachment_icon>
-                  <mat-icon class="icon-bigger" matListAvatar svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
-                </ng-template>
-                <mat-grid-tile-footer style="display: flex; text-align: center; justify-content: space-between;">
-                    <span class="string-ellipsis">{{att.filename}}</span>
-                    <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
-                      matTooltip="Decrypt message"
-                      (click)="decryptAttachment(i);$event.stopPropagation()"
-                    ><mat-icon svgIcon="lock-open"></mat-icon></button>
-                    <button mat-icon-button
-                      (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
-                    ><mat-icon svgIcon="cloud-download"></mat-icon></button>
-                </mat-grid-tile-footer>
+          <ng-container *ngFor="let att of mailObj.attachments; let i=index">
+            <mat-grid-tile
+              *ngIf="!att.internal || !(mailContentHTML && showHTML && SUPPORTS_IFRAME_SANDBOX)"
+              (click)="openAttachment(att)"
+              style="max-width: 150px">
+              <mat-grid-tile-header>
+                <span class="string-ellipsis">{{att.sizeDisplay}}</span>
+              </mat-grid-tile-header>
+              <ng-container *ngIf="att.thumbnailURL; else attachment_icon">
+                <img matListAvatar [src]="att.thumbnailURL" />
               </ng-container>
-          </mat-grid-tile>
+              <ng-template #attachment_icon>
+                <mat-icon class="icon-bigger" matListAvatar svgIcon="{{attachmentIconFromContentType(att.contentType)}}"></mat-icon>
+              </ng-template>
+              <mat-grid-tile-footer style="display: flex; text-align: center; justify-content: space-between;">
+                <span class="string-ellipsis">{{att.filename}}</span>
+                <button mat-icon-button *ngIf="att.filename==='encrypted.asc'"
+                  matTooltip="Decrypt message"
+                  (click)="decryptAttachment(i);$event.stopPropagation()"
+                ><mat-icon svgIcon="lock-open"></mat-icon></button>
+                <button mat-icon-button
+                  (click)="downloadAttachmentFromServer(i);$event.stopPropagation()"
+                ><mat-icon svgIcon="cloud-download"></mat-icon></button>
+              </mat-grid-tile-footer>
+            </mat-grid-tile>
+          </ng-container>
         </mat-grid-list>
 
       </mat-card-content>

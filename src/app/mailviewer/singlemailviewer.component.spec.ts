@@ -31,6 +31,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
+import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
 import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
@@ -100,6 +101,7 @@ describe('SingleMailViewerComponent', () => {
         MatButtonModule,
         MatRadioModule,
         MatMenuModule,
+        MatListModule,
         MatCardModule,
         MatDialogModule,
         ResizerModule,
@@ -230,6 +232,88 @@ describe('SingleMailViewerComponent', () => {
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
+
+  describe('attachment display', () => {
+    function showMixedAttachments() {
+      const html = '<p>Message</p><img src="cid:first"><img src="cid:second">';
+      spyOn(TestBed.inject(RunboxWebmailAPI), 'getMessageContents').and.returnValue(of(
+        Object.assign(new MessageContents(), {
+          headers: {
+            from: { value: [{ address: 'test@example.com', name: 'Test' }] },
+            date: '2026-07-03T08:43:31.000Z',
+            subject: 'Inline images and downloadable attachments'
+          },
+          text: { text: 'Message', html, textAsHtml: '<p>Message</p>' },
+          sanitized_html: html,
+          sanitized_html_without_images: html,
+          attachments: [
+            { cid: 'first', filename: '', contentType: 'image/png', size: 512 },
+            { filename: 'report.pdf', contentType: 'application/pdf', size: 2048 },
+            { cid: 'second', filename: 'logo.png', contentType: 'image/png', size: 1024 },
+            { filename: 'encrypted.asc', contentType: 'application/pgp-encrypted', size: 4096 }
+          ]
+        })
+      ));
+      component.messageId = 22;
+      component.showHTML = true;
+      component.SUPPORTS_IFRAME_SANDBOX = true;
+      fixture.detectChanges();
+      tick(1);
+      fixture.detectChanges();
+    }
+
+    it('omits inline image rows and tiles from mixed HTML attachments', fakeAsync(() => {
+      showMixedAttachments();
+
+      // #1991: hiding only the contents leaves clickable blank rows and size-only tiles.
+      expect(component.mailObj.attachments.map(att => att.internal)).toEqual([true, false, true, false]);
+      const rows = fixture.nativeElement.querySelectorAll('#attachmentsListHeader mat-list-item');
+      const tiles = fixture.nativeElement.querySelectorAll('mat-grid-tile');
+      expect(rows.length).toBe(2);
+      expect(tiles.length).toBe(2);
+      expect(Array.from(rows).map((row: HTMLElement) => row.textContent)).toEqual([
+        jasmine.stringMatching(/report\.pdf/), jasmine.stringMatching(/encrypted\.asc/)
+      ]);
+      expect(Array.from(tiles).map((tile: HTMLElement) => tile.textContent)).toEqual([
+        jasmine.stringMatching(/report\.pdf/), jasmine.stringMatching(/encrypted\.asc/)
+      ]);
+      flush();
+    }));
+
+    it('keeps attachment actions tied to original MIME attachment indices', fakeAsync(() => {
+      showMixedAttachments();
+      const open = spyOn(component, 'openAttachment');
+      const download = spyOn(component, 'downloadAttachmentFromServer');
+      const decrypt = spyOn(component, 'decryptAttachment');
+      const rows = fixture.nativeElement.querySelectorAll('#attachmentsListHeader mat-list-item');
+      const tiles = fixture.nativeElement.querySelectorAll('mat-grid-tile');
+
+      rows[0].click();
+      expect(open).toHaveBeenCalledWith(component.mailObj.attachments[1]);
+      const reportTile = Array.from(tiles).find((tile: HTMLElement) => tile.textContent.includes('report.pdf')) as HTMLElement;
+      reportTile.querySelector('button').click();
+      expect(download).toHaveBeenCalledWith(1);
+      const encryptedTile = Array.from(tiles).find((tile: HTMLElement) => tile.textContent.includes('encrypted.asc')) as HTMLElement;
+      const encryptedButtons = encryptedTile.querySelectorAll('button');
+      encryptedButtons[0].click();
+      encryptedButtons[1].click();
+      expect(decrypt).toHaveBeenCalledWith(3);
+      expect(download).toHaveBeenCalledWith(3);
+      flush();
+    }));
+
+    it('keeps inline images available when viewing plain text or without an HTML sandbox', fakeAsync(() => {
+      showMixedAttachments();
+      for (const [showHTML, sandbox] of [[false, true], [true, false]]) {
+        component.showHTML = showHTML;
+        component.SUPPORTS_IFRAME_SANDBOX = sandbox;
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelectorAll('#attachmentsListHeader mat-list-item').length).toBe(4);
+        expect(fixture.nativeElement.querySelectorAll('mat-grid-tile').length).toBe(4);
+      }
+      flush();
+    }));
+  });
 
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
