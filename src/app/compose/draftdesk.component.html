@@ -3,8 +3,14 @@
     <h1>Draft Desk</h1>
   </div>
   
-  <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView" [ngClass]="{'draftPreviewContainer': !editing}"></compose>
-  <div *ngIf="hasMoreDrafts" class="has-more-drafts">            
+  <div *ngIf="draftModelsInView.length > 0" class="draftdesk-options">
+    <mat-checkbox [checked]="showDraftPreviews" (change)="showDraftPreviews = $event.checked">
+      Show draft previews
+    </mat-checkbox>
+    <span *ngIf="!showDraftPreviews">Only drafts open for editing are shown.</span>
+  </div>
+  <compose [model]="draftModel" (draftDeleted)="draftDeleted($event)" #draft *ngFor="let draftModel of draftModelsInView" [ngClass]="{'draftPreviewContainer': !editing}" [hidden]="!showDraftPreviews && !draft.editing"></compose>
+  <div *ngIf="hasMoreDrafts && showDraftPreviews" class="has-more-drafts">
     <button mat-icon-button mat-tooltip="Show more" (click)="showMore()" style="transform: scale(4,4);">
       <mat-icon svgIcon="dots-horizontal"></mat-icon>
     </button>        
