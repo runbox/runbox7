@@ -126,6 +126,19 @@ You can run the individual tests using one of the following commands:
 Or run them all at once with `npm run ci-tests` -- this option will run the tests with the same settings as our CI setup,
 making sure that any errors will be caught before your code becomes public.
 
+### Touch descriptions in action toolbars
+
+On a touch screen, hold an icon for half a second to reveal its description, then slide across
+nearby icons to read theirs. Releasing the finger does not run an action; a separate tap does.
+This applies to header navigation, the mail and message toolbars, draft controls and mobile
+message-action buttons. Moving before the hold begins keeps the normal scrolling gesture.
+
+To verify locally, start the mock backend and app using the commands above. In a mobile browser
+or browser touch emulation, hold a header link, slide to another link, and release: the route
+must remain unchanged. A subsequent tap should navigate. Repeat with a message action or menu
+button; holding must not execute the action or open the menu. Ordinary mouse and keyboard
+activation should still work.
+
 ## Further help
 
 To get more help on the Angular CLI use `npx ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).

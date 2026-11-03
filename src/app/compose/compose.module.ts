@@ -19,6 +19,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RunboxCommonModule } from '../common/common.module';
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
@@ -43,6 +44,7 @@ export { MailRecipientInputComponent} from './mailrecipientinput.component';
 @NgModule({
   imports: [
       CommonModule,
+      RunboxCommonModule,
       MatAutocompleteModule,
       MatCheckboxModule,
       MatButtonModule,

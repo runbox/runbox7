@@ -735,7 +735,7 @@ rmm-headertoolbar {
     transition: margin-top 0.25s;
 }
 
-.mainMenu:hover {
+.mainMenu:hover, .mainMenu.touch-description-visible {
     margin-top: -10px;
 
     .mainMenuDesc {
