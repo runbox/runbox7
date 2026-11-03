@@ -126,6 +126,8 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     ngOnInit() {
+        const signaturePrefix = (useHTML: boolean) => this.model.replying ?
+            (useHTML ? '<br />\n<br />' : '\n\n') : '';
         if (this.model.isUnsaved()) {
             this.editing = true;
             this.isUnsaved = true;
@@ -144,9 +146,9 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     // Sig is HTML, or Reply/Fwd Draft is HTML (contains .html)
                     if ( from.is_signature_html || this.model.useHTML) {
                         this.model.useHTML = true;
-                        this.model.html = this.signature.concat('\n\n', this.model.html || this.model.msg_body);
+                        this.model.html = signaturePrefix(true).concat(this.signature, '\n\n', this.model.html || this.model.msg_body);
                     } else {
-                        this.model.msg_body = this.signature.concat('\n\n', this.model.msg_body);
+                        this.model.msg_body = signaturePrefix(false).concat(this.signature, '\n\n', this.model.msg_body);
                     }
 
                 }
@@ -228,21 +230,23 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     if ( this.signature && from.signature ) {
                         // replaces current signature with new one
                         const new_signature = from.signature;
-                        const rgx = new RegExp('^' + this.signature, 'g');
-                        const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, new_signature);
+                        const escaped_signature = this.signature.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const rgx = new RegExp('^((?:\\r?\\n|<br\\s*/?>)*)' + escaped_signature);
+                        const replaceSignature = (_match: string, spacing: string) => spacing + new_signature;
+                        const msg_body = this.formGroup.controls.msg_body.value.replace(rgx, replaceSignature);
                         this.signature = new_signature;
                         if (this.formGroup.value.useHTML && this.editor) {
-                            this.model.html = this.model.html.replace(rgx, new_signature);
+                            this.model.html = this.model.html.replace(rgx, replaceSignature);
                             this.editor.setContent(this.model.html);
                         } else {
                             this.formGroup.controls.msg_body.setValue(msg_body);
                         }
                     } else if ( !this.signature && from.signature) {
                         this.has_pasted_signature = true;
-                        const msg_body = from.signature.concat('\n\n', this.model.msg_body);
+                        const msg_body = signaturePrefix(false).concat(from.signature, '\n\n', this.model.msg_body);
                         this.signature = from.signature;
                         if (from.is_signature_html || (this.formGroup.value.useHTML && this.editor)) {
-                            this.model.html = this.signature.concat('\n\n', this.model.html);
+                            this.model.html = signaturePrefix(true).concat(this.signature, '\n\n', this.model.html);
                             if (!this.formGroup.value.useHTML) {
                                 this.formGroup.controls.msg_body.setValue(true);
                                 this.htmlToggled();
