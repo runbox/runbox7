@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, take } from 'rxjs/operators';
 import {
   Component, Input, OnInit, Output, EventEmitter, ViewChild,
   ViewChildren,
@@ -31,8 +31,9 @@ import DOMPurify from 'dompurify';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 
 import { MatButtonToggle } from '@angular/material/button-toggle';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { MatRadioChange, MatRadioGroup } from '@angular/material/radio';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MessageActions } from './messageactions';
 import { ProgressDialog } from '../dialog/progress.dialog';
@@ -59,7 +60,7 @@ const showImagesDecisionKey = 'rmm7showimagesdecision';
 const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
-const TOOLBAR_BUTTON_WIDTH = 30;
+export const TOOLBAR_BUTTON_WIDTH = 30;
 
 
 type Mail = any;
@@ -90,6 +91,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @ViewChild('messageContents') messageContents: ElementRef;
   @ViewChild('htmliframe') htmliframe: ElementRef;
   @ViewChild('htmlToggleButton') htmlToggleButton: MatButtonToggle;
+  @ViewChild('htmlToggleGroup', { read: MatRadioGroup }) htmlToggleGroup: MatRadioGroup;
   @ViewChild('replyMessageHeader', {read: ElementRef}) replyHeaderHTML: ElementRef;
   @ViewChildren('replyMessageHeader', {read: ElementRef}) replyHeaderHTMLQuery: QueryList<ElementRef>;
   @ViewChild('forwardMessageHeader', {read: ElementRef}) messageHeaderHTML: ElementRef;
@@ -354,24 +356,35 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
   }
 
-  public toggleHtml(event) {
-    event.preventDefault();
-
+  // MDC radios bubble both the real and the label-generated click, firing
+  // click handlers twice; the group's change event fires once per selection
+  public htmlViewChanged(event: MatRadioChange) {
     this.savedAlways = false;
     this.savedForThisSender = false;
-    if (!this.showHTML) {
-      console.log(this.showHTMLDecision);
-      const decisionObservable = this.showHTMLDecision ?
-        of(this.showHTMLDecision) : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
 
-      decisionObservable.subscribe(result => {
-        this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
-        this.showHTMLDecision = result;
-        this.showHTML = true;
-      });
-    } else {
+    if (event.value !== 'HTML') {
       this.showHTML = false;
+      return;
     }
+
+    // the dialog result only counts while we are still on the same message
+    const messageIdAtOpen = this.messageId;
+    const decision = this.showHTMLDecision
+      ? of(this.showHTMLDecision)
+      : this.dialog.open(ShowHTMLDialogComponent).afterClosed();
+
+    decision.subscribe(result => {
+      if (!result || this.messageId !== messageIdAtOpen) {
+        // cancelling leaves the group on HTML (the click already selected
+        // it) while showHTML stays false, so resync the group explicitly
+        this.showHTML = false;
+        this.htmlToggleGroup.value = 'Plain';
+        return;
+      }
+      this.preferenceService.set(this.preferenceService.prefGroup, showHtmlDecisionKey, result);
+      this.showHTMLDecision = result;
+      this.showHTML = true;
+    });
   }
 
   public showExternalImages(event) {
@@ -434,7 +447,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.savedAlways = true;
       return;
     }
-    this.contactsservice.contactsSubject.subscribe(contacts => {
+    // decide once per message from the current contacts; the subject
+    // re-emits on every sync and must not re-force an unchecked view
+    this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
       const contact = contacts.find((c) => c.primary_email() === email);
       if (contact && contact.show_html) {
         this.showHTML = true;
@@ -453,7 +468,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.mailContentHTML = this.mailContentHTMLWithImages;
       return;
     }
-    this.contactsservice.contactsSubject.subscribe(contacts => {
+    this.contactsservice.contactsSubject.pipe(take(1)).subscribe(contacts => {
       const contact = contacts.find((c) => c.primary_email() === email);
       if (contact && contact.show_external_html) {
         this.showImages = true;

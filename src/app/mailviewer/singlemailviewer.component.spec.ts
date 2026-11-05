@@ -19,22 +19,23 @@
 
 import { ComponentFixture, TestBed, tick, fakeAsync, waitForAsync, flush } from '@angular/core/testing';
 
-import { SingleMailViewerComponent } from './singlemailviewer.component';
+import { SingleMailViewerComponent, TOOLBAR_BUTTON_WIDTH } from './singlemailviewer.component';
 import { ResizerModule } from '../directives/resizer.module';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -59,7 +60,7 @@ import { take } from 'rxjs/operators';
 import { ReplaySubject } from 'rxjs';
 
 export class ContactsServiceMock {
-    public contactsSubject = of([
+    public contacts = [
         new Contact({
             id: 5,
             nick: 'test',
@@ -74,7 +75,12 @@ export class ContactsServiceMock {
             kind: ContactKind.SETTINGSONLY,
             emails: [{ types: ['home'], value: 'fred@bloggs.com' }]
         })
-    ]);
+    ];
+    public contactsSubject = new ReplaySubject<Contact[]>(1);
+
+    constructor() {
+        this.contactsSubject.next(this.contacts);
+    }
 
     lookupAvatar(_email: string) {
         return Promise.resolve(null);
@@ -110,10 +116,11 @@ describe('SingleMailViewerComponent', () => {
         MatTooltipModule,
         MatDividerModule,
         MatExpansionModule,
+        MatListModule,
         MatSnackBarModule,
         RouterTestingModule
       ],
-      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent, MatIcon],
+      declarations: [AvatarBarComponent, ContactCardComponent, SingleMailViewerComponent],
       providers: [
         MobileQueryService,
         StorageService,
@@ -229,6 +236,59 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[0].thumbnailURL.indexOf('attachmentimagethumbnail/0')).toBeGreaterThan(-1);
 
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
+    }));
+
+  it('keeps the users images-off choice across contacts refreshes', fakeAsync(() => {
+      const contactsMock = TestBed.inject(ContactsService) as unknown as ContactsServiceMock;
+      component.mailContentHTMLWithImages = '<img>';
+      component.mailContentHTMLWithoutImages = 'no image';
+      component.showImagesDecision = null;
+
+      // sender has show-external-html saved as a contact: images start on
+      component.showImagesForThisSender('fred@bloggs.com');
+      tick();
+      expect(component.showImages).toBe(true);
+
+      // the user unchecks external images
+      component.showImages = false;
+      component.mailContentHTML = component.mailContentHTMLWithoutImages;
+
+      // a periodic contacts sync re-emits the same contacts
+      contactsMock.contactsSubject.next(contactsMock.contacts);
+      tick();
+
+      expect(component.showImages).toBe(false);
+    }));
+
+  it('renders preview toolbar buttons at the morebuttonindex budget size', fakeAsync(() => {
+      component.messageId = 22;
+      const host: HTMLElement = fixture.nativeElement;
+      document.body.appendChild(host);
+      fixture.detectChanges();
+      tick(1);
+      fixture.detectChanges();
+
+      try {
+        const actionItems = host.querySelectorAll('.messageActionButtonsLeft .mat-mdc-icon-button, .messageActionButtonsRight .mat-mdc-icon-button');
+        const visibleItems = Array.from(actionItems)
+          .filter(item => getComputedStyle(item).display !== 'none');
+        expect(visibleItems.length).toBeGreaterThan(0);
+        expect(visibleItems.some(item => item.closest('.messageActionButtonsLeft'))).toBe(true);
+        for (const item of visibleItems) {
+          // Height shares the state-layer token; a width-only override leaves 44px height
+          expect(item.getBoundingClientRect().width).toBe(TOOLBAR_BUTTON_WIDTH);
+          expect(item.getBoundingClientRect().height).toBe(TOOLBAR_BUTTON_WIDTH);
+        }
+
+        // 48px invisible touch targets overlap at this pitch and steal clicks
+        const touchTargets = host.querySelectorAll('.messageActionButtonsLeft .mat-mdc-button-touch-target, .messageActionButtonsRight .mat-mdc-button-touch-target');
+        expect(touchTargets.length).toBe(actionItems.length);
+        for (const touchTarget of Array.from(touchTargets)) {
+          expect(getComputedStyle(touchTarget).display).toBe('none');
+        }
+      } finally {
+        document.body.removeChild(host);
+      }
     }));
 
   describe('mailto: link interceptor', () => {

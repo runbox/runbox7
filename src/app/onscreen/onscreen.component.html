@@ -62,17 +62,20 @@
         <div id="meetingForm" [ngStyle]="{'display': jitsiAPI ? 'none' : 'flex'}">
             <div class="user-information form-section">
                 <mat-form-field>
-                    <input matInput [(ngModel)]="form.yourName" placeholder="Your name">
+                    <mat-label>Your name</mat-label>
+                    <input matInput [(ngModel)]="form.yourName">
                 </mat-form-field>
                 <mat-form-field>
-                    <input matInput [(ngModel)]="form.yourEmail" placeholder="Visible email address">
+                    <mat-label>Visible email address</mat-label>
+                    <input matInput [(ngModel)]="form.yourEmail">
                 </mat-form-field>
             </div>
         
             <div class="new-meeting form-section">
                 <h4> Create a new meeting </h4>
                 <mat-form-field>
-                    <input matInput [(ngModel)]="form.meetingName" placeholder="Meeting name">
+                    <mat-label>Meeting name</mat-label>
+                    <input matInput [(ngModel)]="form.meetingName">
                 </mat-form-field>
                 <button mat-raised-button color="primary" (click)="createMeeting()"> Start a meeting </button>
             </div>
@@ -80,7 +83,8 @@
             <div class="existing-meeting form-section">
                 <h4> Or join an existing one </h4>
                 <mat-form-field>
-                    <input matInput [(ngModel)]="form.meetingCode" placeholder="Meeting code">
+                    <mat-label>Meeting code</mat-label>
+                    <input matInput [(ngModel)]="form.meetingCode">
                 </mat-form-field>
                 <button mat-raised-button color="primary" (click)="joinMeeting(form.meetingCode)"> Join meeting </button>
             </div>

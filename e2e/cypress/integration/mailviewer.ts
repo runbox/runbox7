@@ -191,4 +191,69 @@ describe('Interacting with mailviewer', () => {
         cy.wait('@getEmail', { timeout: 10000 });
         cy.get('app-avatar-bar').should('exist');
     });
+
+    it('switches between plain text and HTML view', () => {
+        cy.intercept('/rest/v1/email/download/*').as('getEmail');
+        cy.visit('/#Inbox:11');
+        cy.wait('@getEmail', { timeout: 10000 });
+
+        cy.get('.htmlButtons').should('exist');
+        cy.get('.iframe-container').should('not.exist');
+
+        // clicking the HTML option's label asks for confirmation the first time
+        cy.get('.htmlButtons mat-radio-button').eq(1).find('label').click();
+        cy.get('mat-dialog-container').contains('Manually toggle HTML').click();
+        cy.get('.iframe-container').should('exist');
+        cy.get('.htmlButtons mat-radio-button').eq(1).should('have.class', 'mat-mdc-radio-checked');
+
+        // the checkbox half of the reported symptom: images toggle works
+        cy.get('.htmlButtons mat-checkbox[mattooltip="Show external images"]').click()
+            .should('have.class', 'mat-mdc-checkbox-checked');
+        // and toggling it off works too
+        cy.get('.htmlButtons mat-checkbox[mattooltip="Show external images"]').click()
+            .should('not.have.class', 'mat-mdc-checkbox-checked');
+
+        // real browsers re-dispatch a bubbling click on the input for label
+        // clicks; that second click used to revert the view toggle
+        cy.get('.htmlButtons mat-radio-button').eq(0).find('label').click();
+        cy.get('.htmlButtons mat-radio-button').eq(0).find('input')
+            .then($input => $input[0].dispatchEvent(new MouseEvent('click', { bubbles: true })));
+        cy.get('.iframe-container').should('not.exist');
+        cy.get('.htmlButtons mat-radio-button').eq(0).should('have.class', 'mat-mdc-radio-checked');
+        cy.get('.htmlButtons mat-checkbox[mattooltip*="only in HTML view"]').should('exist');
+    });
+
+    it('dismissing the html confirmation keeps the plain view', () => {
+        cy.intercept('/rest/v1/email/download/*').as('getEmail');
+        cy.visit('/#Inbox:11');
+        cy.wait('@getEmail', { timeout: 10000 });
+
+        cy.get('.htmlButtons').should('exist');
+        cy.get('.htmlButtons mat-radio-button').eq(1).find('label').click();
+        cy.get('mat-dialog-container').should('exist');
+
+        // Escape cancels: no HTML view, and the radio pair reflects plain
+        cy.get('mat-dialog-container').type('{esc}');
+        cy.get('mat-dialog-container').should('not.exist');
+        cy.get('.iframe-container').should('not.exist');
+        cy.get('.htmlButtons mat-radio-button').eq(0).should('have.class', 'mat-mdc-radio-checked');
+    });
+
+    it('html dialog confirm does not carry over to another message', () => {
+        cy.intercept('/rest/v1/email/download/*').as('getEmail');
+        cy.visit('/#Inbox:11');
+        cy.wait('@getEmail', { timeout: 10000 });
+
+        cy.get('.htmlButtons').should('exist');
+        cy.get('.htmlButtons mat-radio-button').eq(1).find('label').click();
+        cy.get('mat-dialog-container').should('exist');
+
+        // arrow-key navigation still works while the dialog is open; the
+        // pending confirm must not enable HTML on the newly opened message
+        cy.get('body').type('{downarrow}');
+        cy.hash().should('not.eq', '#Inbox:11');
+        cy.get('mat-dialog-container').contains('Manually toggle HTML').click();
+        cy.wait(500);
+        cy.get('.iframe-container').should('not.exist');
+    });
 });

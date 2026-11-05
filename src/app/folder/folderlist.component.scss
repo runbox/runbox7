@@ -1,5 +1,6 @@
 .mailFolder {
     position: relative;
+    align-items: center;
 }
 
 .mailFolder .expand-button {
@@ -32,11 +33,6 @@
     opacity: 0.5;
 }
 
-.selectedFolder.mat-button {
-    font-size: 14px !important;
-    margin-top: 1px !important;
-}
-
 .dropToFolderAllowed {
     transition: background 0.2s ease;
     background: rgba(0, 255, 0, 0.4);
@@ -54,13 +50,12 @@
     font-size: 10px;
 }
 
-.visibleOnHover {
-    display: none;
-}
-
-mat-list-item.selectedFolder p.visibleOnHover {
-    display: inherit;
-}
 .newMessagesCount .mat-badge-content {
-    width: auto;
+    margin: 0 !important;
+    line-height: 22px !important;
+    box-sizing: content-box !important;
+    display: block !important;
+    position: absolute !important;
+    top: -11px !important;
+    border-radius: 50% !important;
 }

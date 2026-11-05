@@ -22,7 +22,7 @@
  */
 
 import { Component } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector

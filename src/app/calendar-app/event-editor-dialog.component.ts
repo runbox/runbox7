@@ -19,7 +19,7 @@
 
 import { Component, Inject } from '@angular/core';
 import { UntypedFormControl, Validators } from '@angular/forms';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { CalendarSettings } from './calendar-settings';
 import { RunboxCalendar } from './runbox-calendar';
@@ -88,7 +88,7 @@ export class EventEditorDialogComponent {
         { name: 'December',   val: '12',    selected: false },
     ];
     save_types = [
-        { name: 'All ocurrences',         val: RecurSaveType.ALL_OCCURENCES,  disabled: false },
+        { name: 'All occurrences',        val: RecurSaveType.ALL_OCCURENCES,  disabled: false },
         { name: 'This event only',        val: RecurSaveType.THIS_ONLY,       disabled: false },
         { name: 'This and future events', val: RecurSaveType.THIS_AND_FUTURE, disabled: false },
     ];

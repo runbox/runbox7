@@ -39,6 +39,35 @@ Before your human partner opens a PR against this repo, you MUST:
 - Your human partner opens PRs against `runbox7:master`.
 - After it merges, the branch is deleted and master updated from upstream.
 
+## Deployment topology
+
+- GitHub `runbox/runbox7` is the source of truth; PRs merge to `master`.
+- The GitLab mirror `gitlab.runbox.com/runbox/runbox7-mirror` drives deployment
+  through `runbox7-bundler` CI. Pushing a branch to a `stageNN` ref there
+  (e.g. `<branch>:stage05`) builds and deploys to `https://rmmstageNN.runbox.com`;
+  track progress in the mirror's pipelines.
+- Production serves builds of the `live` branch: after merging to `master`,
+  push `master:live` to the mirror (pull `master` first). Each build stamps
+  `Runbox 7 build time:` (written by `src/build/gen-env.js`) into the app
+  footer — use that stamp to identify what an environment runs. Do not infer
+  it by fetching web assets: a cache layer can serve stale bundles.
+- Release tags are build stamps: after verifying a production deploy, tag with
+  the timestamp, colons swapped for full stops (`git tag -a
+  2023-03-29T09.47.33.942Z -m "..."`), and push tags to origin. Tags are listed
+  at github.com/runbox/runbox7/tags. Rolling back means checking out a tag or
+  commit and force-pushing it to `live` on the mirror.
+- The `prod` branch is a legacy deployment ref far behind `master`; do not use
+  it to reason about what production runs.
+- The backend (`gitlab.runbox.com/runbox/rmm`) does not deploy by push. Staging
+  backends are updated manually over VPN: on rmmstageNN as user `rmm`
+  (`sudo -H -u rmm bash`), `git checkout <branch>` in `/home/rmm/runbox`,
+  re-run `rmm-deploy` scripts as needed, then restart `apache2` and
+  `runbox_service_rest_api`. Production uses `utilities/deploy.pl` or per-server
+  `git pull` + Apache reload + REST restart (rmmprod05-07). Adding packages
+  under `runbox/perl/` also needs `05-build-templates` + `06-copy_configs`
+  (they feed Apache's PerlSwitches include list). Canonical reference: the
+  RMMDeploymentSystem wiki page.
+
 ## Tests are mandatory and cherry-pickable
 
 Every feature or bug fix **must** be covered by one or more unit-test specs. For this repo,

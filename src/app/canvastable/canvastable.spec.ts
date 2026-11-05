@@ -73,4 +73,23 @@ describe('canvastable', () => {
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
     });
+
+    it('schedules a repaint when webfonts finish loading', () => {
+        // rows painted before the webfonts load would otherwise keep the
+        // fallback font until an unrelated redraw happens
+        const thenSpy = spyOn(document.fonts.ready, 'then').and.callThrough();
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        fixture.componentInstance.canvastable.columns = [
+            {
+                name: 'Column1',
+                cacheKey: 'col1',
+                sortColumn: null,
+                getValue: (row) => row.col1,
+                width: 200
+            }
+        ];
+        fixture.detectChanges();
+
+        expect(thenSpy).toHaveBeenCalled();
+    });
 });

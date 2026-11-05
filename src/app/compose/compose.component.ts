@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
 
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { Observable, Subscription, AsyncSubject, BehaviorSubject } from 'rxjs';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
 

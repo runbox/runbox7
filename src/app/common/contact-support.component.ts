@@ -24,7 +24,7 @@ import { Component, Input } from '@angular/core';
     template: `
 <div class="support-snackbar">
     <div> <ng-content></ng-content> </div>
-    <div> {{ suggestion }}, or contact Runbox Support at support@runbox.com. </div>
+    <div> {{ suggestion }}, or contact Runbox Support at support&#64;runbox.com. </div>
 </div>
     `,
 })

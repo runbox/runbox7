@@ -7,7 +7,7 @@ describe('Folder management', () => {
         cy.visit('/');
 
         cy.get('#createFolderButton').click();
-        cy.get('.mat-dialog-title').should('contain', 'Add new folder');
+        cy.get('.mat-mdc-dialog-title').should('contain', 'Add new folder');
         cy.get('mat-dialog-container mat-dialog-content').should('contain', 'root level');
 
         cy.get('mat-dialog-container input').type('Test');
@@ -19,13 +19,13 @@ describe('Folder management', () => {
         cy.visit('/');
 
         cy.contains('mat-tree-node', 'Trash')
-            .find('button.mat-icon-button[mattooltip="Folder actions"]')
+            .find('button.mat-mdc-icon-button[mattooltip="Folder actions"]')
             .click();
 
         cy.intercept({
             method: 'PUT',
             path: '/rest/v1/email_folder/empty'}).as('emptyTrashReq');
-        cy.contains('div.mat-menu-content button', 'Empty trash').click();
+        cy.contains('div.mat-mdc-menu-content button', 'Empty trash').click();
         cy.wait('@emptyTrashReq');
     });
 
@@ -33,13 +33,13 @@ describe('Folder management', () => {
         cy.visit('/');
 
         cy.contains('mat-tree-node', 'Spam')
-            .find('button.mat-icon-button[mattooltip="Folder actions"]')
+            .find('button.mat-mdc-icon-button[mattooltip="Folder actions"]')
             .click();
 
         cy.intercept({
             method: 'POST',
             path: '/rest/v1/email/batch_delete'}).as('emptySpamReq');
-        cy.contains('div.mat-menu-content button', 'Move all to trash').click();
+        cy.contains('div.mat-mdc-menu-content button', 'Move all to trash').click();
         cy.wait('@emptySpamReq');
     });
 

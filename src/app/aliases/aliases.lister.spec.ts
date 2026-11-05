@@ -19,16 +19,21 @@
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { AliasesListerComponent } from './aliases.lister';
-import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
-import { MatLegacySnackBarModule } from '@angular/material/legacy-snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
 import { of } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AliasesEditorModalComponent } from './aliases.editor.modal';
-import { MatLegacyCommonModule, MatLegacyOptionModule } from '@angular/material/legacy-core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { HttpClient } from '@angular/common/http';
 
 describe('AliasesListerComponent', () => {
@@ -47,10 +52,15 @@ describe('AliasesListerComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 CommonModule,
+                FormsModule,
                 HttpClientTestingModule,
-                MatLegacyCommonModule,
-                MatLegacySnackBarModule,
-                MatLegacyDialogModule,
+                MatButtonModule,
+                MatCardModule,
+                MatDialogModule,
+                MatExpansionModule,
+                MatInputModule,
+                MatSelectModule,
+                MatSnackBarModule,
                 NoopAnimationsModule,
             ],
             providers: [
@@ -131,6 +141,7 @@ describe('AliasesListerComponent', () => {
 
         // spawn a modal
         component.create();
+        tick();
         fixture.detectChanges();
 
         const modal = 
@@ -143,6 +154,7 @@ describe('AliasesListerComponent', () => {
         // FIXME: doesn't work, value isn't set, probably because of ngModel
         // expect(forwardTo.value)
         //     .toBe(DEFAULT_EMAIL, "Forward to should default to the user's email");
+        tick();
     }));
 
     it('dialog loads allowed domains', () => {
@@ -150,15 +162,13 @@ describe('AliasesListerComponent', () => {
         component.create();
         fixture.detectChanges();
 
-        const modal = 
-            fixture.nativeElement.nextSibling.querySelector('app-aliases-edit');
-        expect(modal).toBeTruthy();
+        const dialog = TestBed.inject(MatDialog);
+        const dialogRef = dialog.openDialogs[0];
+        expect(dialogRef).toBeTruthy();
 
-        const domain: HTMLSelectElement = 
-            modal.querySelector('mat-select[name=\'domain\']');
-
+        const modalComponent = dialogRef.componentInstance as AliasesEditorModalComponent;
         ALLOWED_DOMAINS.forEach(allowed_domain => {
-            expect(domain.textContent).toContain(allowed_domain);
+            expect(modalComponent.allowedDomains).toContain(allowed_domain);
         });
     });
 });
