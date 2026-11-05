@@ -60,6 +60,8 @@ const resizerHeightKey = 'rmm7resizerheight';
 const resizerPercentageKey = 'rmm7resizerpercentage';
 
 const TOOLBAR_BUTTON_WIDTH = 30;
+const PLAINTEXT_TOOLBAR_ACTION_COUNT = 10;
+const HTML_TOOLBAR_ACTION_COUNT = 12;
 
 
 type Mail = any;
@@ -331,6 +333,15 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       this.attachmentAreaCols = Math.floor(toolbarwidth / 150) + 1;
     }
   }
+
+  /**
+   * Returns true while the overflow menu contains at least one toolbar action.
+   */
+  public hasHiddenToolbarActions(): boolean {
+    const actionCount = this.mailContentHTML ? HTML_TOOLBAR_ACTION_COUNT : PLAINTEXT_TOOLBAR_ACTION_COUNT;
+    return this.morebuttonindex < actionCount;
+  }
+
   public changeOrientation(orientation: string) {
     this.orientationChangeRequest.emit(orientation);
   }
