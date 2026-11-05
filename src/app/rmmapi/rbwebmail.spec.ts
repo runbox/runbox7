@@ -24,7 +24,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
 import { MessageCache } from './messagecache';
-import { firstValueFrom } from 'rxjs';
+import { AsyncSubject, firstValueFrom } from 'rxjs';
 
 // getMessageContents issues its HTTP request only after a real MessageCache
 // lookup completes, and a cold IndexedDB can outlast any fixed sleep; poll
@@ -68,18 +68,20 @@ describe('RBWebMail', () => {
 
     it('should cache message contents', async () => {
         const rmmapi = TestBed.inject(RunboxWebmailAPI);
+        const testMessageCache = TestBed.inject(MessageCache);
+        const messageCacheSubject = new AsyncSubject<MessageCache>();
+        messageCacheSubject.next(testMessageCache);
+        messageCacheSubject.complete();
+        Object.assign(rmmapi, { messageCache: messageCacheSubject });
 
         let messageContentsObservable = rmmapi.getMessageContents(123);
         // We need this nonsense because httpTestingController's asserts expect results *right now*
         // this is a good enough cheat to have the actual request kick in early enough.
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        // We now expect login / httpauth to set the runboxme values
-        // so we set it directly here
-        rmmapi.setRunboxMe({'uid': '11', 'last_name': 'testuser'});
         const httpTestingController = TestBed.inject(HttpTestingController);
 
-        let req = await waitForMockRequest(httpTestingController, '/rest/v1/email/123');
+        let req = httpTestingController.expectOne('/rest/v1/email/123');
         req.flush({
             status: 'success',
             result: {
