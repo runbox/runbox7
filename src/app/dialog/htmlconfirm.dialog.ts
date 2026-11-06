@@ -21,6 +21,7 @@ import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
+  standalone: false,
   template: `
       <h3 mat-dialog-title>Really show HTML version?</h3>
       <mat-dialog-content>

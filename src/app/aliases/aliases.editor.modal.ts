@@ -23,6 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RMM } from '../rmm';
 
 @Component({
+    standalone: false,
     selector: 'app-aliases-edit',
     styleUrls: ['aliases.lister.scss'],
     templateUrl: 'aliases.editor.modal.html',

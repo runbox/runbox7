@@ -20,6 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: false,
   template: `
 <app-runbox-list [values]='values_runbox_list'>
     <ng-template #runbox_list_row_small let-item>

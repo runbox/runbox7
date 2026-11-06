@@ -25,6 +25,7 @@ import { LogoutService } from '../login/logout.service';
 import { RunboxMe } from '../rmmapi/rbwebmail';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm-headertoolbar',
     templateUrl: 'headertoolbar.component.html'

@@ -24,6 +24,7 @@ import { ContactsService } from '../contacts-app/contacts.service';
 import { PreferencesService } from '../common/preferences.service';
 
 @Component({
+    standalone: false,
     selector: 'app-avatar-bar',
     styles: [`
         img {

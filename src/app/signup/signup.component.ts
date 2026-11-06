@@ -27,6 +27,7 @@ type AccountType = 'person' | 'business';
 type DomainType = 'runbox' | 'user';
 
 @Component({
+    standalone: false,
     selector: 'app-signup',
     templateUrl: './signup.component.html',
     styleUrls: ['./signup.component.scss'],

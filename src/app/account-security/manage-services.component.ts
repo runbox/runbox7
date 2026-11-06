@@ -25,6 +25,7 @@ import { RMM } from '../rmm';
 import { ModalPasswordComponent } from './account.security.component';
 
 @Component({
+    standalone: false,
     selector: 'app-manage-services',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'manage-services.component.html',

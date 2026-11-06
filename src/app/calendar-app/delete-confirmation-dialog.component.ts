@@ -21,6 +21,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-delete-confirmation-dialog',
     template: `
 <h2 mat-dialog-title>Delete {{ data.name }}</h2>

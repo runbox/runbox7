@@ -19,6 +19,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-dev',
   templateUrl: 'dev.component.html'
 })

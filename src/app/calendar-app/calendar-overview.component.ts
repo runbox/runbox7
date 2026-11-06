@@ -23,6 +23,7 @@ import { RunboxCalendarEvent } from './runbox-calendar-event';
 import moment from 'moment';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-overview',
     templateUrl: './calendar-overview.component.html',
 })

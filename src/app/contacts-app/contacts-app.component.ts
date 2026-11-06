@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { take } from 'rxjs/operators';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'contacts-app-root',
     styleUrls: ['contacts-app.component.scss'],

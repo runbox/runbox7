@@ -21,6 +21,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
+    standalone: false,
     selector: 'app-sub-account-renewal-dialog-component',
     template: `
 <h1 mat-dialog-title> Sub-account product </h1>

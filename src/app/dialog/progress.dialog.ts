@@ -25,6 +25,7 @@ import { Component } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
+    standalone: false,
     template: `<mat-spinner *ngIf="!value"></mat-spinner>
                 <mat-progress-spinner *ngIf="value" [value]="value"></mat-progress-spinner>`
 })

@@ -23,6 +23,7 @@ import { MobileQueryService } from '../mobile-query.service';
 import { RunboxSidenavService } from './runbox-sidenav.service';
 
 @Component({
+    standalone: false,
     selector: 'app-runbox-container',
     templateUrl: './runbox-container.html',
     providers: [RunboxSidenavService],

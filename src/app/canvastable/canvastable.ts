@@ -78,6 +78,7 @@ export namespace CanvasTable {
 }
 
 @Component({
+  standalone: false,
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastable',
   templateUrl: 'canvastable.component.html'
@@ -1368,6 +1369,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 }
 
 @Component({
+  standalone: false,
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'canvastablecontainer',
   templateUrl: 'canvastablecontainer.component.html',

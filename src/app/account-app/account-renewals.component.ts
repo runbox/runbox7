@@ -40,6 +40,7 @@ const columnsMobile = ['renewal_name'];
 type ActiveProduct = any;
 
 @Component({
+    standalone: false,
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
 })
@@ -185,6 +186,7 @@ export class AccountRenewalsComponent {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-account-renewals-autorenew-toggle-component',
     template: `
 <span *ngIf="p.can_renew; else renewNA">
@@ -209,6 +211,7 @@ export class AccountRenewalsAutorenewToggleComponent {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-account-renewals-renew-now-button-component',
     template: `
 <div *ngIf="!p.expired && close_to_quota.length > 0">

@@ -59,6 +59,7 @@ class CreditCard {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-credit-cards',
     templateUrl: './credit-cards.component.html',
     styleUrls: ['./credit-cards.component.scss']

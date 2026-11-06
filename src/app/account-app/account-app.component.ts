@@ -23,6 +23,7 @@ import { MobileQueryService } from '../mobile-query.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
+    standalone: false,
     selector: 'app-account-app-component',
     templateUrl: './account-app.component.html',
     styleUrls: ['./account-app.component.scss'],

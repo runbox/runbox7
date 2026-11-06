@@ -27,6 +27,7 @@ import { EventOverview } from './event-overview';
 import { CalendarService } from './calendar.service';
 
 @Component({
+    standalone: false,
     selector: 'app-import-dialog-component',
     templateUrl: 'import-dialog.component.html',
 })

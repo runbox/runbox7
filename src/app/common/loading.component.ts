@@ -20,6 +20,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
+    standalone: false,
     selector: 'app-runbox-loading',
     template: `
 <div *ngIf="size === 'tiny'"

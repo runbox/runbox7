@@ -22,6 +22,7 @@ import { Observable } from 'rxjs';
 import { ActivityProgress } from './background-activity.service';
 
 @Component({
+    standalone: false,
     selector: 'app-activity-indicator',
     template: `
 <div>

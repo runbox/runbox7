@@ -21,6 +21,7 @@ import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
+    standalone: false,
     template: '{{messagetextsubject | async}}'
 })
 export class SyncProgressComponent {

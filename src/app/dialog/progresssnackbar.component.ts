@@ -22,6 +22,7 @@ import { MatSnackBarRef, MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
+    standalone: false,
     template: '{{progressmessage | async}}'
 })
 export class ProgressSnackbarComponent {

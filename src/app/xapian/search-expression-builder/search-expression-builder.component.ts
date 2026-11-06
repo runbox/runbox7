@@ -20,6 +20,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-search-expression-builder',
   templateUrl: './search-expression-builder.component.html',
   styleUrls: ['./search-expression-builder.component.scss']

@@ -22,6 +22,7 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 
 @Component({
+    standalone: false,
     selector: 'app-account-welcome-component',
     templateUrl: './account-welcome.component.html',
     styleUrls: ['./account-welcome.component.scss']

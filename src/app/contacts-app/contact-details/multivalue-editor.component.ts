@@ -21,6 +21,7 @@ import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 
 @Component({
+    standalone: false,
     selector: 'app-contact-details-multivalue-editor',
     template: `
 <div>

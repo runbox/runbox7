@@ -26,6 +26,7 @@ enum Activity {
 }
 
 @Component({
+  standalone: false,
   template: `
 <style>
 .frame {

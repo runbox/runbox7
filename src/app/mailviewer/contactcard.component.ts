@@ -25,6 +25,7 @@ import { ContactsService } from '../contacts-app/contacts.service';
 import { PreferencesService } from '../common/preferences.service';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'rmm7-contact-card',
     template: `

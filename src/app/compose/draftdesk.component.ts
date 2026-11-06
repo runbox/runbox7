@@ -26,6 +26,7 @@ import { RecipientsService } from './recipients.service';
 const MAX_DRAFTS_IN_VIEW = 10;
 
 @Component({
+    standalone: false,
     templateUrl: 'draftdesk.component.html',
     providers: [RecipientsService],
     styleUrls: ['draftdesk.component.scss']

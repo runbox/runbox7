@@ -20,6 +20,7 @@ import { Component, Input } from '@angular/core';
 import { Contact } from './contact';
 
 @Component({
+        standalone: false,
         selector: 'app-contact-button',
         template: `
 <span>

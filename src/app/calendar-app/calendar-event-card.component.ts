@@ -21,6 +21,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EventOverview } from './event-overview';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-event-card',
     templateUrl: './calendar-event-card.component.html',
 })

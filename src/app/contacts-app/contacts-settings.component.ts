@@ -26,6 +26,7 @@ import { ContactsService } from './contacts.service';
 import { Subject } from 'rxjs';
 
 @Component({
+    standalone: false,
     selector: 'app-contacts-settings',
     templateUrl: './contacts-settings.component.html',
 })

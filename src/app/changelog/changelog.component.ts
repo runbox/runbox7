@@ -27,6 +27,7 @@ import { ChangelogEntry, EntryType, changelog } from './changes';
 import { environment } from '../../environments/environment';
 
 @Component({
+    standalone: false,
     selector: 'app-changelog',
       styleUrls: ['changelog.component.scss'],
     templateUrl: './changelog.component.html',

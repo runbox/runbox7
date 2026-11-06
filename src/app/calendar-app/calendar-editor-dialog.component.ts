@@ -25,6 +25,7 @@ import { ColorSelectorDialogComponent } from './color-selector-dialog.component'
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-editor-dialog-component',
     templateUrl: 'calendar-editor-dialog.component.html',
 })

@@ -21,6 +21,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
+    standalone: false,
     selector: 'app-domain-register-redirect',
     template: ''
 })

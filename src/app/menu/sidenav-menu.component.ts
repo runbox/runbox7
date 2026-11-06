@@ -21,6 +21,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { LogoutService } from '../login/logout.service';
 
 @Component({
+    standalone: false,
     selector: 'app-sidenav-menu',
     template: `
 <div class="sidenavMainMenu">

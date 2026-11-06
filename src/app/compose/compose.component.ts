@@ -49,6 +49,7 @@ const LOCAL_STORAGE_DEFAULT_HTML_COMPOSE = 'composeInHTMLByDefault';
 const DOWNLOAD_DRAFT_URL = '/ajax/download_draft_attachment?filename=';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'compose',
     templateUrl: 'compose.component.html',

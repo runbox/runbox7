@@ -24,6 +24,7 @@ import { MobileQueryService } from '../mobile-query.service';
 import { RMM } from '../rmm';
 
 @Component({
+    standalone: false,
     selector: 'app-sessions',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'sessions.component.html',

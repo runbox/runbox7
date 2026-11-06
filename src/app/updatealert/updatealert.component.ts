@@ -21,6 +21,7 @@ import { Component, Inject } from '@angular/core';
 import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 
 @Component({
+    standalone: false,
     templateUrl: 'updatealert.component.html'
 })
 export class UpdateAlertComponent {

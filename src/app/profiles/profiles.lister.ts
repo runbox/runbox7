@@ -24,6 +24,7 @@ import { ProfilesEditorModalComponent } from './profiles.editor.modal';
 import { MobileQueryService, ScreenSize } from '../mobile-query.service';
 
 @Component({
+    standalone: false,
     selector: 'app-profiles-lister',
     styleUrls: ['profiles.lister.scss'],
     templateUrl: 'profiles.lister.html',

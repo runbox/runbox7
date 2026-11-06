@@ -21,6 +21,7 @@ import { Component, EventEmitter, Input, OnInit, Output  } from '@angular/core';
 import { UntypedFormArray, UntypedFormGroup } from '@angular/forms';
 
 @Component({
+    standalone: false,
     selector: 'app-contact-details-fa-viewer',
     templateUrl: './formarray-editor.component.html',
 })

@@ -21,6 +21,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RMM } from '../rmm';
 
 @Component({
+    standalone: false,
     selector: 'app-modal-unlockcode-component',
     template: `
         <div mat-dialog-content>
@@ -65,6 +66,7 @@ export class ModalUnlockcodeComponent {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-modal-password-component',
     template: `
         <h1 mat-dialog-title>

@@ -30,6 +30,7 @@ import moment from 'moment';
 import ICAL from 'ical.js';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-event-editor-dialog',
     templateUrl: 'event-editor-dialog.component.html',
 })

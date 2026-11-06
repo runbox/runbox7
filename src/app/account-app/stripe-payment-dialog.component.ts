@@ -29,6 +29,7 @@ let stripeLoader: AsyncSubject<void> = null;
 declare let Stripe: any;
 
 @Component({
+    standalone: false,
     selector: 'app-stripe-payments-payment-dialog-component',
     templateUrl: 'stripe-payment-dialog.component.html',
 })

@@ -22,6 +22,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
+  standalone: false,
   selector: 'app-welcome',
   templateUrl: './welcomedesk.component.html',
   styleUrls: ['./welcomedesk.component.scss']

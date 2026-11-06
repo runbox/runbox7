@@ -67,6 +67,7 @@ import { DefaultPrefGroups, PreferencesService } from '../common/preferences.ser
 import '../sentry';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-app-component',
     templateUrl: './calendar-app.component.html',
     styleUrls: ['calendar-app.component.scss'],

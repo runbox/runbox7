@@ -35,6 +35,7 @@ interface CountryAndTimezone {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-personal-details-component',
     templateUrl: './personal-details.component.html',
     styleUrls: ['account-details.component.scss'],

@@ -23,6 +23,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RMM } from '../rmm';
 
 @Component({
+    standalone: false,
     selector: 'app-runbox-section',
     styles: [`
     `],

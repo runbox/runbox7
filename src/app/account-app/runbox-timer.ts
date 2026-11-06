@@ -29,6 +29,7 @@ import { MatDialog } from '@angular/material/dialog';
 import moment from 'moment';
 
 @Component({
+    standalone: false,
     selector: 'app-runbox-timer',
     styles: [`
     `],

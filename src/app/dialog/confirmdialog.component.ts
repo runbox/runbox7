@@ -25,6 +25,7 @@ import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'confirm-dialog',
     templateUrl: 'confirmdialog.component.html'

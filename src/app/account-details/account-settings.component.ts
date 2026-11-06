@@ -24,6 +24,7 @@ import { RMM } from '../rmm';
 import { AccountSettingsInterface } from '../rmm/account-settings';
 
 @Component({
+    standalone: false,
     selector: 'app-account-settings-component',
     templateUrl: './account-settings.component.html',
     styleUrls: ['account-details.component.scss'],

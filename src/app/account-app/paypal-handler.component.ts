@@ -23,6 +23,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { CartService } from './cart.service';
 
 @Component({
+    standalone: false,
     selector: 'app-paypal-handler',
     template: `
 <div>

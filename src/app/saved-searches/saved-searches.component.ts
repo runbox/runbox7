@@ -21,6 +21,7 @@ import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
 import { SavedSearch, SavedSearchesService } from './saved-searches.service';
 
 @Component({
+    standalone: false,
     selector: 'app-saved-searches',
     templateUrl: './saved-searches.component.html',
     styleUrls: ['./saved-searches.component.css']

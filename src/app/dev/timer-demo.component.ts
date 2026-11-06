@@ -20,6 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: false,
   template: `
 <div>
     <div class='synopsis'>

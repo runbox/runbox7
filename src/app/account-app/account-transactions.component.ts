@@ -28,6 +28,7 @@ import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 type Transaction = any;
 
 @Component({
+    standalone: false,
     selector: 'app-account-transactions-component',
     templateUrl: './account-transactions.component.html',
     animations: [

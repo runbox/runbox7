@@ -20,6 +20,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
+    standalone: false,
     selector: 'app-account-component-card',
         template: `
 <mat-card appearance="outlined" style="min-height: 20vh; padding: 20px">

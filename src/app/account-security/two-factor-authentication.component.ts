@@ -26,6 +26,7 @@ import { timeout, share } from 'rxjs/operators';
 import { ModalUnlockcodeComponent, ModalPasswordComponent } from './account.security.component';
 
 @Component({
+    standalone: false,
     selector: 'app-two-factor-authentication',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'two-factor-authentication.component.html',

@@ -23,6 +23,7 @@ import { FolderListEntry } from '../common/folderlistentry';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
+    standalone: false,
     template: `
         <mat-spinner *ngIf="moving"></mat-spinner>
         <mat-dialog-content  *ngIf="!moving">

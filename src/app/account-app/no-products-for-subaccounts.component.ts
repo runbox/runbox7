@@ -21,6 +21,7 @@ import { Component } from '@angular/core';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
+    standalone: false,
     selector: 'app-account-not-for-subaccounts',
     template: `
 <div>

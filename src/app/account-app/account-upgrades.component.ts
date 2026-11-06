@@ -36,6 +36,7 @@ import { Decimal } from 'decimal.js-light';
 Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_EVEN });
 
 @Component({
+    standalone: false,
     selector: 'app-account-upgrades-component',
     templateUrl: './account-upgrades.component.html',
     styleUrls: ['./account-upgrades.component.scss'],

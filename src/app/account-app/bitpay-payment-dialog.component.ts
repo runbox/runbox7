@@ -41,6 +41,7 @@ class CartItem extends ProductOrder {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-bitpay-payment-dialog-component',
     templateUrl: './bitpay-payment-dialog.component.html',
     styleUrls: ['./bitpay-payment-dialog.component.scss'],

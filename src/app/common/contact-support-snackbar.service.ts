@@ -33,6 +33,7 @@ export class RunboxContactSupportSnackBar {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-common-contact-support-snackbar-content',
     template: `
 <app-runbox-contact-support>

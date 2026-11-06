@@ -46,6 +46,7 @@ class CartItem extends ProductOrder {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-shopping-cart',
     templateUrl: './shopping-cart.component.html',
     styleUrls: ['./shopping-cart.component.scss'],

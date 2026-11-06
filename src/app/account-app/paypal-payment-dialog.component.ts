@@ -23,6 +23,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
+    standalone: false,
     selector: 'app-paypal-payment-dialog-component',
     template: `
 <h1 mat-dialog-title class="paymentMethodTitle">PayPal payment</h1>

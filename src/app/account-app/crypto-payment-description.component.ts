@@ -21,6 +21,7 @@ import { Component, Input } from '@angular/core';
 import { PaymentOption } from './bitpay-payment-dialog.component';
 
 @Component({
+    standalone: false,
     selector: 'app-crypto-payment-description',
         template: `
 <p>

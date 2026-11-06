@@ -23,6 +23,7 @@ import { RMM } from '../rmm';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 
 @Component({
+  standalone: false,
   selector: 'app-aliases-lister',
   styleUrls: ['aliases.lister.scss'],
   templateUrl: 'aliases.lister.html'

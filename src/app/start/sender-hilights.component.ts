@@ -23,6 +23,7 @@ import { SearchIndexDocumentData } from '../xapian/searchservice';
 import { ContactHilights } from './startdesk.component';
 
 @Component({
+    standalone: false,
     selector: 'app-overview-sender-hilights',
     styleUrls: ['./sender-hilights.component.scss'],
     template: `

@@ -38,6 +38,7 @@ import { Location, LocationStrategy, PathLocationStrategy } from '@angular/commo
 import { PreferencesService } from '../../common/preferences.service';
 
 @Component({
+    standalone: false,
     selector: 'app-contact-details',
     styleUrls: ['../contacts-app.component.scss'],
     templateUrl: './contact-details.component.html',

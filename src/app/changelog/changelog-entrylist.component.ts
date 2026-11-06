@@ -21,6 +21,7 @@ import { Component, Input } from '@angular/core';
 import { ChangelogEntry } from './changes';
 
 @Component({
+    standalone: false,
     selector: 'app-changelog-entrylist',
     template: `
 <h3> {{ name }} </h3>

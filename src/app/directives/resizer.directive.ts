@@ -20,6 +20,7 @@
 import { Directive, ElementRef, OnInit, Input, Renderer2 } from '@angular/core';
 
 @Directive({
+    standalone: false,
     selector: '[appResizable]' // Attribute selector
 })
 export class ResizerDirective implements OnInit {

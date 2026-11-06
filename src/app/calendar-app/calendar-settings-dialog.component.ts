@@ -24,6 +24,7 @@ import { CalendarSettings } from './calendar-settings';
 import { CalendarService } from './calendar.service';
 
 @Component({
+    standalone: false,
     selector: 'app-calendar-editor-dialog-component',
     template: `
 <h1 mat-dialog-title>Settings</h1>

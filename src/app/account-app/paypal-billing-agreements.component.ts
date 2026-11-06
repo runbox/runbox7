@@ -25,6 +25,7 @@ import { AsyncSubject } from 'rxjs';
 import moment from 'moment';
 
 @Component({
+    standalone: false,
     selector: 'app-account-paypal-billing-agreements-component',
     templateUrl: './paypal-billing-agreements.component.html',
 })

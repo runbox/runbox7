@@ -27,6 +27,7 @@ let stripeLoader: AsyncSubject<void> = null;
 declare let Stripe: any;
 
 @Component({
+    standalone: false,
     selector: 'app-stripe-add-card-dialog',
     templateUrl: 'stripe-add-card-dialog.component.html',
 })

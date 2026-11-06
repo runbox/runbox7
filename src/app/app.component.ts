@@ -78,6 +78,7 @@ const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
 export const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 
 @Component({
+  standalone: false,
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app',
   styleUrls: ['app.component.scss'],

@@ -20,6 +20,7 @@
 import { Directive, ElementRef, OnInit, Input, Renderer2, Output, EventEmitter } from '@angular/core';
 
 @Directive({
+    standalone: false,
     selector: '[appHorizResizable]' // Attribute selector
 })
 export class HorizResizerDirective implements OnInit {

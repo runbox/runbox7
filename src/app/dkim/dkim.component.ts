@@ -33,6 +33,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomainService, Domain, DomainKey } from './domain.service';
 
 @Component({
+  standalone: false,
   selector: 'app-dkim',
   templateUrl: 'dkim.component.html',
   styles: [`

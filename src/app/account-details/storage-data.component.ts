@@ -30,6 +30,7 @@ export interface DataUsage {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-storage-data-component',
     templateUrl: './storage-data.component.html',
     styleUrls: ['account-details.component.scss'],

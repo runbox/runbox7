@@ -22,6 +22,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Contact } from './contact';
 
 @Component({
+    standalone: false,
     selector: 'app-group-picker-dialog-component',
     template: `
 <h1 mat-dialog-title>

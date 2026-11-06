@@ -27,6 +27,7 @@ import { DraftDeskService } from '../compose/draftdesk.service';
 import { TinyMCEPlugin } from '../rmm/plugin/tinymce.plugin';
 
 @Component({
+    standalone: false,
     selector: 'app-profiles-edit',
     styleUrls: ['profiles.editor.modal.scss'],
     templateUrl: 'profiles.editor.modal.html',

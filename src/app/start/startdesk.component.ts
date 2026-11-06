@@ -66,6 +66,7 @@ interface FolderSelectorEntry {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-start',
     templateUrl: './startdesk.component.html',
     styleUrls: ['./startdesk.component.scss'],

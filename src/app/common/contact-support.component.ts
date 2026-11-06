@@ -20,6 +20,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
+    standalone: false,
     selector: 'app-runbox-contact-support',
     template: `
 <div class="support-snackbar">

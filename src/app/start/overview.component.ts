@@ -21,6 +21,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MobileQueryService } from '../mobile-query.service';
 
 @Component({
+  standalone: false,
   selector: 'app-overview',
   templateUrl: './overview.component.html',
 })

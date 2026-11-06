@@ -23,6 +23,7 @@ import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { AsyncSubject, firstValueFrom } from 'rxjs';
 
 @Component({
+    standalone: false,
     selector: 'app-account-receipt-component',
     templateUrl: './account-receipt.component.html',
     styleUrls: ['./account-receipt.component.scss'],

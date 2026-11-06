@@ -32,6 +32,7 @@ export class SimpleInputDialogParams {
 }
 
 @Component({
+    standalone: false,
     template: `
         <h1 mat-dialog-title>
             {{data.title}}

@@ -20,6 +20,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: false,
   template: `
 <app-runbox-container
     sidebar_opened=false

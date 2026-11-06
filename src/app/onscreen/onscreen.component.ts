@@ -30,6 +30,7 @@ let jitsiLoader: AsyncSubject<void> = null;
 declare let JitsiMeetExternalAPI: any;
 
 @Component({
+    standalone: false,
     selector: 'app-onscreen-component',
     templateUrl: './onscreen.component.html',
     styleUrls: ['./onscreen.component.scss'],

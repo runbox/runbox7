@@ -30,6 +30,7 @@ export class InfoParams {
 }
 
 @Component({
+    standalone: false,
     template: `
         <h1 mat-dialog-title>
             {{data.title}}

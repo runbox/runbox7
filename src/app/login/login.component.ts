@@ -28,6 +28,7 @@ import { ProgressService } from '../http/progress.service';
 import { NgForm } from '@angular/forms';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'login',
     templateUrl: 'login.component.html',

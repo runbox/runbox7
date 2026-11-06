@@ -22,6 +22,7 @@ import { RMM } from '../rmm';
 import { share, timeout } from 'rxjs/operators';
 
 @Component({
+    standalone: false,
     selector: 'app-account-password',
     styleUrls: ['account.security.component.scss'],
     templateUrl: 'account-password.component.html',

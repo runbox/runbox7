@@ -26,6 +26,7 @@ class PopularRecipient {
 }
 
 @Component({
+    standalone: false,
     selector: 'app-popular-recipients',
     templateUrl: './popular-recipients.component.html',
     providers: [ RecipientsService ],
