@@ -19,14 +19,14 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 @use '@angular/material' as mat;
 
-$rmm-default-primary:    mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
-$rmm-default-accent:     mat.define-palette(mat.$blue-palette, 200, 100, 400);
-$rmm-default-warn:       mat.define-palette(mat.$orange-palette, 500, A400, A700);
-$rmm-default-caution:    mat.define-palette(mat.$deep-orange-palette, 500, A400, A700);
-$rmm-default-error:      mat.define-palette(mat.$red-palette, 500, A400, A700);
-$rmm-default-foreground: mat.define-palette(mat.$light-blue-palette, 400, 200, 600);
-$rmm-default-highlight:  mat.define-palette(mat.$blue-palette, 100, 50, 200);
-$rmm-default-background: mat.define-palette(mat.$light-blue-palette, 900, A400, A700);
+$rmm-default-primary:    mat.m2-define-palette(mat.$m2-light-blue-palette, 900, A400, A700);
+$rmm-default-accent:     mat.m2-define-palette(mat.$m2-blue-palette, 200, 100, 400);
+$rmm-default-warn:       mat.m2-define-palette(mat.$m2-orange-palette, 500, A400, A700);
+$rmm-default-caution:    mat.m2-define-palette(mat.$m2-deep-orange-palette, 500, A400, A700);
+$rmm-default-error:      mat.m2-define-palette(mat.$m2-red-palette, 500, A400, A700);
+$rmm-default-foreground: mat.m2-define-palette(mat.$m2-light-blue-palette, 400, 200, 600);
+$rmm-default-highlight:  mat.m2-define-palette(mat.$m2-blue-palette, 100, 50, 200);
+$rmm-default-background: mat.m2-define-palette(mat.$m2-light-blue-palette, 900, A400, A700);
 
 $rmm-dark-background:       #011b40;
 $rmm-dark-background-03:    rgba(1,27,64,0.3);
@@ -35,7 +35,7 @@ $rmm-gray:                  #dddddd;
 $rmm-gray-light:            #eeeeee;
 $rmm-gray-lighter:          #f3f3f3;
 
-$rmm-default-theme: mat.define-light-theme((
+$rmm-default-theme: mat.m2-define-light-theme((
   color: (
     primary: $rmm-default-primary,
     accent: $rmm-default-accent,

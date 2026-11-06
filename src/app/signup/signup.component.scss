@@ -44,7 +44,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     padding: 1rem 1.5rem;
     background-image: linear-gradient(
         145deg,
-        mat.get-color-from-palette(rmm.$rmm-default-primary),
+        mat.m2-get-color-from-palette(rmm.$rmm-default-primary),
         rmm.$rmm-dark-background
     );
     color: #fff;
@@ -98,7 +98,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     display: grid;
     background: linear-gradient(
         180deg,
-        mat.get-color-from-palette(rmm.$rmm-default-primary) 0%,
+        mat.m2-get-color-from-palette(rmm.$rmm-default-primary) 0%,
         rmm.$rmm-dark-background 100%
     );
     color: #fff;
@@ -247,7 +247,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .choice-card.active {
-    border-color: mat.get-color-from-palette(rmm.$rmm-default-primary);
+    border-color: mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     background: linear-gradient(180deg, #eef7ff 0%, #f8fbff 100%);
     box-shadow: inset 0 0 0 1px rgba(0, 104, 183, 0.18);
 }
@@ -331,7 +331,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 
 .field.is-invalid > span,
 .checkbox-row.is-invalid span {
-    color: mat.get-color-from-palette(rmm.$rmm-default-error, 700);
+    color: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 700);
 }
 
 .info-chip {
@@ -344,8 +344,8 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     padding: 0;
     border: 0;
     border-radius: 999px;
-    background: mat.get-color-from-palette(rmm.$rmm-default-highlight);
-    color: mat.get-color-from-palette(rmm.$rmm-default-primary);
+    background: mat.m2-get-color-from-palette(rmm.$rmm-default-highlight);
+    color: mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     font: inherit;
     font-size: 0.76rem;
     font-weight: 700;
@@ -403,7 +403,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .info-chip:focus-visible {
-    outline: 2px solid mat.get-color-from-palette(rmm.$rmm-default-primary);
+    outline: 2px solid mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     outline-offset: 2px;
 }
 
@@ -436,7 +436,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     padding: 0.2rem 0.4rem;
     border: 0;
     background: transparent;
-    color: mat.get-color-from-palette(rmm.$rmm-default-primary);
+    color: mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     font: inherit;
     font-size: 0.84rem;
     font-weight: 700;
@@ -445,7 +445,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .password-toggle:focus-visible {
-    outline: 2px solid mat.get-color-from-palette(rmm.$rmm-default-primary);
+    outline: 2px solid mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     outline-offset: 2px;
     border-radius: 4px;
 }
@@ -453,22 +453,22 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 .field input:focus,
 .field select:focus {
     outline: 0;
-    border-color: mat.get-color-from-palette(rmm.$rmm-default-primary);
+    border-color: mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     box-shadow: 0 0 0 3px rgba(0, 104, 183, 0.12);
 }
 
 .field.is-invalid input,
 .field.is-invalid select,
 .checkbox-row.is-invalid input {
-    border-color: mat.get-color-from-palette(rmm.$rmm-default-error, 500);
-    background: mat.get-color-from-palette(rmm.$rmm-default-error, 50);
+    border-color: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 500);
+    background: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 50);
 }
 
 .field.is-invalid input:focus,
 .field.is-invalid select:focus,
 .checkbox-row.is-invalid input:focus {
-    border-color: mat.get-color-from-palette(rmm.$rmm-default-error, 700);
-    box-shadow: 0 0 0 3px mat.get-color-from-palette(rmm.$rmm-default-error, 500, 0.14);
+    border-color: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 700);
+    box-shadow: 0 0 0 3px mat.m2-get-color-from-palette(rmm.$rmm-default-error, 500, 0.14);
 }
 
 .strength-meter {
@@ -576,16 +576,16 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     margin: 1.1rem 0 0;
     padding: 0.85rem 1rem;
     border-radius: 8px;
-    border: 1px solid mat.get-color-from-palette(rmm.$rmm-default-error, 300);
-    background: mat.get-color-from-palette(rmm.$rmm-default-error, 50);
-    color: mat.get-color-from-palette(rmm.$rmm-default-error, 900);
+    border: 1px solid mat.m2-get-color-from-palette(rmm.$rmm-default-error, 300);
+    background: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 50);
+    color: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 900);
     line-height: 1.5;
     font-weight: 600;
 }
 
 .field-error {
     display: block;
-    color: mat.get-color-from-palette(rmm.$rmm-default-error, 700);
+    color: mat.m2-get-color-from-palette(rmm.$rmm-default-error, 700);
     font-size: 0.82rem;
     line-height: 1.4;
 }
@@ -605,7 +605,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     border-radius: 4px;
     min-width: 132px;
     min-height: 42px;
-    background: mat.get-color-from-palette(rmm.$rmm-default-primary);
+    background: mat.m2-get-color-from-palette(rmm.$rmm-default-primary);
     color: #fff;
     padding: 0 1.7rem;
     font: inherit;
@@ -621,7 +621,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 }
 
 .submit:hover {
-    background: mat.get-color-from-palette(rmm.$rmm-default-foreground);
+    background: mat.m2-get-color-from-palette(rmm.$rmm-default-foreground);
     box-shadow:
         0 4px 5px -2px rgba(0, 0, 0, 0.2),
         0 7px 10px 1px rgba(0, 0, 0, 0.14),
@@ -646,7 +646,7 @@ along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
     padding: 1.2rem 1.25rem 1.8rem;
     background-image: linear-gradient(
         170deg,
-        mat.get-color-from-palette(rmm.$rmm-default-primary),
+        mat.m2-get-color-from-palette(rmm.$rmm-default-primary),
         rmm.$rmm-dark-background
     );
     color: rgba(255, 255, 255, 0.82);

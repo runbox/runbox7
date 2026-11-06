@@ -28,7 +28,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
-import { HttpClientModule } from '@angular/common/http';
 import { ErrorDialog } from './error-dialog.component';
 import { InfoDialog } from './info.dialog';
 import { ProgressDialog } from './progress.dialog';
@@ -46,7 +45,6 @@ export { ProgressDialog } from './progress.dialog';
     imports: [
         CommonModule,
         FormsModule,
-        HttpClientModule,
         MatInputModule,
         MatDialogModule,
         MatSnackBarModule,

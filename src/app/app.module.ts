@@ -20,7 +20,7 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SentryErrorHandler } from './sentry-error-handler';
 import { AppComponent } from './app.component';
@@ -143,8 +143,6 @@ const routes: Routes = [
 
 @NgModule({
     imports: [BrowserModule, FormsModule,
-        HttpClientModule,
-        HttpClientJsonpModule,
         CanvasTableModule,
         ComposeModule,
         StartDeskModule,
@@ -204,7 +202,8 @@ const routes: Routes = [
         { provide: HTTP_INTERCEPTORS, useClass: RMMHttpInterceptorService, multi: true },
         { provide: ErrorHandler, useClass: SentryErrorHandler },
         { provide: SwRegistrationOptions,
-          useFactory: () => ({ registrationStrategy: 'registerWithDelay:5000' }) }
+          useFactory: () => ({ registrationStrategy: 'registerWithDelay:5000' }) },
+        provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())
     ],
     bootstrap: [MainContainerComponent]
 })

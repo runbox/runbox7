@@ -39,13 +39,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
-        HttpClientModule,
         MatSnackBarModule,
         MatExpansionModule,
         MatSidenavModule,
