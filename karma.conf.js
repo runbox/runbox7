@@ -1,6 +1,10 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
+// Pin the test timezone in-process so spec timing is stable regardless of the
+// shell or platform invoking the suite (Windows cmd cannot parse a TZ= prefix).
+process.env.TZ = 'UTC';
+
 module.exports = function (config) {
   config.set({
     basePath: '',

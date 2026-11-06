@@ -17,7 +17,7 @@
     "buildrmm6": "ng build --configuration production --base-href=/app/ rmm6",
     "build": "node src/build/pre-build.js && ng build --configuration production --base-href=/app/ runbox7; RES=$?; node src/build/post-build.js; exit $RES",
     "policy": "node policy-tests/run-all.js",
-    "test": "TZ=UTC ng test",
+    "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "start-e2e-server": "start-test mockserver 15000 start-use-mockserver",
