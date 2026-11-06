@@ -24,7 +24,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-@Component({ selector: 'app-runbox-container', template: '<ng-content></ng-content>' })
+@Component({ standalone: false, selector: 'app-runbox-container', template: '<ng-content></ng-content>' })
 class MockRunboxContainerComponent {}
 
 describe('HelpComponent', () => {

@@ -25,6 +25,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Component } from '@angular/core';
 
 @Component({
+    standalone: false,
     template: 'test'
 }) export class TestAppComponent {}
 
