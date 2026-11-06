@@ -19,7 +19,8 @@
 
 import { Identity, ProfileService } from './profile.service';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TestBed, waitForAsync } from '@angular/core/testing';
 import { of } from 'rxjs';
 
@@ -138,9 +139,7 @@ describe('ProfileService', () => {
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            imports: [
-                HttpClientTestingModule,
-            ],
+            imports: [],
             providers: [
                 { provide: RunboxWebmailAPI, useValue: {
                     me: of({first_name: 'Test', last_name: 'User'}),
@@ -152,7 +151,9 @@ describe('ProfileService', () => {
                     },
                     getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
                 } },
-                ProfileService
+                ProfileService,
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting()
             ],
         }).compileComponents();
     }));

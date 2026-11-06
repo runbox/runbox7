@@ -21,7 +21,6 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { AliasesListerComponent } from './aliases.lister';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { RMM } from '../rmm';
 import { of } from 'rxjs';
@@ -53,7 +52,6 @@ describe('AliasesListerComponent', () => {
             imports: [
                 CommonModule,
                 FormsModule,
-                HttpClientTestingModule,
                 MatButtonModule,
                 MatCardModule,
                 MatDialogModule,

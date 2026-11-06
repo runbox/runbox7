@@ -22,7 +22,8 @@ import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RunboxWebmailAPI, RunboxMe } from '../rmmapi/rbwebmail';
 import { MessageCache } from '../rmmapi/messagecache';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -102,7 +103,6 @@ describe('SearchService', () => {
     beforeEach((() => {
         TestBed.configureTestingModule({
           imports: [
-            HttpClientTestingModule,
             MatSnackBarModule,
             MatDialogModule
           ],
@@ -116,7 +116,9 @@ describe('SearchService', () => {
                     getMany: (_) => Promise.resolve([]),
                 }},
                 MessageListService,
-                RunboxWebmailAPI
+                RunboxWebmailAPI,
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting()
           ]
         });
 

@@ -22,7 +22,8 @@ import { RunboxWebmailAPI } from './rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { MessageCache } from './messagecache';
 import { AsyncSubject, firstValueFrom } from 'rxjs';
 
@@ -51,7 +52,6 @@ describe('RBWebMail', () => {
             imports: [
                 MatSnackBarModule,
                 MatDialogModule,
-                HttpClientTestingModule,
             ],
             providers: [
                 RunboxWebmailAPI,
@@ -62,6 +62,8 @@ describe('RBWebMail', () => {
                     checkIds: (_) => Promise.resolve([]),
                     getMany: (_) => Promise.resolve([]),
                 } },
+                provideHttpClient(withInterceptorsFromDi()),
+                provideHttpClientTesting()
             ]
         });
     });
