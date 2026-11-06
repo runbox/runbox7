@@ -20,6 +20,7 @@
 import { NgModule } from '@angular/core';
 import { DomainRegisterComponent } from './domainregister.component';
 import { CommonModule } from '@angular/common';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -60,6 +61,9 @@ import { DomainRegisterRedirectComponent } from './domreg-redirect.component';
     ],
     exports: [ DomainRegisterComponent ],
     declarations: [ DomainRegisterComponent, DomainRegisterRedirectComponent ],
+    // This module also bootstraps standalone via main.ts, so it cannot rely on
+    // the root AppModule's http provider the way other feature modules do.
+    providers: [provideHttpClient(withInterceptorsFromDi())],
     bootstrap: [ ]
 })
 export class DomainRegisterModule {
