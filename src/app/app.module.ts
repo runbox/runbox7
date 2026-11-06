@@ -20,7 +20,7 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SentryErrorHandler } from './sentry-error-handler';
 import { AppComponent } from './app.component';
@@ -203,7 +203,7 @@ const routes: Routes = [
         { provide: ErrorHandler, useClass: SentryErrorHandler },
         { provide: SwRegistrationOptions,
           useFactory: () => ({ registrationStrategy: 'registerWithDelay:5000' }) },
-        provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())
+        provideHttpClient(withInterceptorsFromDi())
     ],
     bootstrap: [MainContainerComponent]
 })
