@@ -3,6 +3,8 @@
 
 // Pin the test timezone in-process so spec timing is stable regardless of the
 // shell or platform invoking the suite (Windows cmd cannot parse a TZ= prefix).
+// The value must stay a POSIX-format string: Firefox on Windows ignores IANA
+// zone names in TZ and silently falls back to the OS zone.
 process.env.TZ = 'UTC';
 
 module.exports = function (config) {
