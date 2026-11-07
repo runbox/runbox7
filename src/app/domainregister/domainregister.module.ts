@@ -61,8 +61,8 @@ import { DomainRegisterRedirectComponent } from './domreg-redirect.component';
     ],
     exports: [ DomainRegisterComponent ],
     declarations: [ DomainRegisterComponent, DomainRegisterRedirectComponent ],
-    // This module also bootstraps standalone via main.ts, so it cannot rely on
-    // the root AppModule's http provider the way other feature modules do.
+    // Self-provide HttpClient so the module is valid in any composition;
+    // Angular dedupes identical provideHttpClient registrations.
     providers: [provideHttpClient(withInterceptorsFromDi())],
     bootstrap: [ ]
 })
