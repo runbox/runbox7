@@ -19,6 +19,7 @@
     display: flex;
     flex-flow: row wrap;
     align-items: center;
+    justify-content: center;
     margin-bottom: 30px;
 }
 
@@ -38,38 +39,65 @@
 }
 
 .productCardFeatured {
-    min-height: 450px;
+    min-height: 400px;
     width: 30%;
     min-width: 250px;
+    max-width: 300px;
     margin-right: 2%;
+    border-radius: 10px;
     padding: 0;
     text-align: center;
 
     mat-card-title {
-        padding: 12px 0 8px 0;
+        margin: 0;
+        padding: 12px 0 12px 0;
         color: white;
+        border-radius: 9px 9px 0 0;
     }
 
     .mat-card-subtitle {
-        font-size: 1.1em;
+        font-size: 16px;
+
+        h4 {
+            line-height: 30px;
+        }
     }
     
-    mat-card-content {
+    .mat-card-content {
+        margin: 0;
         height: 50%;
         padding: 0 5px;
         font-size: 1.1em !important;
     }
 
-    mat-card-actions {
+    .mat-card-actions {
         margin-bottom: 5px;
+
+        .mat-button-wrapper * {
+            vertical-align: inherit;
+        }
     }
 
     p {
         font-size: 1.0em;
     }
+
+    ul {
+        display: inline-block;
+        text-align: center;
+    }
+
+    li {
+        text-align: left;
+    }
+}
+
+.purchaseButton, .removeButton {
+
 }
 
 .purchaseButtonFeatured {
+    margin-bottom: 10px !important;
     font-size: 1.25em;
 }
 
@@ -78,20 +106,23 @@
 }
 
 .productGrid mat-card.recommended {
-    height: 500px;
-    width: 32%;
-    font-size: 1.1em;
+    font-size: 1em;
 }
     
 ul.planComponents {
+    margin: 0;
     padding-left: 25px;
     text-align: left;
     list-style-type: square;
     font-size: 0.9em;
 }
-    
+
+h4 {
+    margin: 0;
+}
 
 ul.overQuota {
+    margin: 0;
     padding-left: 25px;
     text-align: left;
     list-style-type: square;
@@ -100,57 +131,90 @@ ul.overQuota {
 
 #pricePlans {
     width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+
+    th {
+        padding: 8px 0 6px;
+    }
+
+    td {
+        text-align: right;
+        height: 30px;
+        padding: 5px 10px;
+        white-space: nowrap;
+    }
+
+    .planName {
+        text-align: center !important;
+    }
+
+    .planComponent {
+        text-align: left !important;
+        font-weight: bold;
+    }
+
+    mat-expansion-panel {
+    }
+    mat-expansion-panel-header {
+        height: 30px;
+        padding: 0px 10px;
+        font-size: 13px;
+
+        span {
+            padding-right: 5px;
+        }
+    }
+    ul {
+        margin: 0;
+    }
+    li {
+        text-align: left;
+    }
+    ul.overQuota li {
+        white-space: wrap;
+    }
+
+    .currentSubscription {
+        padding: 5px 0;
+    }
 }
 
-#pricePlans td {
-    text-align: right;
-    height: 30px;
-    padding: 5px 10px;
-    white-space: nowrap;
-}
 
-#pricePlans .planName {
-    text-align: center !important;
-}
-
-#pricePlans .planComponent {
-    text-align: left !important;
-    font-weight: bold;
-}
-
-.Micro {
-    background-color: #549bd6  !important;
+.productCardFeatured .Micro, .productCardFeatured .micro3, #pricePlans .Micro, #pricePlans .micro3  {
+    background-color: #549bd6;
     color: white;
 }
 
-.Mini,.mini3 {
-    background-color: #3678ad !important;
+.productCardFeatured .Mini, .productCardFeatured .mini3, #pricePlans .Mini, #pricePlans .mini3 {
+    background-color: #3678ad;
     color: white;
 }
 
-.Medium,.medium3 {
-    background-color: #236091 !important;
+.productCardFeatured .Medium, .productCardFeatured .medium3, #pricePlans .Medium, #pricePlans .medium3 {
+    background-color: #236091;
     color: white;
 }
 
-.Max,.max3 {
-    background-color: #12446b !important;
+.productCardFeatured .Max, .productCardFeatured .max3, #pricePlans .Max, #pricePlans .max3 {
+    background-color: #12446b;
     color: white;
 }
 
-.Max100 {
-    background-color: #082d4a !important;
+.productCardFeatured .Max100, #pricePlans .Max100 {
+    background-color: #082d4a;
     color: white;
 }
 
-.Max250 {
-    background-color: #021829 !important;
+.productCardFeatured .Max250, #pricePlans .Max250 {
+    background-color: #021829;
     color: white;
 }
 
 .oneYear {
     padding: 10px 0;
     font-weight: bold;
+    vertical-align: top;
 
     button {
         line-height: 24px;
@@ -167,13 +231,17 @@ ul.overQuota {
     text-decoration: line-through;
 }
 
-.threeYear button {
-    width: 100%;
+.threeYear {
+    vertical-align: top;
+
+    button {
+        width: 100%;
+    }
 }
 
 .threeYearDiscounted {
+    margin-bottom: 5px;
     font-size: 1.5em;
-    padding: 10px 0;
 }
 
 .threeYearDiscountedFeatured {
@@ -182,7 +250,6 @@ ul.overQuota {
 }
 
 .threeYearDifference {
-    padding-top: 5px;
 }
 
 div.divider {
