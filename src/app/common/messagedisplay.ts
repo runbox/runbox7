@@ -95,6 +95,34 @@ export abstract class MessageDisplay {
     });
   }
 
+  public getMessageIdAfterRemoving(messageIds: number[], currentMessageId: number): number {
+    if (!currentMessageId) {
+      return null;
+    }
+
+    const currentRowIndex = this.findRowByMessageId(currentMessageId);
+    if (currentRowIndex < 0) {
+      return null;
+    }
+
+    const removedMessageIds = new Set(messageIds);
+    for (let index = currentRowIndex + 1; index < this.rowCount(); index++) {
+      const messageId = this.getRowMessageId(index);
+      if (!removedMessageIds.has(messageId)) {
+        return messageId;
+      }
+    }
+
+    for (let index = currentRowIndex - 1; index >= 0; index--) {
+      const messageId = this.getRowMessageId(index);
+      if (!removedMessageIds.has(messageId)) {
+        return messageId;
+      }
+    }
+
+    return null;
+  }
+
   public removeMessages(messageIds: number[]) {
     const filteredRows = [];
     this.rows.forEach((value, index) => {
