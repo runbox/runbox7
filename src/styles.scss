@@ -354,6 +354,9 @@ mat-grid-tile.tableTitle {
 .themePaletteLightGray {
     color: #f4f4f4 !important;
 }
+.themePaletteGray {
+    color: #c4c4c4 !important;
+}
 .themePaletteDarkGray {
     color: #949494 !important;
 }
@@ -1208,7 +1211,7 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 	}
     }
     .mat-raised-button {
-	background-color: white;
+	    background-color: white;
 
 	.mat-icon {
 	    color: mat.get-color-from-palette($rmm-default-primary);
@@ -1216,22 +1219,22 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 
     .mat-icon  {
-	margin: 0 3px !important;
+	    margin: 0 3px !important;
     }
 
     mat-flat-button, .mat-flat-button, mat-raised-button, .mat-raised-button {
-	min-width: 30px !important;
-	width: 30px !important;
-	padding: 0 !important;
-	line-height: 24px !important;
+	    min-width: 30px !important;
+	    width: 30px !important;
+	    padding: 0 !important;
+	    line-height: 24px !important;
     }
 
     .space {
-	width: 20px;
+	    width: 20px;
     }
 
     .disabled {
-	color: #f4f4f4;
+	    color: $rmm-gray-light;
     }
 }
 
@@ -1540,8 +1543,29 @@ app-calendar-event-editor-dialog p {
     color: mat.get-color-from-palette($rmm-default-primary);
 }
 
+.productGrid mat-card {
+    border: 1px solid mat.get-color-from-palette($rmm-default-foreground);
+    box-shadow: 0px 0px 10px mat.get-color-from-palette($rmm-default-highlight) !important;
+}
+
+.productGrid mat-card:hover, .productGrid button:hover {
+    box-shadow: 0px 0px 20px mat.get-color-from-palette($rmm-default-accent) !important;
+}
+
 .productGrid mat-card.recommended {
-    border: 1px solid mat.get-color-from-palette($rmm-default-primary);
+    /* border: 1px solid mat.get-color-from-palette($rmm-default-foreground); */
+}
+
+.productGrid mat-card-subtitle {
+    background-color: mat.get-color-from-palette($rmm-default-highlight);
+}
+
+.productGrid mat-card-subtitle .disabled {
+    background-color: $rmm-gray;
+}
+
+.productGrid mat-card-content h4 {
+    background: none;
 }
 
 #pricePlans td {
@@ -1566,24 +1590,38 @@ app-calendar-event-editor-dialog p {
 }
 
 #pricePlans .priceForOneYear {
-    background-color: $rmm-gray-light;
+/*    background-color: mat.get-color-from-palette($rmm-default-highlight); */
     font-size: 1.25em;
 }
 
 #pricePlans td.oneYear {
-    background-color: $rmm-gray-light;
+/*    background-color: mat.get-color-from-palette($rmm-default-highlight); */
 }
 
 #pricePlans .priceForThreeYears {
     font-size: 1.25em;
-    background-color: $rmm-gray;
+/*    background-color: mat.get-color-from-palette($rmm-default-highlight); */
 }
 
 #pricePlans td.threeYear {
-    background-color: $rmm-gray;
+/*    background-color: mat.get-color-from-palette($rmm-default-highlight); */
     padding: 10px !important;
 }
 
+.mat-raised-button.mat-accent.mat-button-disabled, .mat-raised-button.mat-button-disabled.mat-button-disabled {
+    background-color: $rmm-default-dark-gray !important;
+    color: $rmm-gray-light !important;
+}
+
+#pricePlans mat-expansion-panel {
+    background-color: $rmm-gray-light;
+}
+
+.productCardFeatured .mat-raised-button .mat-button-wrapper>*, .productGrid .mat-raised-button .mat-button-wrapper>* {
+    /* Fix text alignment inside buttons in Chrome */
+    vertical-align: inherit;
+}
+    
 app-payment-method {
     mat-card {
         height: 300px;

@@ -5,412 +5,414 @@
     </button>
     <h1> Plans & Upgrades </h1>
   </div>
-
+  
   <div class="divider"></div>
-
+  
   <div *ngIf="cart_items_subject | async as cart_items_subj; else cartLoading">
-  <div *ngIf="quota_usage | async as q_usage; else usageLoading">
-    <div *ngIf="rmmapi.me | async as me; else loading">
-      <h4>
-        Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }})
-      </h4>
-      <h3>
-        Welcome to our store!
-      </h3>
-        <img src="assets/payment/sustainability-2-cropped.jpg" id="NorwayGraphic" />
-      <p>
-        By subscribing to Runbox you support an independent and sustainable business in Norway, where your email will stay secure and private indefinitely.
-      </p>
-      <p>
-        Feel free to contact us via <a href="https://support.runbox.com" target="support">Runbox Support</a> if you have any questions about our plans.
-      </p>
-      <p>
-        To view your existing subscriptions, please go to <a routerLink="/account/subscriptions">Your Subscriptions</a>.
-      </p>
-      
-      <div class="navigationButtons">
-        <a routerLink="." fragment="recommended">
-          <button mat-raised-button color="accent" class="plansLink">
-          Recommended plans
-          </button>
-        </a>
-        <a routerLink="." fragment="compare">
-          <button mat-raised-button color="accent" class="plansLink">
-            Compare price plans
-          </button>
-        </a>
-        <a routerLink="." fragment="subaccounts">
-          <button mat-raised-button color="accent" class="plansLink">
-            Additional accounts
-          </button>
-        </a>
-      </div>
-
-      <br />
-      
-      <h2> Main Account </h2>
-      
-    <!--
-    <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
-      <h2 style="margin: 20px 0 10px 0">
-        <mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star
-        </mat-icon>
-      </h2>
-      <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra generous today!</h3>
-      <h4 style="margin: 20px 0 0 0">Subscribe within 24 hours of signing up and get</h4>
-      <h1 style="margin: 10px 0 0 0">1 extra year for free!</h1>
-      <p>This offer expires in <app-runbox-timer class="timer" [user_created]="me.getCreatedMoment()"
-          [timer_length]="limited_time_offer_age" (onFinished)="runboxTimerFinished()"></app-runbox-timer>
-      </p>
-    </div>
-    -->
-
-    <!--
-    <div class="holidayOffer">
-      <img src="assets/giftbox2023.png" style="float: left" />
-      <h1 style="margin: 20px 0 10px 0; font-size: 40px">Special Holiday Offer</h1>
-      <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra merry this month !</h3>
-      <h4 style="margin: 20px 0 0 0">Subscribe or upgrade to the Medium plan or larger throughout December and get</h4>
-      <h1 style="margin: 10px 0 20px 0">One extra year for free!</h1>
-      <p style="margin: 0px 0 0 0">Your account will be immediately upgraded to the selected plan, and the additional time added to your existing subscrription.</p>
-    </div>
-    -->
-
-    <a id="recommended"><h3>Our Recommended Plans</h3></a>
-
-      <p>
-        We currently offer a 20% discount on all our main account plans when you subscribe or renew for 3 years at a time.
-      </p>
-      <p>
-        Lock in the current price for less than the price of a cup of coffee per month!
-      <p>
-
-      <br />
-    
-    <div *ngIf="three_year_plans | async as three_year_plans; else productsLoading">
-    <div *ngIf="orig_three_plans | async as orig_three_plans; else productsLoading">
-      <div class="productGrid">
-
-        <!-- Mini 3-year plan -->
+    <div *ngIf="quota_usage | async as q_usage; else usageLoading">
+      <div *ngIf="rmmapi.me | async as me; else loading">
+        <h4>
+          Account: {{ me.first_name }} {{ me.last_name }} ({{ me.user_address }})
+        </h4>
+        <p>
+          Choose or renew your plan below to enjoy sustainable and private email hosted in Norway. 
+        </p>
         
-        <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
-          
-          <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
-            {{ plan.name.replace('Runbox', '') }}
-          </mat-card-title>
-          <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': plan.over_quota.length > 0}">
-            <h4><span *ngIf="current_sub && current_sub.pid === plan.pid">Your current subscription</span></h4>
-          </mat-card-subtitle>
-          <mat-card-content>
-            <div>
-                <p *ngIf="plan.subtype === 'mini3'">An affordable plan if you don't need a lot of email or file storage.</p>
-                <p *ngIf="plan.subtype === 'medium3'">Suitable for most people, a popular  plan with plenty of email and file storage.</p>
-                <p *ngIf="plan.subtype === 'max3'">A solid plan built to last, perfect for professionals and businesses.</p>
+        <div class="navigationButtons">
+          <a routerLink="." fragment="recommended">Recommended plans</a>&nbsp;
+          <a routerLink="." fragment="compare">Compare all plans</a>&nbsp;
+          <a routerLink="." fragment="subaccounts">Additional account plans</a>&nbsp;
+          <a *ngIf="!me.is_trial" routerLink="/account/subscriptions">Your existing subscriptions</a>
+        </div>
+        
+        <br />
+        
+        <h2> Main Account </h2>
+        
+        <!--
+            <div *ngIf="limitedTimeOffer" class="limitedTimeOffer">
+            <h2 style="margin: 20px 0 10px 0">
+            <mat-icon class="limitedTimeOffer">star</mat-icon> Limited time offer <mat-icon class="limitedTimeOffer">star
+            </mat-icon>
+            </h2>
+            <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra generous today!</h3>
+            <h4 style="margin: 20px 0 0 0">Subscribe within 24 hours of signing up and get</h4>
+            <h1 style="margin: 10px 0 0 0">1 extra year for free!</h1>
+            <p>This offer expires in <app-runbox-timer class="timer" [user_created]="me.getCreatedMoment()"
+            [timer_length]="limited_time_offer_age" (onFinished)="runboxTimerFinished()"></app-runbox-timer>
+            </p>
+            </div>
+          -->
+        
+        <!--
+            <div class="holidayOffer">
+            <img src="assets/giftbox2023.png" style="float: left" />
+            <h1 style="margin: 20px 0 10px 0; font-size: 40px">Special Holiday Offer</h1>
+            <h3 style="margin: 10px 0; font-weight: normal;">We're feeling extra merry this month !</h3>
+            <h4 style="margin: 20px 0 0 0">Subscribe or upgrade to the Medium plan or larger throughout December and get</h4>
+            <h1 style="margin: 10px 0 20px 0">One extra year for free!</h1>
+            <p style="margin: 0px 0 0 0">Your account will be immediately upgraded to the selected plan, and the additional time added to your existing subscrription.</p>
+            </div>
+          -->
+        
+        <a id="recommended"><h3>Our Recommended Plans</h3></a>
+        
+        <p>
+          We currently offer a 20% discount on all our main account plans when you subscribe or renew for 3 years at a time. Lock in the current price for less than the price of a glass of mead per month!
+        </p>
+        <br />
+        <div *ngIf="three_year_plans | async as three_year_plans; else productsLoading">
+          <div *ngIf="orig_three_plans | async as orig_three_plans; else productsLoading">
+            <div class="productGrid">
+              <mat-card *ngFor="let plan of three_year_plans; index as i" class="productCardFeatured {{ plan.subtype === 'medium3' ? 'recommended' : '' }}">
+                <mat-card-title class="{{ plan.subtype }}" [ngClass]="{'themePaletteGray': plan.over_quota.length > 0}">
+                  {{ plan.name.replace('Runbox', '') }}
+                </mat-card-title>
+                <mat-card-subtitle>
+                  <h4 *ngIf="plan.subtype === 'mini3'" [ngClass]="{'disabled': plan.over_quota.length > 0}">Affordable plan for everyday use.</h4>
+                  <h4 *ngIf="plan.subtype === 'medium3'" [ngClass]="{'disabled': plan.over_quota.length > 0}">Average plan with room to grow.</h4>
+                  <h4 *ngIf="plan.subtype === 'max3'" [ngClass]="{'disabled': plan.over_quota.length > 0}">For professionals and businesses.</h4>
+                </mat-card-subtitle>
                 <ul class="planComponents">
-                <li>{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
-                <li>{{ plan.quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
-                <li>{{ plan.quotas.VirtualDomain.quota }} email domain names</li>
-                <li>{{ plan.quotas.Alias.quota }} aliases @runbox domains</li>
-                <li>Unlimited aliases on your domains</li>
-              </ul>
-              <div class="threeYearDifferenceFeatured">
-                Save {{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price.times(3).minus(plan.price).toNumber() | number: '1.2-2' }} in total
-              </div>
-              compared to 3 * {{ orig_three_plans[i].subtype | titlecase }} 1-year
+                  <li>{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB email storage space</li>
+                  <li>{{ plan.quotas.File.quota / 1024 / 1024 / 1024 }} GB file storage space</li>
+                  <li>{{ plan.quotas.VirtualDomain.quota }} email domain names</li>
+                  <li>{{ plan.quotas.Alias.quota }} aliases @runbox domains</li>
+                  <li>Unlimited aliases on your domains</li>
+                </ul>
+                <mat-card-content>
+                  <br />
+                  <ng-content></ng-content>
+                  <h4 *ngFor="let us of addon_usages">
+                    Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
+                    <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
+                  </h4>
+                </mat-card-content>
+                <div *ngIf="plan.over_quota.length > 0">
+                  <h4>Your usage is too great for this plan</h4>
+                  <ul class="overQuota">
+                    <li *ngFor="let oq of plan.over_quota">
+                      <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                      <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                      is available
+                    </li>
+                  </ul>
+                  <br />
+                  <br />
+                </div>
+                <!--Standard price with strikethrough
+                    <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price.times(3).toNumber() | number: '1.2-2' }}&nbsp;</div>-->
+                <ng-container *ngIf="plan.addons_needed.length === 0; else withaddons">
+                  <mat-card-actions *ngIf="plan.over_quota.length === 0">
+                    <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		                    (click)="order(plan)"
+		                    class="purchaseButtonFeatured {{ plan.subtype }}"
+		                    matTooltip="Only one subscription product can be added at a time">
+                      <span *ngIf="me.is_trial">Subscribe for</span>
+                      <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+                      <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
+                      <span *ngIf="!me.is_trial && current_sub && plan.is_upgrade">Upgrade for</span>
+                      <span *ngIf="!me.is_trial && current_sub && plan.is_downgrade">Downgrade for</span>
+                      <span *ngIf="!me.is_trial && current_sub && !plan.is_upgrade && !plan.is_downgrade && orig_three_plans[i].pid !== me.subscription && plan.pid !== me.subscription">Renew for</span>
+                      {{ plan.currency }} {{ plan.price.toNumber() | number:'1.2-2' }}
+                    </button>
+                    <div class="threeYearDifferenceFeatured">
+                      Save {{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price.times(3).minus(plan.price).toNumber() | number: '1.2-2' }} in total
+                    </div>
+                    compared to 3 * {{ orig_three_plans[i].subtype | titlecase }} 1-year
+                    <ng-template #unpurchase>
+                      <button mat-raised-button
+		                      color="primary"
+                              (click)="unorder(plan)"
+		                      class="purchaseButtonFeatured {{ plan.subtype }} removeButton"
+		                      >
+                        Remove from cart
+                      </button>
+                    </ng-template>
+                  </mat-card-actions>
+                </ng-container>
+                <ng-template #withaddons>
+                  <mat-card-actions  *ngIf="plan.over_quota.length === 0">
+                    <!-- No reason to shw addons or buttons if the user is over quotas that cannot be upgraded -->
+                    <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		                    (click)="orderWithAddons(plan, plan.addons_needed)"
+		                    class="purchaseButtonFeatured {{ plan.subtype }}"
+		                    matTooltip="Only one subscription product can be added at a time">
+                      <span *ngIf="me.is_trial">Subscribe for</span>
+                      <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
+                      <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
+                      <span *ngIf="!me.is_trial && current_sub && plan.is_upgrade">Upgrade for</span>
+                      <span *ngIf="!me.is_trial && current_sub && plan.is_downgrade">Downgrade for</span>
+                      {{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2' }}
+                    </button>
+                    <ng-template #unpurchase>
+                      <button mat-raised-button
+		                      color="primary"
+                              (click)="unorderWithAddons(plan, plan.addons_needed)"
+		                      class="removeButton"
+		                      >
+                        Remove from cart
+                      </button>
+                    </ng-template>
+                  </mat-card-actions>
+                  <div>
+                    <div *ngIf="!plan.over_quota.length > 0">
+                      Required add-ons included:
+                      <ul>
+                        <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </ng-template>
+                <div>
+                  <!--Price per year: {{ plan.currency }} {{ plan.price.dividedBy(3).toNumber() | number:'1.2-2' }} <br />-->
+                  Price per month: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy(12).toNumber() | number:'1.2-2' }} <br />
+                  <!--Annual price per GB: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024).toNumber() | number:'1.2-2' }}-->
+                </div>
+                <div class="currentSubscription">
+                  <span *ngIf="current_sub && current_sub.pid === plan.pid">Your current subscription</span>
+                </div>
+              </mat-card>        
             </div>
-            <ng-content></ng-content>
-            <h4 *ngFor="let us of addon_usages">
-              Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
-              <span *ngIf="us.type !== 'bytes'">{{ us.current }} of {{ us.quota }}</span>
-            </h4>
-          </mat-card-content>
-          <div *ngIf="plan.over_quota.length > 0">
-            Your usage is too great for this plan:
-            <ul class="overQuota">
-              <li *ngFor="let oq of plan.over_quota">
-                <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
-                <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
-                are available
-              </li>
-            </ul>
           </div>
-          <div class="threeYearStandardFeatured">&nbsp;{{ orig_three_plans[i].currency }} {{ orig_three_plans[i].price.times(3).toNumber() | number: '1.2-2' }}&nbsp;</div>
-          <ng-container *ngIf="plan.addons_needed.length === 0; else withaddons">
-          <mat-card-actions  *ngIf="plan.over_quota.length === 0">
-            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
-		            (click)="order(plan)"
-		            class="purchaseButtonFeatured {{ plan.subtype }}"
-		            >
-              <span *ngIf="me.is_trial">Subscribe for</span>
-              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
-              <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
-              <span *ngIf="!me.is_trial && current_sub && plan.is_upgrade">Upgrade to</span>
-              <span *ngIf="!me.is_trial && current_sub && plan.is_downgrade">Downgrade to</span>
-              {{ plan.currency }} {{ plan.price.toNumber() | number:'1.2-2' }}
-            </button>
-            <ng-template #unpurchase>
-              <button mat-raised-button
-		              color="primary"
-                      (click)="unorder(plan)"
-		              class="removeButton"
-		              >
-                Remove from cart
-              </button>
-            </ng-template>
-          </mat-card-actions>
-          </ng-container>
-          <ng-template #withaddons>
-            <div>
-              Price including addons<br/>
-              {{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2'}}<br />
-              <ul>
-                <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
-              </ul>
-            </div>
-          <mat-card-actions  *ngIf="plan.over_quota.length === 0">
-            <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
-		            (click)="orderWithAddons(plan, plan.addons_needed)"
-		            class="purchaseButtonFeatured {{ plan.subtype }}"
-		            >
-              <span *ngIf="me.is_trial">Subscribe for</span>
-              <span *ngIf="!me.is_trial && me.subscription === undefined">Purchase for</span>
-              <span *ngIf="!me.is_trial && (orig_three_plans[i].pid === me.subscription || plan.pid === me.subscription)">Renew for</span>
-              <span *ngIf="!me.is_trial && current_sub && plan.is_upgrade">Upgrade to</span>
-              <span *ngIf="!me.is_trial && current_sub && plan.is_downgrade">Downgrade to</span>
-              {{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2' }}
-            </button>
-            <ng-template #unpurchase>
-              <button mat-raised-button
-		              color="primary"
-                      (click)="unorderWithAddons(plan, plan.addons_needed)"
-		              class="removeButton"
-		              >
-                Remove from cart
-              </button>
-            </ng-template>
-          </mat-card-actions>
-          </ng-template>
-          <div>
-            Price per year: {{ plan.currency }} {{ plan.price.dividedBy(3).toNumber() | number:'1.2-2' }} <br />
-            Price per month: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy(12).toNumber() | number:'1.2-2' }} <br />
-            Annual price per GB: {{ plan.currency }} {{ plan.price.dividedBy(3).dividedBy((plan.quotas.Disk.quota + plan.quotas.File.quota)  / 1024 / 1024 / 1024).toNumber() | number:'1.2-2' }}
+        </div>
+        
+        <div *ngIf="subs_regular | async as subs_regular; else productsLoading">
+          <div *ngIf="subs_three | async as subs_three; else productsLoading">
+            <p>
+              <mat-icon svgIcon="lightbulb"></mat-icon> Note that upgrading or downgrading your main account will take effect right away, and the additional subscription time added to your current subscription. You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
+            </p>
+            
+            <br /><br />
+            
+            <a id="compare"><h3>All Main Account Price Plans</h3></a>
+            
+            <p>
+              Compare all our main account plans for 1 and 3 years in the table below.
+            </p>
+            
+            <table id="pricePlans" cellpadding = "0" cellspacing = "0">
+              <tr>
+                <th class="planComponentName">Runbox Plans</th>
+                <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }} {{ plan.over_quota.length > 0 ? 'themePaletteGray' : '' }}">{{ plan.name.replace('Runbox', '') }}</th>
+              </tr>
+              <tr>
+                <td class="planComponent" >Email storage</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
+              </tr>
+              <tr>
+                <td class="planComponent">File storage</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
+              </tr>
+              <tr>
+                <td class="planComponent">Email domains</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.VirtualDomain.quota }}</td>
+              </tr>
+              <tr>
+                <td class="planComponent">Email aliases @runbox</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100</td>
+              </tr>
+              <tr>
+                <td class="planComponent">Email aliases on own domain</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">Unlimited</td>
+              </tr>
+              <tr>
+                <td class="planComponent">Email message size</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100 MB</td>
+              </tr>
+              <tr>
+                <td class="planComponent">Incoming messages (daily)</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Msg.quota }}</td>
+              </tr>
+              <tr>
+                <td class="planComponent">Outgoing messages (daily)</td>
+                <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Sent.quota }}</td>
+              </tr>
+              <tr>
+                <td class="planComponent priceForOneYear">Price for 1 year</td>
+                <td *ngFor="let plan of subs_regular" class="oneYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
+                  <div>
+                    <span *ngIf="plan.over_quota.length === 0">{{ plan.currency }} {{ plan.price }}</span>
+                    <span *ngIf="plan.over_quota.length > 0">{{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2'}}</span>
+                  </div>
+                  <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
+		                  [color]="plan.is_downgrade ? 'accent' : 'primary'"
+		                  (click)="orderWithAddons(plan, plan.addons_needed)"
+                          [disabled]="plan.over_quota.length > 0"
+		                  class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		                  matTooltip="Only one subscription product can be added at a time">
+                    {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+                  </button><br />
+                  <div *ngIf="plan.over_quota.length === 0" class="currentSubscription">
+                    <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
+                  </div>
+                  <ng-template #unpurchase>
+                    <button mat-raised-button
+		                    color="primary"
+                            (click)="unorderWithAddons(plan, plan.addons_needed)"
+		                    class="removeButton"
+		                    >
+                      Remove from cart
+                    </button>
+                  </ng-template>
+                  <div *ngIf="plan.over_quota.length === 0">
+                    <div *ngIf="plan.addons_needed.length > 0">
+                      <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                          <span>Price includes addons</span>
+                        </mat-expansion-panel-header>
+                        <ul>
+                          <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
+                        </ul>
+                      </mat-expansion-panel>
+                    </div>
+                  </div>
+                  <div *ngIf="plan.over_quota.length > 0">
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        See plan requirements
+                      </mat-expansion-panel-header>
+                      <ul class="overQuota">
+                        <li *ngFor="let oq of plan.over_quota">
+                          <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                          <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                          is available
+                        </li>
+                      </ul>
+                    </mat-expansion-panel>
+                  </div>
+                </td>
+              </tr>
+              
+              <tr>
+                <td class="planComponent priceForThreeYears">Price for 3 years</td>
+                <td *ngFor="let plan of subs_regular; index as i" class="threeYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
+                  <!--<div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price.times(3).toNumber() | number: '1.2-2' }}&nbsp;</div>-->
+                  <div class="threeYearDiscounted">
+                    <span *ngIf="plan.over_quota.length === 0">{{ subs_three[i].currency }} {{ subs_three[i].price }}</span>
+                    <span *ngIf="plan.over_quota.length > 0">{{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2'}}</span>
+                  </div>
+                  <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
+		                  [color]="subs_three[i].is_downgrade ? 'accent' : 'primary'"
+		                  (click)="orderWithAddons(subs_three[i], subs_three[i].addons_needed)"
+                          [disabled]="subs_three[i].over_quota.length > 0"
+		                  class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
+		                  matTooltip="Only one subscription product can be added at a time">
+                    {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
+                  </button><br />
+                  <div class="currentSubscription">
+                    <span *ngIf="current_sub && current_sub.pid === subs_three[i].pid"> Your current {{ plan.type }} </span>
+                  </div>
+                  <ng-template #unpurchase>
+                    <button mat-raised-button
+		                    color="primary"
+                            (click)="unorder(subs_three[i])"
+		                    class="removeButton"
+		                    >
+                      Remove from cart
+                    </button>
+                  </ng-template>
+                  <div *ngIf="plan.over_quota.length === 0">
+                    <div *ngIf="subs_three[i].addons_needed.length > 0">
+                      <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                          <span>Price includes addons</span>
+                        </mat-expansion-panel-header>
+                        <ul>
+                          <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
+                        </ul>
+                      </mat-expansion-panel>
+                    </div>
+                  </div>
+                  <div *ngIf="plan.over_quota.length > 0">
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <span>See plan requirements</span>
+                      </mat-expansion-panel-header>
+                      <ul class="overQuota">
+                        <li *ngFor="let oq of plan.over_quota">
+                          <span *ngIf="oq.type === 'bytes'">{{ (oq.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB {{ oq.quota }} used, while {{ (oq.allowed / 1024 / 1024 / 1024) | number:'1.2-2' }} GB </span>
+                          <span *ngIf="oq.type !== 'bytes'">{{ oq.current }} {{ oq.quota }} used, while {{ oq.allowed }}</span>
+                          is available
+                        </li>
+                      </ul>
+                    </mat-expansion-panel>
+                  </div>
+                  
+                  <div *ngIf="plan.over_quota.length === 0" class="threeYearDifference">
+                    Save {{ plan.currency }} {{ plan.price.times(3).minus(subs_three[i].price).toNumber() | number: '1.2-2' }}
+                  </div>
+                </td>
+              </tr>
+            </table>
           </div>
-        </mat-card>        
+        </div>
+        <br />
+        <p>
+          Need help choosing? Contact <a href="https://support.runbox.com" target="support">Runbox Support</a>
+        </p>
+        
+        <!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
+                <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
+                [currency]="me.currency">
+                <ul>
+                <li *ngFor="let detail of p.details"> {{ detail }}
+                </ul>
+                </app-account-product>
+                </div>
+          -->
+        <ng-template #productsLoading>
+          <app-runbox-loading text="Loading available plans...">
+          </app-runbox-loading>
+        </ng-template>
       </div>
-    </div>
-    </div>
-
-    <div *ngIf="subs_regular | async as subs_regular; else productsLoading">
-    <div *ngIf="subs_three | async as subs_three; else productsLoading">
-      <p>
-        <mat-icon svgIcon="lightbulb"></mat-icon> Note that upgrading or downgrading your main account will take effect right away, and the additional subscription time added to your current subscription. You are currently using {{ (q_usage.Disk.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB email storage space, {{ (q_usage.File.usage / 1024 / 1024 / 1024) | number:'1.2-2' }} GB file storage space, and {{q_usage.VirtualDomain.usage}} email domains.
-      </p>
+      
+      <ng-template #loading>
+        <div> Loading account details... </div>
+      </ng-template>
       
       <br /><br />
       
-       <a id="compare"><h3>All Main Account Price Plans</h3></a>
-
-      <p>
-        Compare all our main account plans for 1 and 3 years in the table below.
-      </p>
-
-      <table id="pricePlans" cellpadding = "0" cellspacing = "0">
-        <tr>
-          <th class="planComponentName">Runbox Plans</th>
-          <th *ngFor="let plan of subs_regular" class="planName {{ plan.name.replace('Runbox', '') }} {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.name.replace('Runbox', '') }}</th>
-        </tr>
-        <tr>
-          <td class="planComponent" >Email storage</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Disk.quota / 1024 / 1024 / 1024 }} GB</td>
-        </tr>
-        <tr>
-          <td class="planComponent">File storage</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.File.quota / 1024 / 1024 }} MB</td>
-        </tr>
-        <tr>
-          <td class="planComponent">Email domains</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.VirtualDomain.quota }}</td>
-        </tr>
-        <tr>
-          <td class="planComponent">Email aliases @runbox</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100</td>
-        </tr>
-        <tr>
-          <td class="planComponent">Email aliases on own domain</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">Unlimited</td>
-        </tr>
-        <tr>
-          <td class="planComponent">Email message size</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">100 MB</td>
-        </tr>
-        <tr>
-          <td class="planComponent">Incoming messages (daily)</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Msg.quota }}</td>
-        </tr>
-        <tr>
-          <td class="planComponent">Outgoing messages (daily)</td>
-          <td *ngFor="let plan of subs_regular" class="{{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">{{ plan.quotas.Sent.quota }}</td>
-        </tr>
-        <tr>
-          <td class="planComponent priceForOneYear">Price for 1 year</td>
-          <td  *ngFor="let plan of subs_regular" class="oneYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
-            <ng-container *ngIf="plan.addons_needed.length === 0; else withaddons">
-              <div>
-                {{ plan.currency }} {{ plan.price }}<br />
-              </div>
-              <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
-		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
-		            (click)="orderMainProduct(plan.pid,plan.type,1)"
-                    [disabled]="plan.over_quota.length > 0"
-		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
-		              >
-                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-              </button><br />
-            </ng-container>
-            <ng-template #withaddons>
-              <div>
-                Price including addons<br/>
-                {{ plan.currency }} {{ plan.price_with_addons.toNumber() | number:'1.2-2'}}<br />
-                <ul>
-                  <li *ngFor="let n_addon of plan.addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
-                </ul>
-              </div>
-              <button mat-raised-button *ngIf="!cart_items_subj.get(plan.pid); else unpurchase"
-		            [color]="plan.is_downgrade ? 'accent' : 'primary'"
-		            (click)="orderWithAddons(plan, plan.addons_needed)"
-                    [disabled]="plan.over_quota.length > 0"
-		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
-		              >
-                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-              </button><br />
-            </ng-template>
-            <span *ngIf="current_sub && current_sub.pid === plan.pid"> Your current {{ plan.type }} </span>
-            <ng-template #unpurchase>
-              <button mat-raised-button
-		              color="primary"
-                      (click)="unorderWithAddons(plan, plan.addons_needed)"
-		              class="removeButton"
-		              >
-                Remove from cart
-              </button>
-            </ng-template>
-
-          </td>
-        </tr>
-        <tr>
-          <td class="planComponent priceForThreeYears">Price for 3 years</td>
-          <td *ngFor="let plan of subs_regular; index as i" class="threeYear {{ plan.over_quota.length > 0 ? 'themePaletteDarkGray' : '' }}">
-            <ng-container *ngIf="subs_three[i].addons_needed.length === 0; else withaddons">
-              <div class="threeYearStandard">&nbsp;{{ plan.currency }} {{ plan.price.times(3).toNumber() | number: '1.2-2' }}&nbsp;</div>
-              <div class="threeYearDiscounted">{{ subs_three[i].currency }} {{ subs_three[i].price }}</div>
-              <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
-		              [color]="is_downgrade ? 'accent' : 'primary'"
-		              (click)="orderMainProduct(subs_three[i].pid,subs_three[i].type,1)"
-                      [disabled]="plan.over_quota.length > 0 || plan.addons_needed.length > 0"
-		              class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
-		              >
-                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-              </button>
-            </ng-container>
-            <ng-template #withaddons>
-              <div>
-                Price including addons<br/>
-                {{ subs_three[i].currency }} {{ subs_three[i].price_with_addons.toNumber() | number:'1.2-2'}}<br />
-                <ul>
-                  <li *ngFor="let n_addon of subs_three[i].addons_needed">{{n_addon.quantity}} of {{n_addon.addon.name}}</li>
-                </ul>
-              </div>
-              <button mat-raised-button *ngIf="!cart_items_subj.get(subs_three[i].pid); else unpurchase"
-		            [color]="subs_three[i].is_downgrade ? 'accent' : 'primary'"
-		            (click)="orderWithAddons(subs_three[i], subs_three[i].addons_needed)"
-                    [disabled]="subs_three[i].over_quota.length > 0"
-		            class="purchaseButton {{ plan.name.replace('Runbox', '') }}"
-		              >
-                {{ plan.is_downgrade ? 'Downgrade' : plan.is_upgrade ? 'Upgrade' : 'Select' }}
-              </button><br />
-
-            </ng-template>
-            <ng-template #unpurchase>
-              <button mat-raised-button
-		              color="primary"
-                      (click)="unorder(subs_three[i])"
-		              class="removeButton"
-		              >
-                Remove from cart
-              </button>
-            </ng-template>
-            <br />
-            <span *ngIf="current_sub && current_sub.pid === subs_three[i].pid"> Your current {{ plan.type }} </span>
-            <div class="threeYearDifference">
-              Save {{ plan.currency }} {{ plan.price.times(3).minus(subs_three[i].price).toNumber() | number: '1.2-2' }}
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-    </div>
-
-<!--    <div id="productGrid" *ngIf="subs_special | async as subs_special; else productsLoading">
-      <app-account-product *ngFor="let p of subs_special" [ngClass]="'productCardSpecial'" [p]="p"
-        [currency]="me.currency">
-        <ul>
-          <li *ngFor="let detail of p.details"> {{ detail }}
-        </ul>
-      </app-account-product>
-    </div>
--->
-      <ng-template #productsLoading>
-        <app-runbox-loading text="Loading available plans...">
+      <ng-template #addonsLoading>
+        <app-runbox-loading text="Loading available add-ons...">
         </app-runbox-loading>
       </ng-template>
+      
+      <h3> Main Account Add-ons </h3>
+      
+      <p> Add-ons are individual upgrades that can be added to your main account. </p>
+      
+      <div class="productGrid " *ngIf="emailaddons | async as emailaddons; else addonsLoading">
+        <app-account-product *ngFor="let p of emailaddons" class="productCard"
+                             [p]="p"
+                             [currency]="me.currency"
+                             >
+        </app-account-product>
+      </div>
+      
+      <br /><br />
+      
+      <h2> <a id="subaccounts">Sub-Accounts (additional accounts)</a> </h2>
+      
+      <p>
+        Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings.
+      </p>
+      
+      <p>
+        To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
+      </p>
+      
+      <p>
+        Note: All sub-accounts also include unlimited email aliases on your own domain name and up to 100 email aliases on the Runbox domain names.
+      </p>
+      
+      <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
+        <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
+        </app-account-product>
+      </div>
+      
+      <br /><br />
     </div>
-
-    <ng-template #loading>
-      <div> Loading account details... </div>
-    </ng-template>
-    
-    <br /><br />
-
-    <ng-template #addonsLoading>
-      <app-runbox-loading text="Loading available addons...">
-      </app-runbox-loading>
-    </ng-template>
-
-  <h3> Main Account Add-ons </h3>
-  
-    <p> Add-ons are individual upgrades that can be added to your main account. </p>
-
-    <div class="productGrid" *ngIf="emailaddons | async as emailaddons; else addonsLoading">
-      <app-account-product *ngFor="let p of emailaddons" class="productCard"
-                           [p]="p"
-                           [currency]="me.currency"
-                           >
-      </app-account-product>
-    </div>
-    
-    <br /><br />
-    
-    <h2> <a id="subaccounts">Sub-Accounts (additional accounts)</a> </h2>
-    
-    <p>
-      Sub-accounts are additional accounts that are managed by your main account. They are ideal for companies, organizations, and families who need separate accounts with their own dedicated storage space and account settings.
-    </p>
-    
-    <p>
-      To add sub-accounts that are tied to your main subscription, please select one or more sub-account products below.
-    </p>
-
-    <p>
-      Note: All sub-accounts also include unlimited email aliases on your own domain name and up to 100 email aliases on the Runbox domain names.
-    </p>
-
-    <div class="productGrid" *ngIf="subaccounts | async as subaccounts; else addonsLoading">
-      <app-account-product *ngFor="let p of subaccounts" class="productCard" [p]="p" [currency]="me.currency">
-      </app-account-product>
-    </div>
-    
-    <br /><br />
-  </div>
   </div>
   
   <ng-template #cartLoading>

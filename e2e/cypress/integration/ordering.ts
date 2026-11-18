@@ -48,11 +48,11 @@ describe('Ordering products', () => {
         cy.visit('/account/plans');
         cy.wait('@availableProducts', {'timeout':10000});
 
-        // 84.95 / 3 = 28.3167 -> displayed as 28.32
+        // 84.95 / 3 / 12 = 2.35972222 -> displayed as 2.36
         cy.get('.productGrid mat-card')
             .contains('Test 3-year')
             .parents('mat-card')
-            .should('contain', 'Price per year: EUR 28.32');
+            .should('contain', 'Price per month: EUR 2.36');
     });
 
     it('can order product twice to increase quantity', () => {
