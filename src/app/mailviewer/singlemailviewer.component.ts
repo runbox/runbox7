@@ -695,6 +695,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     const buttons = messageContents.getElementsByTagName('button');
     const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
     const contactButtons = messageContents.getElementsByTagName('mat-icon') as HTMLCollectionOf<HTMLElement>;
+    const notificationContainers = messageContents.getElementsByClassName('notificationContainer') as HTMLCollectionOf<HTMLElement>;
 
     if (htmlButtons.length) {
       htmlButtons[0].style.display = 'none';
@@ -704,6 +705,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
     for (let i = 0; i < contactButtons.length; i++) {
       contactButtons[i].style.display = 'none';
+    }
+    for (let i = 0; i < notificationContainers.length; i++) {
+      notificationContainers[i].style.display = 'none';
     }
 
     let printablecontent = this.messageContents.nativeElement.innerHTML;
@@ -727,6 +731,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
     for (let i = 0; i < contactButtons.length; i++) {
       contactButtons[i].style.display = 'inline-block';
+    }
+    for (let i = 0; i < notificationContainers.length; i++) {
+      notificationContainers[i].style.display = 'block';
     }
   }
 
