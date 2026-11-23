@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { DraftFormModel, DraftDeskService } from './draftdesk.service';
+import { DraftDeskComponent } from './draftdesk.component';
 import { Identity } from '../profiles/profile.service';
 import { MailAddressInfo } from '../common/mailaddressinfo';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
@@ -520,6 +521,20 @@ describe('DraftDeskService', () => {
             expect(draftsAfter.length).toBe(initialCount - 1);
             expect(draftsAfter.find((d: DraftFormModel) => d.mid === 12345)).toBeUndefined();
         });
+
+        it('should clear composingNewDraft when deleting an unsaved draft', async () => {
+            // Ensure deleting an unsaved draft removes it permanently across refreshes (#1077)
+            await draftDeskService.newBugReport(false, false, false, false, false, false);
+            const unsavedMid = draftDeskService.draftModels.value[0].mid;
+
+            draftDeskService.deleteDraft(unsavedMid);
+            expect(draftDeskService.composingNewDraft).toBeNull();
+
+            mockMessageListService.folderListSubject.next([
+                { folderId: 5, folderName: 'Drafts', totalMessages: 0, newMessages: 0 } as any
+            ]);
+            expect(draftDeskService.draftModels.value.find((d: DraftFormModel) => d.mid === unsavedMid)).toBeUndefined();
+        });
     });
 
     describe('newBugReport with firstValueFrom', () => {
@@ -535,6 +550,27 @@ describe('DraftDeskService', () => {
             expect(bugReportDraft.subject).toBe('Runbox 7 Bug Report');
             expect(bugReportDraft.msg_body).toContain('testuser');
             expect(mockHttp.get).toHaveBeenCalledWith('assets/templates/bug_report.txt', { responseType: 'text' });
+        });
+
+        it('should update DraftDeskComponent view when composing a bug report while in Drafts (#1077)', async () => {
+            // Reproduces #1077: an unsaved draft in view must not block a newly created bug report draft
+            const component = new DraftDeskComponent(
+                mockRmmapi,
+                { navigate: jasmine.createSpy('navigate') } as any,
+                { queryParams: of({}) } as any,
+                draftDeskService
+            );
+
+            component.newDraft();
+            expect(component.draftModelsInView.length).toBe(1);
+            expect(component.draftModelsInView[0].subject).toBe('');
+
+            mockHttp.get.and.returnValue(of('Bug report body for %%USERNAME%%'));
+            await draftDeskService.newBugReport(false, false, false, false, false, false);
+
+            expect(component.draftModelsInView.length).toBe(1);
+            expect(component.draftModelsInView[0].subject).toBe('Runbox 7 Bug Report');
+            expect(component.draftModelsInView[0].msg_body).toContain('Bug report body for testuser');
         });
 
         it('should use firstValueFrom for both HTTP template and rmmapi.me', async () => {

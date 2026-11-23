@@ -101,11 +101,16 @@ export class DraftDeskComponent implements OnInit {
                     msg.message_date = entry.message_date;
                 }
             });
+            deletedEntries.forEach(
+                (dMsgId) => {
+                    const idx = this.draftModelsInView.findIndex((dMsg) => dMsg.mid === dMsgId);
+                    if (idx !== -1) {
+                        this.draftModelsInView.splice(idx, 1);
+                    }
+                });
             this.draftModelsInView.splice(0, 0, ...newEntries);
             this.draftModelsInView.sort((a,b) => a.mid < 0 ? -1 : b.mid < 0 ? 1 : a.mid > b.mid ? -1 : 1);
             this.draftModelsInView = this.draftModelsInView.slice(0, this.currentMaxDraftsInView);
-            deletedEntries.forEach(
-                (dMsgId) => this.draftModelsInView.splice(this.draftModelsInView.findIndex((dMsg) => dMsg.mid === dMsgId), 1));
         } else {
             this.draftModelsInView = this.draftDeskservice.draftModels.value.slice(0, this.currentMaxDraftsInView);
         }
