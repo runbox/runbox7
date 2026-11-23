@@ -1,5 +1,5 @@
 // --------- BEGIN RUNBOX LICENSE ---------
-// Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
+// Copyright (C) 2016-2026 Runbox Solutions AS (runbox.com).
 //
 // This file is part of Runbox 7.
 //
@@ -143,6 +143,15 @@ export class AppPasswordsComponent implements OnInit {
                 this.rmm.account_security.user_password = result['password'];
             }
         });
+    }
+
+    // Notify the user when a newly generated app password is copied to the clipboard.
+    app_pass_copied(copied: boolean) {
+        if (copied) {
+            this.snackBar.open('App password copied to clipboard.', 'Dismiss', {
+                duration: 2000,
+            });
+        }
     }
 
     show_error(message, action) {
