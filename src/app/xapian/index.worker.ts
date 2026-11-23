@@ -21,17 +21,35 @@
 
 import '../sentry';
 
-import { Observer, Observable, of, from, AsyncSubject, firstValueFrom, lastValueFrom } from 'rxjs';
-import { mergeMap, map, filter, catchError, tap, take, bufferCount } from 'rxjs/operators';
+import { Observable, of, from, AsyncSubject, firstValueFrom, lastValueFrom } from 'rxjs';
+import { tap, take } from 'rxjs/operators';
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex';
-import { DownloadableSearchIndexMap, DownloadablePartition } from '@runboxcom/runbox-searchindex/downloadablesearchindexmap.class';
-import { IndexingTools } from '../common/messageinfo';
+import { IndexingTools, MessageInfo } from '../common/messageinfo';
 import { FolderListEntry } from '../common/folderlistentry';
 import { FolderStatsEntry } from '../common/folderstatsentry';
 import { loadXapian } from './xapianwebworkerloader';
 import { listAllMessages, listDeletedMessagesSince, folderStats, updateFolderCounts } from '../rmmapi/restapi_standalone';
 import { PostMessageAction } from './messageactions';
+import { InitialIndexWorkerSync } from './initial-index-worker-sync';
+import { handleInitialSyncWorkerCommand } from './index-worker-command-handler';
+import { runInitialIndexOpen } from './initial-index-open';
+import { IndexMutationQueue } from './index-mutation-queue';
+import { shouldPostLegacyIndexUpdated } from './index-publication-policy';
+import { clearFailedIndexUpdate } from './index-update-failure-policy';
+import { openStoredPartitions as openPartitionPaths } from './stored-partition-open';
+import {
+  fetchFolderMessagesForCountComparison,
+  LegacyIndexUpdateCancellation
+} from './legacy-index-update-cancellation';
+import {
+  closeIndexedDatabaseConnections,
+  deleteIndexedDatabase
+} from './index-storage-cleanup';
+import {
+  CatchUpRecentCommand,
+  OpenIndexCommand
+} from './index-sync.types';
 
 // eslint-disable-next-line no-var
 declare var FS; declare var IDBFS; declare var Module;
@@ -73,12 +91,21 @@ class SearchIndexDocumentUpdate {
   ) {}
 }
 
+interface ProvidedIndexChanges {
+  messages: MessageInfo[];
+  deletedMessageIds: number[];
+}
+
 class SearchIndexService {
   public api: XapianAPI;
   public indexingTools: IndexingTools;
   localdir: string;
   partitionsdir: string;
   private initcalled = false;
+  private activeIndexUpdates = 0;
+  private indexUpdateIdleResolvers: Array<() => void> = [];
+  private indexReplacementPending = false;
+  private readonly legacyUpdateCancellation = new LegacyIndexUpdateCancellation();
 
   public localSearchActivated = false;
 
@@ -100,11 +127,9 @@ class SearchIndexService {
   // Listing all messages happens in chunks of 1000 - page is controlled here
   public listAllMessagesPage = 0;
   public processMessageHistoryCount = 0;
-  public processMessageHistoryProgress = 0;
   public processMessageHistorySkipLiveTableUpdates = true;
   public skipLiveUpdatesIndexingMessageContent = false;
   pendingIndexVerifications: {[id: string]: SearchIndexDocumentData} = {};
-  pendingMessagesToProcess: SearchIndexDocumentUpdate[];
   persistIndexInProgressSubject: AsyncSubject<any> = null;
   indexNotPersisted = false;
   /**
@@ -112,130 +137,150 @@ class SearchIndexService {
    * (workaround while waiting for deleted_messages support, but also a good extra check)
    */
 
-  messageProcessingInProgressSubject: AsyncSubject<any> = null;
-  processMessageIndex = 0;
+  private readonly mutationQueue = new IndexMutationQueue({
+    commit: () => this.api.commitXapianUpdates(),
+    persist: async () => {
+      this.indexNotPersisted = true;
+      await lastValueFrom(this.persistIndex());
+    },
+    publishLegacy: () => ctx.postMessage({'action': PostMessageAction.indexUpdated})
+  });
 
   /**
    * what the indexer update is currently working on
    */
-  currentIndexUpdateMessageIds = new Set();
+  currentIndexUpdateMessageIds = new Set<number>();
 
 
   // constructor( private httpclient: HttpClient ) {}
 
-  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
+  public hasStoredIndex(db: IDBDatabase): Promise<boolean> {
     console.log(`Worker: got localdir: ${this.localdir}`);
-    return new Observable<any>((observer) => {
+    return new Promise((resolve, reject) => {
       try {
         const req: IDBRequest = db.transaction('FILE_DATA', 'readonly')
           .objectStore('FILE_DATA')
           .get('/' + this.localdir + '/xapianglasswr/iamglass');
         req.onsuccess = () => {
-          // console.log(`Worker: opened ${this.localdir}`);
-          // Don't need these observer results.
-          // console.log(req);
-          if (req.result !== undefined) {
-            // console.log('Worker: Req defined, running init()');
-            this.init();
-            observer.next(true);
-          } else {
-            // we shouldnt get here cos we only open index on worker if it exists in main thread
-            // console.log('Worker: Req undefined');
-            observer.next(false);
-          }
           db.close();
+          resolve(req.result !== undefined);
+        };
+        req.onerror = () => {
+          db.close();
+          reject(req.error || new Error('Unable to inspect the local search index'));
         };
       } catch (e) {
-        console.error(e);
-        console.log('Worker: Unable to open local xapian index', (e ? e.message : ''));
         db.close();
-        // console.log('Worker: Req failed');
-        observer.next(false);
-        // observer.next({'action': PostMessageAction.dbOpen, 'hasLocalindex': false});
+        reject(e);
       }
     });
   }
 
-  init() {
-    if (this.initcalled) {
-      return;
-    }
-    this.initcalled = true;
-
-    // this needs to become a postMessage..
-    // this.downloadProgress = 0; // Set indeterminate progress bar
-
-    // its a DedicatedGlobalGorkerScope
-    // console.log(self);
-    loadXapian(self).subscribe(() => {
-      const initXapianFileSys = () => {
-        this.api =  new XapianAPI();
-        this.indexingTools = new IndexingTools(this.api);
-
-        FS.mkdir(this.localdir);
-        FS.mount(IDBFS, {}, '/' + this.localdir);
-        FS.chdir('/' + this.localdir);
-        console.log('Worker: Local dir is ' + this.localdir);
-
-        FS.syncfs(true, (err) => {
-          console.log('Worker: File system synced - starting Xapian');
-
-          FS.mkdir(this.partitionsdir); // Partitions will sync later down if there is a main partition
-          FS.mount(IDBFS, {}, this.partitionsdir);
-
-          try {
-            console.log('Worker: Last index timestamp ', FS.stat('xapianglasswr/docdata.glass').mtime);
-
-            this.openStoredMainPartition();
-
-            const docCount: number = this.api.getXapianDocCount();
-            console.log('Worker: ' + docCount, 'docs in Xapian database');
-
-            try {
-              this.indexLastUpdateTime = parseInt(FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }), 10);
-            } catch (e) {
-              if (!this.updateIndexLastUpdateTime()) {
-                // Failed to load, do nothing here, the non-worker side
-                // will tell us to delete the index and run updates
-                return;
-              }
-            }
-
-            this.localSearchActivated = true;
-            ctx.postMessage({'action': PostMessageAction.localSearchActivated, 'value': this.localSearchActivated });
-
-            FS.syncfs(true, async () => {
-              // console.log('Worker: Loading partitions');
-              this.openStoredPartitions();
-              ctx.postMessage({'action': PostMessageAction.indexUpdated});
-              await this.updateIndexWithNewChanges();
-            });
-
-
-          } catch (e) {
-            console.log('Worker: No xapian db');
-            this.initSubject.next(false);
-          }
-
-          // this.downloadProgress = null; // Set indeterminate progress bar
-          this.initSubject.complete();
-        });
-      };
-
-      initXapianFileSys();
-    });
+  loadSearchIndexes(db: IDBDatabase): Observable<boolean> {
+    return from(this.hasStoredIndex(db).then(async hasStoredIndex => {
+      if (!hasStoredIndex) {
+        return false;
+      }
+      await this.init();
+      this.initSubject.next(true);
+      this.initSubject.complete();
+      ctx.postMessage({
+        'action': PostMessageAction.localSearchActivated,
+        'value': this.localSearchActivated
+      });
+      ctx.postMessage({'action': PostMessageAction.indexUpdated});
+      await this.updateIndexWithNewChanges();
+      return true;
+    }).catch(error => {
+      this.initSubject.error(error);
+      throw error;
+    }));
   }
 
-  private openStoredPartitions() {
+  async init(): Promise<number> {
+    if (this.initcalled) {
+      return this.reloadInitialIndex();
+    }
+    this.initcalled = true;
     try {
-      FS.readdir(this.partitionsdir).forEach((f) => {
-        if ( f !== '.' && f !== '..' &&
-          FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
+      await firstValueFrom(loadXapian(self));
+      this.api = new XapianAPI();
+      this.indexingTools = new IndexingTools(this.api);
 
-          this.api.addFolderXapianIndex(`${this.partitionsdir}/${f}`);
+      FS.mkdir(this.localdir);
+      FS.mount(IDBFS, {}, '/' + this.localdir);
+      FS.chdir('/' + this.localdir);
+      await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
+        error ? reject(error) : resolve()
+      ));
+
+      FS.mkdir(this.partitionsdir);
+      FS.mount(IDBFS, {}, this.partitionsdir);
+      this.openStoredMainPartition();
+      this.api.getXapianDocCount();
+      try {
+        this.indexLastUpdateTime = parseInt(
+          FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }),
+          10
+        );
+      } catch (_error) {
+        if (!this.updateIndexLastUpdateTime()) {
+          throw new Error('Unable to load the local search index baseline');
         }
-      });
+      }
+
+      await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
+        error ? reject(error) : resolve()
+      ));
+      this.openStoredPartitions(true);
+      this.localSearchActivated = true;
+      this.indexReplacementPending = false;
+      return this.indexLastUpdateTime;
+    } catch (error) {
+      this.initcalled = false;
+      this.localSearchActivated = false;
+      throw error;
+    }
+  }
+
+  private async reloadInitialIndex(): Promise<number> {
+    try {
+      await this.mutationQueue.whenIdle();
+      this.api.closeXapianDatabase();
+      await new Promise<void>((resolve, reject) => FS.syncfs(true, error =>
+        error ? reject(error) : resolve()
+      ));
+      this.openStoredMainPartition();
+      this.openStoredPartitions(true);
+      this.indexLastUpdateTime = parseInt(
+        FS.readFile('indexLastUpdateTime', { encoding: 'utf8' }),
+        10
+      );
+      this.localSearchActivated = true;
+      this.indexReplacementPending = false;
+      return this.indexLastUpdateTime;
+    } catch (_error) {
+      try {
+        this.api.closeXapianDatabase();
+      } catch (_closeError) {
+        // Opening may have failed before Xapian created a database handle.
+      }
+      this.localSearchActivated = false;
+      throw new Error('Unable to reload the local search index');
+    }
+  }
+
+  private openStoredPartitions(strict = false) {
+    try {
+      const paths = FS.readdir(this.partitionsdir)
+        .filter(f => f !== '.' && f !== '..' &&
+          FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode))
+        .map(f => `${this.partitionsdir}/${f}`);
+      openPartitionPaths(paths, path => this.api.addFolderXapianIndex(path));
     } catch (e) {
+      if (strict) {
+        throw e;
+      }
       console.error(e);
     }
   }
@@ -245,90 +290,72 @@ class SearchIndexService {
   }
 
   public deleteLocalIndex(): Observable<boolean> {
-    if (!this.localSearchActivated) {
-      // called mid-index load and we hadnt loaded it anyway
-      // send indexDeleted so the progress dialog closes
-      console.log('Worker: Tried to delete local index when it is not present');
-      ctx.postMessage({'action': PostMessageAction.indexDeleted});
-      return of(null);
+    this.localSearchActivated = false;
+    console.log('Worker: Closing xapian database');
+    if (this.api) {
+      try {
+        this.api.closeXapianDatabase();
+      } catch (_error) {
+        // Replacement preparation may already have closed the database.
+      }
     }
 
-    this.localSearchActivated = false;
+    this.removeWritableMainPartition();
+    this.removeLegacyMainPartition();
+    this.removeStoredPartitions();
+    closeIndexedDatabaseConnections(IDBFS.dbs);
 
-    return new Observable((observer) => {
-      console.log('Worker: Closing xapian database');
-      if (this.api) {
-        console.log('Worker: API exists?');
-        this.api.closeXapianDatabase();
-      }
+    return from(this.deleteIndexDatabases()).pipe(
+      tap(() => ctx.postMessage({ action: PostMessageAction.indexDeleted }))
+    );
+  }
 
-      FS.readdir(XAPIAN_GLASS_WR).forEach((f) => {
-        if ( f !== '.' && f !== '..') {
-          console.log(f);
-          FS.unlink('xapianglasswr/' + f);
+  private removeWritableMainPartition(): void {
+    try {
+      FS.readdir(XAPIAN_GLASS_WR).forEach((filename) => {
+        if (filename !== '.' && filename !== '..') {
+          FS.unlink(`${XAPIAN_GLASS_WR}/${filename}`);
         }
       });
       FS.rmdir(XAPIAN_GLASS_WR);
-      try {
-        FS.unlink('xapianglass');
-      } catch (e) {
-        console.error(e);
-      }
+    } catch (_error) {
+      // A failed synchronization may not have created partition zero.
+    }
+  }
 
+  private removeLegacyMainPartition(): void {
+    try {
+      FS.unlink('xapianglass');
+    } catch (_error) {
+      // Current indexes use the writable main partition directory.
+    }
+  }
 
-
-      // clearTimeout(this.indexUpdateIntervalId);
-
-      let hasPartitionsDir = true;
-      try {
-        FS.stat(this.partitionsdir);
-      } catch (e) {
-        console.error(e);
-        hasPartitionsDir = false;
-      }
-      if (hasPartitionsDir) {
-        FS.readdir(this.partitionsdir).forEach((f) => {
-          if ( f !== '.' && f !== '..') {
-
-            if (FS.isDir(FS.stat(`${this.partitionsdir}/${f}`).mode)) {
-              FS.readdir(`${this.partitionsdir}/${f}`)
-                .filter((ent: string) => ent.charAt(0) !== '.').forEach(partitionFile =>
-                FS.unlink(`${this.partitionsdir}/${f}/${partitionFile}`)
-              );
-              FS.rmdir(`${this.partitionsdir}/${f}`);
-            } else {
-              FS.unlink(`${this.partitionsdir}/${f}`);
-            }
-          }
-        });
-      }
-
-      console.log('Worker: Closing indexed dbs');
-      // ---- Hack for emscripten not closing databases
-      Object.keys(IDBFS.dbs).forEach(k => IDBFS.dbs[k].close());
-      IDBFS.dbs = {};
-
-      // ----------------------
-
-      new Observable(o => {
-        // console.log('Worker: Deleting indexeddb database', '/' + this.localdir);
-        const req = self.indexedDB.deleteDatabase('/' + this.localdir);
-        req.onsuccess = () =>
-          o.next(true);
-      }).pipe(
-        mergeMap(() =>
-          new Observable(o => {
-            // console.log('Worker: Deleting indexeddb database', this.partitionsdir);
-            const req = self.indexedDB.deleteDatabase(this.partitionsdir);
-            req.onsuccess = () =>
-              o.next(true);
-          })
-        )
-      ).subscribe(() => {
-        ctx.postMessage({'action': PostMessageAction.indexDeleted});
-        observer.next(true);
+  private removeStoredPartitions(): void {
+    try {
+      FS.readdir(this.partitionsdir).forEach((filename) => {
+        if (filename === '.' || filename === '..') {
+          return;
+        }
+        const path = `${this.partitionsdir}/${filename}`;
+        if (FS.isDir(FS.stat(path).mode)) {
+          FS.readdir(path)
+            .filter((entry: string) => entry.charAt(0) !== '.')
+            .forEach(entry => FS.unlink(`${path}/${entry}`));
+          FS.rmdir(path);
+        } else {
+          FS.unlink(path);
+        }
       });
-    });
+    } catch (_error) {
+      // Historical partitions are optional during the initial transition.
+    }
+  }
+
+  private async deleteIndexDatabases(): Promise<boolean> {
+    await deleteIndexedDatabase(self.indexedDB, '/' + this.localdir);
+    await deleteIndexedDatabase(self.indexedDB, this.partitionsdir);
+    return true;
   }
 
   /**
@@ -373,7 +400,9 @@ class SearchIndexService {
   async compareAndUpdateFolderCounts(
     currentFolder: FolderListEntry,
     numberOfMessages: number,
-    numberOfUnreadMessages: number): Promise<any[]> {
+    numberOfUnreadMessages: number,
+    signal: AbortSignal
+  ): Promise<any[]> {
     let folderMessages = [];
     if (
       numberOfMessages !== currentFolder.totalMessages ||
@@ -384,10 +413,11 @@ class SearchIndexService {
 not matching with index for current folder`);
 
       try {
-        folderMessages = await listAllMessages(
-          0, 0, 0,
-          MAX_DISCREPANCY_CHECK_LIMIT,
-          true, currentFolder.folderPath);
+        folderMessages = await fetchFolderMessagesForCountComparison(
+          currentFolder.folderPath,
+          signal,
+          listAllMessages
+        );
       } catch (err) {
         console.error(err);
         if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
@@ -428,8 +458,10 @@ not matching with index for current folder`);
   async updateIndexWithNewChanges(next_update?: {
     start_message: string,
     list_messages_args: [number, number, number, number, boolean, string?],
-    set_next_update_time: boolean }) {
+    set_next_update_time: boolean }, providedChanges?: ProvidedIndexChanges) {
+    this.activeIndexUpdates++;
     clearTimeout(this.indexUpdateIntervalId);
+    const legacyUpdateSignal = this.legacyUpdateCancellation.signal;
 
     // console.log('Worker: updateIndexWithNewChanges');
 
@@ -443,7 +475,8 @@ not matching with index for current folder`);
     console.log(next_update['start_message']);
 
     try {
-      const pendingIndexVerificationsArray = Object.keys(this.pendingIndexVerifications)
+      const pendingIndexVerificationsArray = providedChanges ? [] :
+        Object.keys(this.pendingIndexVerifications)
         .map(idstring => {
                       const msgobj = this.pendingIndexVerifications[idstring];
                       return {
@@ -457,7 +490,9 @@ not matching with index for current folder`);
                     }
         );
 
-      this.pendingIndexVerifications = {};
+      if (!providedChanges) {
+        this.pendingIndexVerifications = {};
+      }
       const filteredpendingIndexVerificationsArray = pendingIndexVerificationsArray
         .filter(msgobj => Number.isInteger(msgobj.id));
 
@@ -467,6 +502,7 @@ not matching with index for current folder`);
                       headers: {
                         'Content-Type': 'application/json',
                       },
+                      signal: legacyUpdateSignal,
                       body: JSON.stringify(
                         {
                           indexEntriesToVerify: filteredpendingIndexVerificationsArray
@@ -475,13 +511,25 @@ not matching with index for current folder`);
                     });
       }
 
-      let msginfos = [];
-      try {
-        msginfos = await listAllMessages(...next_update['list_messages_args']);
-      } catch (err) {
-        console.error(err);
-        if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
-          console.log(err.errors);
+      let msginfos: MessageInfo[] = providedChanges ? [...providedChanges.messages] : [];
+      if (!providedChanges) {
+        try {
+          const [page, startId, startDate, limit, skip, folder] =
+            next_update['list_messages_args'];
+          msginfos = await listAllMessages(
+            page,
+            startId,
+            startDate,
+            limit,
+            skip,
+            folder,
+            legacyUpdateSignal
+          );
+        } catch (err) {
+          console.error(err);
+          if (typeof(err) !== 'string' && err.hasOwnProperty('errors')) {
+            console.log(err.errors);
+          }
         }
       }
 
@@ -497,13 +545,15 @@ not matching with index for current folder`);
       }
       msginfos.forEach((msg) => this.currentIndexUpdateMessageIds.add(msg.id));
 
-      const deletedMessages = await listDeletedMessagesSince(
-        new Date(
-          // Subtract timezone offset to get UTC
-          this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000)
-      );
+      const deletedMessages = providedChanges ? [...providedChanges.deletedMessageIds] :
+        await listDeletedMessagesSince(
+          new Date(
+            // Subtract timezone offset to get UTC
+            this.indexLastUpdateTime - new Date().getTimezoneOffset() * 60 * 1000),
+          legacyUpdateSignal
+        );
 
-        if (this.numberOfMessagesSyncedLastTime === 0) {
+        if (!providedChanges && this.numberOfMessagesSyncedLastTime === 0) {
           // nothing else to do, check for folder count discrepancies
 
           const currentFolder = this.folderList.find(folder => folder.folderPath === this.currentFolder);
@@ -518,7 +568,12 @@ not matching with index for current folder`);
               this.api.listFolders().find(f => f[0] === folderPath)
                ) {
               const [numberOfMessages, numberOfUnreadMessages] = this.api.getFolderMessageCounts(folderPath);
-              const folderMessages = await this.compareAndUpdateFolderCounts(currentFolder, numberOfMessages, numberOfUnreadMessages);
+              const folderMessages = await this.compareAndUpdateFolderCounts(
+                currentFolder,
+                numberOfMessages,
+                numberOfUnreadMessages,
+                legacyUpdateSignal
+              );
               msginfos = msginfos.concat(folderMessages);
             } else {
               // Compare rest api counts with rest api folder list:
@@ -552,12 +607,7 @@ not matching with rest api counts for current folder`);
           if (docid !== 0) {
             searchIndexDocumentUpdates.push(
               new SearchIndexDocumentUpdate(msgid, async () => {
-                try {
-                  this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
-                } catch (e) {
-                  console.error(e);
-                  console.error('Worker: Unable to delete message from index', msgid);
-                }
+                this.api.deleteDocumentByUniqueTerm(uniqueIdTerm);
               })
             );
           }
@@ -575,17 +625,13 @@ not matching with rest api counts for current folder`);
             ) {
               searchIndexDocumentUpdates.push(
                 new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                  try {
-                    this.indexingTools.addMessageToIndex(
-                      msginfo, this.unindexedFolders
-                    );
-                    // Add term about missing body text so that later stage can add this
-                    this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
-                    if (msginfo.deletedFlag) {
-                      this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_DELETED);
-                    }
-                  } catch (e) {
-                    console.error('Worker: failed to add message to index', msginfo, e);
+                  this.indexingTools.addMessageToIndex(
+                    msginfo, this.unindexedFolders
+                  );
+                  // Add term about missing body text so that later stage can add this
+                  this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_MISSING_BODY_TEXT);
+                  if (msginfo.deletedFlag) {
+                    this.api.addTermToDocument(`Q${msginfo.id}`, XAPIAN_TERM_DELETED);
                   }
                 })
               );
@@ -602,11 +648,7 @@ not matching with rest api counts for current folder`);
               const addSearchIndexDocumentUpdate = (func: () => void) =>
                 searchIndexDocumentUpdates.push(
                   new SearchIndexDocumentUpdate(msginfo.id, async () => {
-                    try {
-                      func();
-                    } catch (err) {
-                      console.error('Worker: Error updating doc in searchindex', msginfo, documentTermList, err);
-                    }
+                    func();
                   }
                   )
                 );
@@ -680,7 +722,10 @@ not matching with rest api counts for current folder`);
           this.numberOfMessagesSyncedLastTime = searchIndexDocumentUpdates.length;
 
           if (searchIndexDocumentUpdates.length > 0) {
-            await lastValueFrom(this.postMessagesToXapianWorker(searchIndexDocumentUpdates));
+            await lastValueFrom(this.postMessagesToXapianWorker(
+              searchIndexDocumentUpdates,
+              shouldPostLegacyIndexUpdated(Boolean(providedChanges))
+            ));
           }
 
           // Look up messages with missing body text term and add the missing text to the index
@@ -690,29 +735,19 @@ not matching with rest api counts for current folder`);
               const messageId = parseInt(this.api.getDocumentData(searchIndexEntry[0]).split('\t')[0].substring(1), 10);
 
               return new SearchIndexDocumentUpdate(messageId, async () => {
-                try {
-                  const docIdTerm = `Q${messageId}`;
-                  // const msg = (await this.rmmapi.getMessageContents(messageId).toPromise());
-                  // const msg = { 'status' : 'success', 'text': { 'text': 'nuttin to see here' } };
-                  // Sent over from main thread, when we load messagecontents
-                  // for the current items in view
-                  // (not quite as good as fetching content for all index updates!)
-                  // this could be a sep api? (id => text)
-                  if (this.messageTextCache.has(messageId)) {
-                    const text = this.messageTextCache.get(messageId);
+                const docIdTerm = `Q${messageId}`;
+                // Sent from the main thread when message content enters its cache.
+                if (this.messageTextCache.has(messageId)) {
+                  const text = this.messageTextCache.get(messageId);
                   // if (msg.status === 'success') {
-                    if (text) {
-                      this.api.addTextToDocument(docIdTerm, true, text);
-                    }
-                    // There may have been known backend warnings, so
-                    // don't keep repeating the attempt
+                  if (text) {
+                    this.api.addTextToDocument(docIdTerm, true, text);
                   }
-                  this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
-                } catch (e) {
-                  console.error('Worker: Failed to add text to document', messageId, e);
+                  // Do not repeat attempts that produced known backend warnings.
                 }
+                this.api.removeTermFromDocument(docIdTerm, XAPIAN_TERM_MISSING_BODY_TEXT);
               });
-            })));
+            }), shouldPostLegacyIndexUpdated(Boolean(providedChanges))));
           }
       } else {
         // localsearchactivated is off
@@ -776,21 +811,60 @@ not matching with rest api counts for current folder`);
         }
       }
     } catch (err) {
-      console.error('Worker: Failed updating with new changes (will retry in 10 secs)', err);
-      if (this.messageProcessingInProgressSubject &&
-        this.messageProcessingInProgressSubject.isStopped) {
-        // stopped/errored because localSearchActivated changed
-        // during processing, reset
-        this.messageProcessingInProgressSubject = null;
-        this.pendingMessagesToProcess = null;
-        this.processMessageHistoryProgress = null;
-        this.processMessageIndex = 0;
+      if (!legacyUpdateSignal.aborted) {
+        console.error('Worker: Failed updating with new changes (will retry in 10 secs)', err);
+      }
+      if (providedChanges) {
+        clearFailedIndexUpdate(this.currentIndexUpdateMessageIds);
+        this.finishIndexUpdate();
+        throw err;
       }
     }
     this.currentIndexUpdateMessageIds.clear();
     // FIXME: postMessage ?
     // this.notifyOnNewMessages = true;
-    this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 30000);
+    if (!providedChanges && !this.indexReplacementPending) {
+      this.indexUpdateIntervalId = setTimeout(() => this.updateIndexWithNewChanges(), 30000);
+    }
+    this.finishIndexUpdate();
+  }
+
+  public async prepareIndexReplacement(): Promise<void> {
+    this.indexReplacementPending = true;
+    this.stopIndexUpdates();
+    if (this.activeIndexUpdates > 0) {
+      await this.waitForIndexUpdatesToFinish();
+    }
+    await this.mutationQueue.whenIdle();
+    if (this.localSearchActivated && this.api) {
+      this.api.closeXapianDatabase();
+      this.localSearchActivated = false;
+    }
+  }
+
+  public stopIndexUpdates(): void {
+    clearTimeout(this.indexUpdateIntervalId);
+    this.legacyUpdateCancellation.cancelActive();
+  }
+
+  private waitForIndexUpdatesToFinish(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Timed out while draining index updates')),
+        30000
+      );
+      this.indexUpdateIdleResolvers.push(() => {
+        clearTimeout(timeout);
+        resolve();
+      });
+    });
+  }
+
+  private finishIndexUpdate(): void {
+    this.activeIndexUpdates--;
+    if (this.activeIndexUpdates === 0) {
+      this.indexUpdateIdleResolvers.splice(0).forEach(resolve => resolve());
+    }
   }
 
   persistIndex(): Observable<boolean> {
@@ -804,7 +878,12 @@ not matching with rest api counts for current folder`);
         console.log('Worker: Persisting to indexeddb');
 
         FS.writeFile('indexLastUpdateTime', '' + this.indexLastUpdateTime, { encoding: 'utf8' });
-        FS.syncfs(false, () => {
+        FS.syncfs(false, (error) => {
+          if (error) {
+            this.persistIndexInProgressSubject.error(error);
+            this.persistIndexInProgressSubject = null;
+            return;
+          }
           // console.log('Worker: Syncd files:');
           // console.log(FS.stat(XAPIAN_GLASS_WR));
           FS.readdir(this.partitionsdir).forEach((f) => {
@@ -822,83 +901,31 @@ not matching with rest api counts for current folder`);
     }
   }
 
-    postMessagesToXapianWorker(newMessagesToProcess: SearchIndexDocumentUpdate[]): Observable<any> {
+    postMessagesToXapianWorker(
+      newMessagesToProcess: SearchIndexDocumentUpdate[],
+      postLegacyIndexUpdated = true
+    ): Observable<any> {
     if (!this.localSearchActivated) {
       return of();
     }
 
-    if (!this.pendingMessagesToProcess) {
-      this.pendingMessagesToProcess = newMessagesToProcess;
-      this.messageProcessingInProgressSubject = new AsyncSubject();
-
-      const getProgressSnackBarMessageText = () => `Syncing ${this.processMessageIndex} / ${this.pendingMessagesToProcess.length}`;
-      let hasProgressSnackBar = false;
-      if (this.pendingMessagesToProcess.length > 10) {
-        hasProgressSnackBar = true;
-        ctx.postMessage({'action': PostMessageAction.openProgressSnackBar });
-        ctx.postMessage({'action': PostMessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
-      }
-
-      const processMessage = async () => {
-        if (!this.localSearchActivated) {
-          // Handle that index is deleted in the middle of an indexing process
-          this.messageProcessingInProgressSubject.error('Worker: Search index deleted in the middle of indexing process');
-          return;
-        } else if (this.processMessageIndex < this.pendingMessagesToProcess.length) {
-          this.processMessageHistoryProgress = Math.round(this.processMessageIndex * 100 / this.pendingMessagesToProcess.length);
-
-          console.log('Worker: Adding to (or removing from) index', (this.pendingMessagesToProcess.length - this.processMessageIndex), 'to go');
-          if (hasProgressSnackBar) {
-            ctx.postMessage({'action': PostMessageAction.updateProgressSnackBar, 'value': getProgressSnackBarMessageText() });
-          }
-
-          // TODO: it'd be more efficient to just update the cache instead of forcing the redownload
-          ctx.postMessage({'action': PostMessageAction.refreshContentCache,
-                           'messageId': this.pendingMessagesToProcess[this.processMessageIndex].id});
-
-          const nextMessage = this.pendingMessagesToProcess[this.processMessageIndex++];
-          await nextMessage.updateFunction();
-
-          if (this.persistIndexInProgressSubject) {
-            // Wait for persistence of index to finish before doing more work on the index
-            await firstValueFrom(this.persistIndexInProgressSubject);
-          }
-          setTimeout(() => processMessage(), 1);
-
-        } else {
-          console.log('Worker: All messages added');
-          if (this.processMessageIndex > 0) {
-            this.processMessageIndex = 0;
-            this.indexNotPersisted = true;
-          }
-          this.api.commitXapianUpdates();
-          await lastValueFrom(this.persistIndex());
-
-          if (hasProgressSnackBar) {
-            ctx.postMessage({'action': PostMessageAction.closeProgressSnackBar});
-            hasProgressSnackBar = false;
-          }
-
-          this.processMessageHistoryProgress = null;
-          this.pendingMessagesToProcess = null;
-
-          this.messageProcessingInProgressSubject.next(true);
-          this.messageProcessingInProgressSubject.complete();
-          this.messageProcessingInProgressSubject = null;
-
-          ctx.postMessage({'action': PostMessageAction.indexUpdated});
-        }
-      };
+    const mutations = [async () => {
       if (this.persistIndexInProgressSubject) {
-        // Wait for persistence of index to finish before doing more work on the index
-        this.persistIndexInProgressSubject.subscribe(() => processMessage());
-      } else {
-        processMessage();
+        await firstValueFrom(this.persistIndexInProgressSubject);
       }
-    } else {
-      this.pendingMessagesToProcess = this.pendingMessagesToProcess.concat(newMessagesToProcess);
-    }
-    return this.messageProcessingInProgressSubject;
+    }].concat(newMessagesToProcess.map(message => async () => {
+      if (!this.localSearchActivated) {
+        throw new Error('Worker: Search index deleted in the middle of indexing process');
+      }
+      ctx.postMessage({
+        'action': PostMessageAction.refreshContentCache,
+        'messageId': message.id
+      });
+      await message.updateFunction();
+      await new Promise<void>(resolve => setTimeout(resolve, 1));
+    }));
+    const result = this.mutationQueue.enqueue(mutations, postLegacyIndexUpdated);
+    return from(result);
 
   }
 
@@ -981,11 +1008,119 @@ not matching with rest api counts for current folder`);
 }
 
 const searchIndexService = new SearchIndexService();
+let initialSyncAbortController = new AbortController();
+const initialIndexWorkerSync = new InitialIndexWorkerSync({
+  fetchPage: (page, baseline, pageSize) =>
+    listAllMessages(
+      page,
+      0,
+      baseline,
+      pageSize,
+      true,
+      undefined,
+      initialSyncAbortController.signal
+    ),
+  fetchDeletedMessages: (baseline) => listDeletedMessagesSince(
+    new Date(baseline - new Date().getTimezoneOffset() * 60 * 1000),
+    initialSyncAbortController.signal
+  ),
+  commitBatch: async (messages, deletedMessageIds) => {
+    await searchIndexService.updateIndexWithNewChanges({
+      start_message: 'Worker: Applying initial synchronization batch',
+      list_messages_args: [0, 0, 0, 0, true],
+      set_next_update_time: false
+    }, { messages, deletedMessageIds });
+  },
+  finalizeWatermark: async (watermark) => {
+    searchIndexService.indexLastUpdateTime = watermark;
+    searchIndexService.indexNotPersisted = true;
+  },
+  persist: async () => {
+    await lastValueFrom(searchIndexService.persistIndex());
+  },
+  postEvent: event => ctx.postMessage(event),
+  reportFailure: (phase, error) => {
+    console.error(`Initial index synchronization failed during ${phase}`, error);
+  }
+});
+
+const postWorkerOpenFailure = (command: OpenIndexCommand, error: Error) => ctx.postMessage({
+  action: 'recentCatchUpFailed',
+  operationId: command.operationId,
+  phase: 'opening-worker',
+  code: 'worker-open-failed',
+  message: error.message || 'Unable to open the local search index'
+});
+
+const openInitialIndex = (command: OpenIndexCommand) => {
+  clearTimeout(searchIndexService.indexUpdateIntervalId);
+  initialIndexWorkerSync.startOperation(command.operationId);
+  initialSyncAbortController = new AbortController();
+  searchIndexService.localdir = command.localdir;
+  searchIndexService.partitionsdir = command.partitionsdir;
+
+  let database: IDBDatabase;
+  void runInitialIndexOpen({
+    lookupStoredIndex: async () => {
+      database = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = self.indexedDB.open('/' + command.localdir);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(
+          request.error || new Error('Unable to open the local search index storage')
+        );
+      });
+      return searchIndexService.hasStoredIndex(database);
+    },
+    initialize: () => searchIndexService.init(),
+    ready: baseline => ctx.postMessage({
+      action: 'workerIndexReady',
+      operationId: command.operationId,
+      baseline
+    }),
+    failed: error => postWorkerOpenFailure(command, error)
+  });
+};
 
 ctx.addEventListener('message', ({ data }) => {
   console.log('Message to worker ');
   console.log(data['action']);
   try {
+    if (handleInitialSyncWorkerCommand(data, {
+      prepareIndexReplacement: async command => {
+        try {
+          await searchIndexService.prepareIndexReplacement();
+          ctx.postMessage({
+            action: 'indexReplacementReady',
+            operationId: command.operationId
+          });
+        } catch (_error) {
+          ctx.postMessage({
+            action: 'recentCatchUpFailed',
+            operationId: command.operationId,
+            phase: 'opening-worker',
+            code: 'worker-drain-failed',
+            message: 'Unable to prepare the local index for replacement'
+          });
+        }
+      },
+      openIndex: command => openInitialIndex(command),
+      catchUpRecent: (command: CatchUpRecentCommand) => {
+        initialIndexWorkerSync.catchUp(command);
+      },
+      acknowledgeRecentChunk: command => initialIndexWorkerSync.acknowledgeRecentChunk(
+        command.operationId,
+        command.page,
+        command.batch
+      ),
+      cancelInitialSync: command => {
+        initialSyncAbortController.abort();
+        initialIndexWorkerSync.cancel(command.operationId);
+      },
+      startPeriodicSync: () => searchIndexService.updateIndexWithNewChanges()
+    })) {
+      return;
+    }
+
     if (data['action'] === PostMessageAction.opendb) {
       searchIndexService.localdir = data['localdir'];
       searchIndexService.partitionsdir = data['partitionsdir'];
@@ -1003,12 +1138,14 @@ ctx.addEventListener('message', ({ data }) => {
     } else if (data['action'] === PostMessageAction.updateIndexWithNewChanges) {
       searchIndexService.updateIndexWithNewChanges(data['args']);
     } else if (data['action'] === PostMessageAction.stopIndexUpdates) {
-      clearTimeout(searchIndexService.indexUpdateIntervalId);
+      searchIndexService.stopIndexUpdates();
     } else if (data['action'] === PostMessageAction.deleteLocalIndex) {
-      // console.log('Worker: deleting local index...');
-      searchIndexService.deleteLocalIndex().subscribe(() => {
-        // console.log('Worker: sub to local index delete');
-        searchIndexService.updateIndexWithNewChanges();
+      searchIndexService.deleteLocalIndex().subscribe({
+        next: () => searchIndexService.updateIndexWithNewChanges(),
+        error: error => ctx.postMessage({
+          action: PostMessageAction.indexDeleteFailed,
+          message: error instanceof Error ? error.message : String(error)
+        })
       });
     } else if (data['action'] === PostMessageAction.folderListUpdate) {
       searchIndexService.folderList = data['value'];
@@ -1070,4 +1207,3 @@ ctx.addEventListener('message', ({ data }) => {
     console.error('Failed to deal with message: ', e);
   }
 });
-

@@ -66,6 +66,7 @@ import { UsageReportsService } from './common/usage-reports.service';
 import { objectEqualWithKeys } from './common/util';
 import { UpdateAlertService } from './updatealert/updatealert.service';
 import { UpdateAlertComponent } from './updatealert/updatealert.component';
+import { IndexSyncState } from './xapian/index-sync.types';
 
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE_IF_MOBILE = 'mailViewerOnRightSideIfMobile';
 const LOCAL_STORAGE_SETTING_MAILVIEWER_ON_RIGHT_SIDE = 'mailViewerOnRightSide';
@@ -102,6 +103,13 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   unreadOnlyToolTip = 'Unread messages only';
   localSearchIndexPrompted = false;
   offerInitialLocalIndex = false;
+  indexSyncState: IndexSyncState = null;
+  indexSyncError: string = null;
+
+  private indexSyncOperationId: string = null;
+  private hasCutOverToLocalIndex = false;
+  private lastRenderedCommittedMessages = 0;
+  private hasRenderedLocalIndex = false;
 
   indexDocCount = 0;
 
@@ -345,7 +353,21 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   ngDoCheck(): void {
-    if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
+    const downloadingIndex = this.indexSyncState && [
+      'downloading-main', 'downloading-history'
+    ].includes(this.indexSyncState.phase);
+    const synchronizingRecent = this.indexSyncState && [
+      'catching-up-recent', 'local-index-ready', 'final-reconciliation'
+    ].includes(this.indexSyncState.phase);
+    if (downloadingIndex) {
+      this.dynamicSearchFieldPlaceHolder =
+        'Start typing to search messages (downloading search index from server)';
+    } else if (synchronizingRecent) {
+      const searchableMessages = this.searchService.localIndexMessageCount ??
+        this.xapianDocCount ?? 0;
+      this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
+        searchableMessages + ' messages (synchronizing most recent messages)';
+    } else if (!this.usewebsocketsearch && this.searchService.api && this.xapianDocCount) {
       this.dynamicSearchFieldPlaceHolder = 'Start typing to search ' +
         this.xapianDocCount
         + ' messages';
@@ -451,8 +473,17 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   ngAfterViewInit() {
     this.searchService.indexReloadedSubject.subscribe(() => {
       console.log('Redrawing after search results update');
-      // this.searchService.api.reloadXapianDatabase();
-      this.afterUpdateIndex();
+      if (this.hasCutOverToLocalIndex) {
+        this.updateSearch(true, true);
+      } else {
+        this.afterUpdateIndex();
+      }
+    });
+
+    this.searchService.initialSyncState.subscribe(state => {
+      if (state) {
+        this.handleInitialIndexSyncState(state);
+      }
     });
 
     this.searchService.noLocalIndexFoundSubject.subscribe(() => {
@@ -830,6 +861,10 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
   }
 
   public deleteLocalIndex() {
+    if (this.indexSyncState && this.isIndexSyncBusy(this.indexSyncState)) {
+      this.searchService.cancelInitialIndexSynchronization();
+      return;
+    }
     if (this.searchService.localSearchActivated || this.dataReady) {
       this.usewebsocketsearch = true;
       this.canvastable.topindex = 0;
@@ -1027,36 +1062,84 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.enableNotification();
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.localSearchIndexPrompted = true;
-    this.searchService.downloadIndexFromServer().subscribe((res) => {
-      if (res && !this.searchService.stopIndexDownloadingInProgress) {
-        this.searchService.downloadPartitions().subscribe(() => {
-          // only done prompting after all partitions fetched
-          if(this.searchService.stopIndexDownloadingInProgress) {
-            // decided to stop mid partition download
-            this.deleteLocalIndex();
-          }
-          this.searchService.indexDownloadingInProgress = false;
-          this.offerInitialLocalIndex = false;
-        });
-      } else {
-        console.log('Index download cancelled or failed');
-        this.deleteLocalIndex();
-      }
-      this.searchService.indexDownloadingInProgress = false;
-      this.searchService.stopIndexDownloadingInProgress = false;
-      this.offerInitialLocalIndex = false;
-    });
+    this.offerInitialLocalIndex = false;
+    this.searchService.startInitialIndexSynchronization();
   }
 
   public cancelOrRefuseLocalIndex() {
     this.enableNotification();
-    // Downloading is in progress, pause it:
-    if (this.searchService.indexDownloadingInProgress) {
-      this.searchService.stopIndexDownloadingInProgress = true;
+    if (this.indexSyncState && this.isIndexSyncBusy(this.indexSyncState)) {
+      this.searchService.cancelInitialIndexSynchronization();
     }
     // User has had the initial prompt, stop asking
     this.storage.set(LOCAL_STORAGE_INDEX_PROMPT, 'true');
     this.offerInitialLocalIndex = false;
+  }
+
+  public handleInitialIndexSyncState(state: IndexSyncState): void {
+    if (state.operationId !== this.indexSyncOperationId) {
+      this.indexSyncOperationId = state.operationId;
+      this.hasCutOverToLocalIndex = false;
+      this.lastRenderedCommittedMessages = 0;
+      this.hasRenderedLocalIndex = false;
+      this.indexSyncError = null;
+    }
+    this.indexSyncState = state;
+
+    if (state.phase === 'failed') {
+      this.indexSyncError = state.error?.message || null;
+      this.offerInitialLocalIndex = false;
+      return;
+    }
+    if (state.phase === 'cancelled') {
+      this.offerInitialLocalIndex = false;
+      if (this.hasCutOverToLocalIndex) {
+        this.usewebsocketsearch = true;
+        this.dataReady = false;
+        this.showingSearchResults = false;
+        this.messagelistservice.fetchFolderMessages();
+      }
+      return;
+    }
+    if (state.phase === 'local-index-ready' && !this.hasCutOverToLocalIndex) {
+      this.usewebsocketsearch = false;
+      this.hasCutOverToLocalIndex = true;
+      this.lastRenderedCommittedMessages = state.committedMessages;
+      this.afterUpdateIndex();
+      return;
+    }
+    if (this.hasCutOverToLocalIndex &&
+        state.committedMessages > this.lastRenderedCommittedMessages) {
+      this.lastRenderedCommittedMessages = state.committedMessages;
+      this.updateSearch(true, true);
+    }
+    if (state.phase === 'complete') {
+      this.offerInitialLocalIndex = false;
+    }
+  }
+
+  public isIndexSyncBusy(state: IndexSyncState): boolean {
+    return !['complete', 'failed', 'cancelled'].includes(state.phase);
+  }
+
+  public indexSyncProgress(state: IndexSyncState): number {
+    return state.totalBytes > 0
+      ? Math.min(100, state.downloadedBytes / state.totalBytes * 100)
+      : 0;
+  }
+
+  public handleLocalIndexQueryFailure(_error: unknown): void {
+    console.error('Unable to query the local message index');
+    this.indexSyncError = 'Unable to display the local message index';
+    this.searchService?.cancelInitialIndexSynchronization();
+    if (this.hasRenderedLocalIndex) {
+      return;
+    }
+    this.usewebsocketsearch = true;
+    this.dataReady = false;
+    this.showingSearchResults = false;
+    this.offerInitialLocalIndex = true;
+    this.messagelistservice.fetchFolderMessages();
   }
 
   singleMailViewerClosed(action: string): void {
@@ -1360,11 +1443,14 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
           this.searchResultsCount = searchResults.length;
           if (searchResults) {
             this.setMessageDisplay('search', this.searchService, searchResults);
+            this.hasRenderedLocalIndex = true;
             if (!noscroll) {
               this.canvastable.scrollTop();
             }
           }
-        } catch (e) { }
+        } catch (error) {
+          this.handleLocalIndexQueryFailure(error);
+        }
 
       }
     }
