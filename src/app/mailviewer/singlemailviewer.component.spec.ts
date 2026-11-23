@@ -231,6 +231,23 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('should navigate to calendar with subject and plain-text content when creating a calendar event', fakeAsync(() => {
+    const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+    fixture.detectChanges();
+    component.messageId = 22;
+    fixture.detectChanges();
+    tick(1);
+    fixture.detectChanges();
+
+    component['createCalendarEvent']();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ['/calendar'],
+      { queryParams: { title: 'Test subject', description: 'blablabla' } }
+    );
+  }));
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;

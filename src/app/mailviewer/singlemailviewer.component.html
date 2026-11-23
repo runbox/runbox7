@@ -70,14 +70,18 @@
         matTooltip="View source" [href]="'/rest/v1/email/'+messageId+'/raw'" target="_blank">
         <mat-icon svgIcon="code-tags"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>10" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
+      <button *ngIf="morebuttonindex>10" mat-icon-button
+        matTooltip="Create calendar event" (click)="createCalendarEvent()">
+        <mat-icon svgIcon="calendar"></mat-icon>
+      </button>
+      <button mat-icon-button *ngIf="mailContentHTML && morebuttonindex>11" matTooltip="HTML settings" [matMenuTriggerFor]="htmlSettingsMenu">
         <mat-icon svgIcon="cog"></mat-icon>
       </button>
-      <a *ngIf="mailContentHTML && morebuttonindex>11" mat-icon-button
+      <a *ngIf="mailContentHTML && morebuttonindex>12" mat-icon-button
         matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
         <mat-icon svgIcon="alert"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="morebuttonindex < 12" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
+      <button mat-icon-button *ngIf="morebuttonindex < 13" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
 
@@ -181,11 +185,15 @@
           <mat-icon svgIcon="code-tags"></mat-icon>
           <span>View source</span>
         </a>
-        <button mat-menu-item *ngIf="mailContentHTML && morebuttonindex<10" [matMenuTriggerFor]="htmlSettingsMenu">
+        <button *ngIf="morebuttonindex<11" mat-menu-item (click)="createCalendarEvent()">
+          <mat-icon svgIcon="calendar"></mat-icon>
+          <span>Create calendar event</span>
+        </button>
+        <button mat-menu-item *ngIf="mailContentHTML && morebuttonindex<12" [matMenuTriggerFor]="htmlSettingsMenu">
           <mat-icon svgIcon="cog"></mat-icon>
           <span>HTML settings</span>
         </button>
-	<a *ngIf="mailContentHTML && morebuttonindex<11" mat-menu-item
+	<a *ngIf="mailContentHTML && morebuttonindex<13" mat-menu-item
           [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
           <mat-icon svgIcon="alert"></mat-icon>
 	  <span>Original HTML</span>

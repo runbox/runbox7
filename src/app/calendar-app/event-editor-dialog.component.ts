@@ -104,13 +104,13 @@ export class EventEditorDialogComponent {
         this.calendarFC.setValue(this.calendars[0].id);
 
         this.event = data['event'];
+        this.event_title = this.event.title;
+        this.event_location = this.event.location;
+        this.event_description = this.event.description;
         if (!data['is_new']) {
             this.calendarFC.setValue(this.event.calendar);
             // TODO: Abstract url in rmmapi?
             this.export_url = '/rest/v1/calendar/ics/' + this.event.id;
-            this.event_title = this.event.title;
-            this.event_location = this.event.location;
-            this.event_description = this.event.description;
             this.event_allDay = this.event.allDay;
 
             this.event_start = this.event.start;
