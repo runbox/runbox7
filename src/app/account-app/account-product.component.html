@@ -8,12 +8,12 @@
   <mat-card-title [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && p.over_quota.length > 0)}">
     {{ p.name.replace('Runbox', '') }}
   </mat-card-title>
-  <mat-card-subtitle [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && p.over_quota.length > 0)}">
-    <h4><span *ngIf="is_current_subscription"> Your current {{ p.type }} </span><br /></h4>
-    {{ p.description }}.
-  </mat-card-subtitle>
   <mat-card-content>
     <ng-content></ng-content>
+    <div [ngClass]="{'themePaletteDarkGray': (p.type !== 'addon' && p.over_quota.length > 0)}">
+      <span *ngIf="is_current_subscription"> Your current {{ p.type }} </span>
+      {{ p.description }}.
+    </div>
     <ng-container *ngIf="p.type === 'addon'">
       <h4 *ngFor="let us of p.addon_usages">
         Current usage: <span *ngIf="us.type === 'bytes'">{{ (us.current / 1024 / 1024 / 1024) | number:'1.2-2' }} GB of {{ (us.quota / 1024 / 1024 / 1024) | number:'1.2-2' }} GB</span>
