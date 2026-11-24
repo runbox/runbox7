@@ -231,6 +231,15 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('adds avatar sizing to printed messages', () => {
+    const printStyles = component.printableMessageStyles();
+
+    expect(printStyles).toContain('app-avatar-bar img');
+    expect(printStyles).toContain('width: 32px');
+    expect(printStyles).toContain('max-width: 32px');
+    expect(printStyles).toContain('max-height: 32px');
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
