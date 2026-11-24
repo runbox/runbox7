@@ -62,6 +62,25 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  getFromColumnTooltipValueForRow(rowIndex: number): string {
+    return this.getMailAddressTooltipValueForRow(rowIndex, 'from');
+  }
+
+  getToColumnTooltipValueForRow(rowIndex: number): string {
+    return this.getMailAddressTooltipValueForRow(rowIndex, 'to');
+  }
+
+  private getMailAddressTooltipValueForRow(rowIndex: number, addressListKey: 'from' | 'to'): string {
+    const rowobj = this.rows[rowIndex];
+    const addressInfo = rowobj[addressListKey] && rowobj[addressListKey].length > 0 ?
+      rowobj[addressListKey][0] :
+      null;
+
+    return addressInfo && addressInfo.name && addressInfo.address && addressInfo.name !== addressInfo.address ?
+      addressInfo.address :
+      null;
+  }
+
   // filter visible rows by whatever options the frontend has
   filterBy(options: Map<string, any>) {
     this.rows = this._rows;
@@ -97,6 +116,9 @@ export class MessageList extends MessageDisplay {
         getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
+        tooltipText: (rowIndex: number): string => app.selectedFolder === 'Sent'
+          ? this.getToColumnTooltipValueForRow(rowIndex)
+          : this.getFromColumnTooltipValueForRow(rowIndex),
         draggable: true
       },
       {
