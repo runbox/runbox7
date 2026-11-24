@@ -54,6 +54,11 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  getFromEmailColumnValueForRow(rowIndex: number): string {
+    const rowobj = this.rows[rowIndex];
+    return rowobj.from && rowobj.from.length > 0 ? rowobj.from[0].address : '';
+  }
+
   getToColumnValueForRow(rowIndex: number): string {
     const rowobj = this.rows[rowIndex];
     return rowobj.to && rowobj.to.length > 0 ?
@@ -71,6 +76,7 @@ export class MessageList extends MessageDisplay {
   }
 
   public getCanvasTableColumns(app: any): CanvasTableColumn[] {
+    const showToColumn = app.selectedFolder === 'Sent';
     const columns: CanvasTableColumn[] = [
       {
         sortColumn: null,
@@ -91,14 +97,27 @@ export class MessageList extends MessageDisplay {
         draggable: true
       },
       {
-        name: app.selectedFolder === 'Sent' ? 'To' : 'From',
+        name: showToColumn ? 'To' : 'From',
         cacheKey: 'from',
         sortColumn: null,
-        getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
+        getValue: (rowIndex: number): any => showToColumn
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
         draggable: true
-      },
+      }
+    ];
+
+    if (app.showFromEmailColumn && !showToColumn) {
+      columns.push({
+        name: 'From Email',
+        cacheKey: 'fromEmail',
+        sortColumn: null,
+        getValue: (rowIndex: number): string => this.getFromEmailColumnValueForRow(rowIndex),
+        draggable: true
+      });
+    }
+
+    columns.push(
       {
         name: 'Subject',
         cacheKey: 'subject',
@@ -153,7 +172,7 @@ export class MessageList extends MessageDisplay {
         getFormattedValue: (val) => val ? '\uE153' : '',
         tooltipText: 'Flagged'
       }
-    ];
+    );
 
     return columns;
   }
