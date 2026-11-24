@@ -62,6 +62,15 @@ export class MessageList extends MessageDisplay {
     '';
   }
 
+  isSentFolder(folder: string): boolean {
+    return folder === 'Sent' || folder.startsWith('Sent.');
+  }
+
+  isSentFolderForRow(rowIndex: number): boolean {
+    const folder = this.rows[rowIndex]?.folder || '';
+    return this.isSentFolder(folder);
+  }
+
   // filter visible rows by whatever options the frontend has
   filterBy(options: Map<string, any>) {
     this.rows = this._rows;
@@ -91,10 +100,10 @@ export class MessageList extends MessageDisplay {
         draggable: true
       },
       {
-        name: app.selectedFolder === 'Sent' ? 'To' : 'From',
+        name: this.isSentFolder(app.selectedFolder || '') ? 'To' : 'From',
         cacheKey: 'from',
         sortColumn: null,
-        getValue: (rowIndex: number): any => app.selectedFolder === 'Sent'
+        getValue: (rowIndex: number): any => this.isSentFolderForRow(rowIndex)
           ? this.getToColumnValueForRow(rowIndex)
           : this.getFromColumnValueForRow(rowIndex),
         draggable: true
