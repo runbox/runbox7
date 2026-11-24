@@ -77,4 +77,10 @@ describe('MailAddressInfo', () => {
         expect(ma_list[0].nameAndAddress).toBe('"Fred B" <fred@foo.bar.baz.tld>');
         expect(ma_list[0].domain).toBe('foo.bar.baz.tld');
     });
+    it('Parse MIME encoded address name', () => {
+        const ma_list = MailAddressInfo.parse('=?UTF-8?Q?Koteck=C3=BD?= <k@example.com>');
+        expect(ma_list[0].name).toBe('Koteck\u00fd');
+        expect(ma_list[0].address).toBe('k@example.com');
+        expect(ma_list[0].nameAndAddress).toBe('"Koteck\u00fd" <k@example.com>');
+    });
 });

@@ -19,6 +19,7 @@
 
 import { XapianAPI } from '@runboxcom/runbox-searchindex/rmmxapianapi';
 import { MailAddressInfo } from './mailaddressinfo';
+import { decodeMimeEncodedWords } from './mime-encoded-word';
 
 export class MessageInfo {
     deletedFlag: boolean;
@@ -39,9 +40,11 @@ export class MessageInfo {
         public plaintext: string,
         public size: number,
         public attachment: boolean) {
+        this.subject = decodeMimeEncodedWords(subject);
     }
 
     static getSubjectWithoutAbbreviation(subject: string) {
+        subject = decodeMimeEncodedWords(subject);
         const  emailsubjectabbreviations = [
             'RE:',
             'Re:',

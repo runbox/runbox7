@@ -41,6 +41,7 @@ import { MessageListService } from '../rmmapi/messagelist.service';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { DefaultPrefGroups, PreferencesService } from '../common/preferences.service';
 import { objectEqualWithKeys } from '../common/util';
+import { decodeMimeEncodedWords } from '../common/mime-encoded-word';
 
 declare const MailParser;
 
@@ -489,7 +490,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
         const from: any = msgObj.headers.from;
         if (from) {
             model.from = from.value && from.value[0] ?
-                from.value[0].name !== 'undefined' ? from.text : from.value[0].address
+                from.value[0].name !== 'undefined' ? decodeMimeEncodedWords(from.text) : from.value[0].address
             : null;
         }
         if (msgObj.headers.to) {
@@ -504,7 +505,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.hasBCC = true;
         }
 
-        model.subject = msgObj.headers.subject;
+        model.subject = decodeMimeEncodedWords(msgObj.headers.subject);
         if (msgObj.text) {
             if (msgObj.text.html) {
                 model.html = msgObj.text.html;
