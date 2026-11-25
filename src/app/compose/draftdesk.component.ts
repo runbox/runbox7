@@ -32,6 +32,7 @@ const MAX_DRAFTS_IN_VIEW = 10;
 })
 export class DraftDeskComponent implements OnInit {
     public draftModelsInView: DraftFormModel[] = [];
+    public showDraftPreviews = true;
     public hasMoreDrafts = false;
     public currentMaxDraftsInView: number = MAX_DRAFTS_IN_VIEW;
     private hasInitialized = false;
