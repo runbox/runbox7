@@ -360,6 +360,112 @@ export class FolderListComponent implements OnChanges {
         );
     }
 
+    sortFoldersAlphabetically(): void {
+        const confirmDialog = this.dialog.open(ConfirmDialog);
+        confirmDialog.componentInstance.title = 'Sort folders alphabetically?';
+        confirmDialog.componentInstance.question =
+            'This will reorder your user folders alphabetically, including subfolders.';
+        confirmDialog.componentInstance.noOptionTitle = 'cancel';
+        confirmDialog.componentInstance.yesOptionTitle = 'sort';
+        confirmDialog.afterClosed().pipe(
+            filter(res => res === true),
+        ).subscribe(() => this.folders.pipe(take(1)).subscribe(folders => {
+            const sortedFolders = this.alphabeticalFolderOrder(folders);
+            const movedFolder = sortedFolders.find((folder, index) =>
+                folder.folderType === 'user' && folder.folderId !== folders[index]?.folderId
+            );
+            if (!movedFolder) {
+                return;
+            }
+
+            const parentFolderId = this.parentFolderId(folders, movedFolder);
+            folders.splice(0, folders.length, ...sortedFolders);
+
+            let priority = 1;
+            for (const folder of folders) {
+                folder.priority = priority++;
+            }
+            this.updateFolderTree(folders);
+
+            this.moveFolder.emit({
+                sourceId:      movedFolder.folderId,
+                destinationId: parentFolderId,
+                order:         folders.map(folder => folder.folderId),
+            });
+        }));
+    }
+
+    private alphabeticalFolderOrder(folders: FolderListEntry[]): FolderListEntry[] {
+        return this.flattenFolderNodes(
+            this.sortUserFolderNodesAlphabetically(
+                this.folderNodesFromFlatList(folders)
+            )
+        );
+    }
+
+    private folderNodesFromFlatList(folders: FolderListEntry[]): FolderNode[] {
+        const rootNodes: FolderNode[] = [];
+        const parentStack: FolderNode[] = [];
+
+        for (const folder of folders) {
+            const folderNode: FolderNode = { children: [], data: folder };
+
+            while (parentStack.length > folder.folderLevel) {
+                parentStack.pop();
+            }
+
+            if (parentStack.length > 0) {
+                parentStack[parentStack.length - 1].children.push(folderNode);
+            } else {
+                rootNodes.push(folderNode);
+            }
+            parentStack.push(folderNode);
+        }
+
+        return rootNodes;
+    }
+
+    private sortUserFolderNodesAlphabetically(nodes: FolderNode[]): FolderNode[] {
+        const nodesWithSortedChildren = nodes.map((node): FolderNode => ({
+            children: this.sortUserFolderNodesAlphabetically(node.children),
+            data:     node.data,
+        }));
+        const sortedUserNodes = nodesWithSortedChildren
+            .map((node, index) => ({ node, index }))
+            .filter(entry => entry.node.data.folderType === 'user')
+            .sort((left, right) =>
+                this.compareFolderNames(left.node.data, right.node.data) || left.index - right.index
+            )
+            .map(entry => entry.node);
+
+        let sortedUserNodeIndex = 0;
+        return nodesWithSortedChildren.map(node =>
+            node.data.folderType === 'user' ? sortedUserNodes[sortedUserNodeIndex++] : node
+        );
+    }
+
+    private compareFolderNames(left: FolderListEntry, right: FolderListEntry): number {
+        return left.folderName.localeCompare(right.folderName, undefined, { numeric: true, sensitivity: 'base' }) ||
+            left.folderPath.localeCompare(right.folderPath) ||
+            left.folderId - right.folderId;
+    }
+
+    private flattenFolderNodes(nodes: FolderNode[]): FolderListEntry[] {
+        const folders: FolderListEntry[] = [];
+        for (const node of nodes) {
+            folders.push(node.data, ...this.flattenFolderNodes(node.children));
+        }
+        return folders;
+    }
+
+    private parentFolderId(folders: FolderListEntry[], folder: FolderListEntry): number {
+        const parentFolderPath = folder.folderPath.split('.').slice(0, -1).join('.');
+        const parentFolder = parentFolderPath ?
+            folders.find(folderEntry => folderEntry.folderPath === parentFolderPath) :
+            null;
+        return parentFolder ? parentFolder.folderId : 0;
+    }
+
     async folderReorderingDrop(sourceFolderId: number, destinationFolderId: number, aboveOrBelowOrInside: number) {
         if (sourceFolderId === destinationFolderId) {
             // can't move a folder above, below or inside itself
