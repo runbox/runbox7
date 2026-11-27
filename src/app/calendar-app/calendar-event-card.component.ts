@@ -18,6 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import moment from 'moment';
 import { EventOverview } from './event-overview';
 
 @Component({
@@ -31,4 +32,8 @@ export class CalendarEventCardComponent {
     @Output() edit = new EventEmitter();
 
     constructor() { }
+
+    formatDateTime(value: moment.Moment): string {
+        return value.format('YYYY-MM-DD HH:mm');
+    }
 }
