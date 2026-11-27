@@ -38,7 +38,7 @@ import { MessageListService } from './rmmapi/messagelist.service';
 import { MessageInfo } from './common/messageinfo';
 import { MessageList } from './common/messagelist';
 import { FolderListEntry } from './common/folderlistentry';
-import { RunboxWebmailAPI, MessageFlagChange } from './rmmapi/rbwebmail';
+import { RunboxWebmailAPI, MessageFlagChange, LoginInfo, getPreviousSuccessfulLogin } from './rmmapi/rbwebmail';
 import { DraftDeskService } from './compose/draftdesk.service';
 import { RMM7MessageActions } from './mailviewer/rmm7messageactions';
 import { FolderListComponent, CreateFolderEvent, RenameFolderEvent, MoveFolderEvent } from './folder/folder.module';
@@ -75,6 +75,7 @@ const LOCAL_STORAGE_KEEP_PANE = 'keepMessagePaneOpen';
 const LOCAL_STORAGE_SHOW_UNREAD_ONLY = 'rmm7mailViewerShowUnreadOnly';
 const LOCAL_STORAGE_SHOW_POPULAR_RECIPIENTS = 'showPopularRecipients';
 const LOCAL_STORAGE_INDEX_PROMPT = 'localSearchPromptDisplayed';
+const SESSION_STORAGE_LAST_LOGIN_NOTICE = 'rmm7lastLoginNoticeShown';
 const TOOLBAR_LIST_BUTTON_WIDTH = 30;
 
 @Component({
@@ -446,6 +447,65 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
         });
       }
     });
+
+    this.showPreviousLoginNotice();
+  }
+
+  private showPreviousLoginNotice(): void {
+    this.rmmapi.me.pipe(
+      take(1),
+      mergeMap(me => this.rmmapi.getLastLogins({ status: 1, service: 'web' }).pipe(
+        map(logins => ({ uid: me.uid, login: getPreviousSuccessfulLogin(logins) }))
+      ))
+    ).subscribe({
+      next: ({ uid, login }) => {
+        if (!login) {
+          return;
+        }
+
+        const storageKey = this.lastLoginNoticeStorageKey(uid);
+        const noticeId = this.lastLoginNoticeId(uid, login);
+        if (this.getSessionStorageItem(storageKey) === noticeId) {
+          return;
+        }
+
+        this.setSessionStorageItem(storageKey, noticeId);
+        this.snackBar.open(this.previousLoginMessage(login), 'Dismiss', {
+          duration: 7000,
+        });
+      },
+      error: () => undefined,
+    });
+  }
+
+  private previousLoginMessage(login: LoginInfo): string {
+    const loginTime = login.created ? ` at ${login.created}` : '';
+    const loginIp = login.ip ? ` from ${login.ip}` : '';
+    return `Previous successful login${loginTime}${loginIp}.`;
+  }
+
+  private lastLoginNoticeStorageKey(uid: number): string {
+    return `${SESSION_STORAGE_LAST_LOGIN_NOTICE}:${uid}`;
+  }
+
+  private lastLoginNoticeId(uid: number, login: LoginInfo): string {
+    return [uid, login.service || '', login.created || '', login.ip || ''].join('|');
+  }
+
+  private getSessionStorageItem(key: string): string | null {
+    try {
+      return sessionStorage.getItem(key);
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  private setSessionStorageItem(key: string, value: string): void {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (_error) {
+      // The notice can still be shown if session storage is unavailable.
+    }
   }
 
   ngAfterViewInit() {
