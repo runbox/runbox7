@@ -853,6 +853,40 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.hasChanges = true;
   }
 
+  public removeMessages(messageIds: number[]) {
+    if (!this.rows) {
+      return;
+    }
+
+    const topIndexAfterRemoval = this.getTopIndexAfterMessageRemoval(messageIds);
+
+    this.rows.removeMessages(messageIds);
+
+    if (topIndexAfterRemoval !== null) {
+      this.topindex = topIndexAfterRemoval;
+      this.enforceScrollLimit();
+    }
+    this.hasChanges = true;
+  }
+
+  private getTopIndexAfterMessageRemoval(messageIds: number[]): number | null {
+    if (!this.rows || messageIds.length === 0) {
+      return null;
+    }
+
+    const removedRowIndexes = Array.from(new Set(messageIds))
+      .map(messageId => this.rows.findRowByMessageId(messageId))
+      .filter(rowIndex => rowIndex >= 0)
+      .sort((a, b) => a - b);
+
+    if (removedRowIndexes.length === 0) {
+      return null;
+    }
+
+    const lastRemovedRowIndex = removedRowIndexes[removedRowIndexes.length - 1];
+    return Math.max(0, lastRemovedRowIndex + 1 - removedRowIndexes.length);
+  }
+
   public get showContentTextPreview(): boolean {
     return this._showContentTextPreview;
   }
