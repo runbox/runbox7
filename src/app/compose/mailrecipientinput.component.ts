@@ -130,26 +130,32 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     }
 
     addRecipientFromBlur() {
+        setTimeout(() => this.commitPendingRecipient(true));
+    }
+
+    commitPendingRecipient(force = false) {
         const input = this.searchTextInput.nativeElement;
         const value = (input.value || '').trim();
 
-        if (this.auto.isOpen || this.addedFromAutoComplete) {
+        if (!value) {
+            this.addedFromAutoComplete = false;
+            this.invalidemail = false;
+            return;
+        }
+        if (!force && (this.auto.isOpen || this.addedFromAutoComplete)) {
             this.addedFromAutoComplete = false;
             return;
         }
-        if (value) {
-            this.addRecipient(input);
-            this.addedFromAutoComplete = false;
-            return;
-        }
-        this.invalidemail = false;
+        this.addRecipient(input);
+        this.addedFromAutoComplete = false;
     }
 
     addRecipientFromEnter(event: MatChipInputEvent) {
         const input = event.input;
         const value = (input.value || '').trim();
 
-        if (this.addedFromAutoComplete) {
+        if (this.auto.isOpen || this.addedFromAutoComplete) {
+            this.addedFromAutoComplete = false;
             return;
         }
         if (value) {
