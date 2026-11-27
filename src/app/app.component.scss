@@ -10,6 +10,14 @@
     vertical-align: middle !important;
 }
 
+.unreadEmptyState {
+    position: absolute;
+    top: 40px;
+    left: 16px;
+    right: 16px;
+    text-align: center;
+}
+
 .contextToolButtonsRegular {
     position: absolute;
     display: flex;
