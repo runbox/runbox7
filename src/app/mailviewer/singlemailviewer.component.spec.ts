@@ -458,4 +458,45 @@ describe('SingleMailViewerComponent', () => {
       expect(() => component['initMailtoInterceptor']()).not.toThrow();
     });
   });
+
+  describe('print()', () => {
+    it('should hide the HTML sanitization notice in printable output and restore it afterward', async () => {
+      const container = document.createElement('div');
+      container.id = 'messageContents';
+      container.innerHTML =
+        '<div class="notificationContainer sanitizedNotification">' +
+        '<span class="inMessageNotification">This HTML message has been sanitized for your security.</span>' +
+        '</div>' +
+        '<div class="notificationContainer">' +
+        '<span class="inMessageNotification">Other notice.</span>' +
+        '</div>' +
+        '<div>Hello email body</div>';
+
+      const printFrameEl = document.createElement('iframe');
+      component.messageContents = { nativeElement: container } as any;
+      component.printFrame = { nativeElement: printFrameEl } as any;
+      component.htmliframe = null;
+
+      let capturedBlob: Blob | null = null;
+      spyOn(URL, 'createObjectURL').and.callFake((blob: Blob) => {
+        capturedBlob = blob;
+        return 'blob:mock-print';
+      });
+
+      component.print();
+
+      expect(capturedBlob).not.toBeNull();
+      const printedHtml = await capturedBlob.text();
+      const parsed = new DOMParser().parseFromString(printedHtml, 'text/html');
+      const sanitizedEl = parsed.querySelector('.sanitizedNotification') as HTMLElement;
+      const otherEl = parsed.querySelectorAll('.notificationContainer')[1] as HTMLElement;
+
+      expect(sanitizedEl).not.toBeNull();
+      expect(sanitizedEl.style.display).toBe('none');
+      expect(otherEl.style.display).not.toBe('none');
+
+      const liveSanitizedEl = container.querySelector('.sanitizedNotification') as HTMLElement;
+      expect(liveSanitizedEl.style.display).toBe('');
+    });
+  });
 });

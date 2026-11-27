@@ -690,11 +690,16 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
   print() {
     // Can't access print view inside iFrame, so we need to
-    // temporary hide buttons while the view is rendering
-    const messageContents = document.getElementById('messageContents');
+    // temporary hide buttons and sanitization notices while the view is rendering
+    const messageContents = this.messageContents?.nativeElement || document.getElementById('messageContents');
+    if (!messageContents) {
+      return;
+    }
     const buttons = messageContents.getElementsByTagName('button');
     const htmlButtons = messageContents.getElementsByClassName('htmlButtons') as HTMLCollectionOf<HTMLElement>;
     const contactButtons = messageContents.getElementsByTagName('mat-icon') as HTMLCollectionOf<HTMLElement>;
+    const sanitizedNotifications = messageContents.getElementsByClassName('sanitizedNotification') as HTMLCollectionOf<HTMLElement>;
+    const prevNotificationDisplays = Array.from(sanitizedNotifications).map((el: HTMLElement) => el.style.display);
 
     if (htmlButtons.length) {
       htmlButtons[0].style.display = 'none';
@@ -705,8 +710,11 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     for (let i = 0; i < contactButtons.length; i++) {
       contactButtons[i].style.display = 'none';
     }
+    for (let i = 0; i < sanitizedNotifications.length; i++) {
+      sanitizedNotifications[i].style.display = 'none';
+    }
 
-    let printablecontent = this.messageContents.nativeElement.innerHTML;
+    let printablecontent = messageContents.innerHTML;
     if (this.htmliframe) {
       printablecontent = printablecontent.replace(/\<iframe[^]*\<\/iframe\>/g,
         this.htmliframe.nativeElement.contentWindow.document.documentElement.innerHTML
@@ -718,7 +726,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       )
     );
 
-    // Unhiding buttons
+    // Unhiding buttons and sanitization notices
     if (htmlButtons.length) {
       htmlButtons[0].style.display = 'flex';
     }
@@ -727,6 +735,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     }
     for (let i = 0; i < contactButtons.length; i++) {
       contactButtons[i].style.display = 'inline-block';
+    }
+    for (let i = 0; i < sanitizedNotifications.length; i++) {
+      sanitizedNotifications[i].style.display = prevNotificationDisplays[i];
     }
   }
 
