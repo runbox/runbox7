@@ -21,6 +21,14 @@ import { MessageDisplay } from '../common/messagedisplay';
 import { SearchService } from './searchservice';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { CanvasTableColumn } from '../canvastable/canvastablecolumn';
+import { MessageInfo } from '../common/messageinfo';
+
+type SearchResultRow = [number, ...unknown[]];
+interface FromSortValueSource {
+  api: {
+    getStringValue(docid: number, slot: number): string;
+  };
+}
 
 export class SearchMessageDisplay extends MessageDisplay {
   private searchService: SearchService;
@@ -29,6 +37,30 @@ export class SearchMessageDisplay extends MessageDisplay {
   constructor(...args: any[]) {
     super(args[1]);
     this.searchService = args[0];
+  }
+
+  public static sortRowsByFrom(
+    rows: SearchResultRow[],
+    searchService: FromSortValueSource,
+    descending: boolean
+  ): SearchResultRow[] {
+    const sortDirection = descending ? -1 : 1;
+    return rows
+      .map((row, index) => ({
+        row,
+        index,
+        sortText: MessageInfo.getSortableText(searchService.api.getStringValue(row[0], 0))
+      }))
+      .sort((a, b) => {
+        if (a.sortText < b.sortText) {
+          return -1 * sortDirection;
+        }
+        if (a.sortText > b.sortText) {
+          return sortDirection;
+        }
+        return a.index - b.index;
+      })
+      .map((sortedRow) => sortedRow.row);
   }
 
   getRowSeen(index: number): boolean {
