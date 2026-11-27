@@ -35,7 +35,7 @@ export class CartService {
         private storage: StorageService,
     ) {
         this.storage.get('shoppingCart').then(cart => {
-          const items = cart ? cart.map(i => new ProductOrder(i.pid, i.type, new Decimal(i.quantity), i.apid)) : [];
+          const items = this.cleanItems(cart ? cart.map(i => new ProductOrder(i.pid, i.type, new Decimal(i.quantity), i.apid)) : []);
             this.items.next(items);
         });
 
@@ -46,22 +46,56 @@ export class CartService {
 
     async add(p: ProductOrder): Promise<void> {
         const items = await firstValueFrom(this.items);
+        const order = this.cleanOrder(p);
 
         for (const i of items) {
             // Cannot order multiples of subscription products
-            if (i.type === 'subscription' && p.type === 'subscription') {
+            if (i.type === 'subscription' && order.type === 'subscription') {
                 return;
             }
             // if an item like this is already ordered, increase the quantity
-            if (i.isSameProduct(p) ) {
-                i.quantity = p.quantity.plus(i.quantity);
+            if (i.isSameProduct(order) ) {
+                i.quantity = order.quantity.plus(i.quantity);
                 this.items.next(items);
                 return;
             }
         }
         // no product like this yet if we got this far down
-        items.push(p);
+        items.push(order);
         this.items.next(items);
+    }
+
+    private cleanItems(items: ProductOrder[]): ProductOrder[] {
+        const cleaned: ProductOrder[] = [];
+        let hasSubscription = false;
+
+        for (const item of items) {
+            const order = this.cleanOrder(item);
+
+            if (order.type === 'subscription') {
+                if (hasSubscription) {
+                    continue;
+                }
+                hasSubscription = true;
+            }
+
+            const existing = cleaned.find(i => i.isSameProduct(order));
+            if (existing && order.type !== 'subscription') {
+                existing.quantity = existing.quantity.plus(order.quantity);
+            } else {
+                cleaned.push(order);
+            }
+        }
+
+        return cleaned;
+    }
+
+    private cleanOrder(order: ProductOrder): ProductOrder {
+        if (order.type === 'subscription' && order.apid === undefined && order.quantity.gt(1)) {
+            return new ProductOrder(order.pid, order.type, new Decimal(1), order.apid);
+        }
+
+        return new ProductOrder(order.pid, order.type, order.quantity, order.apid);
     }
 
     clear() {
