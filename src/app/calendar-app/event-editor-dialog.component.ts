@@ -317,6 +317,11 @@ export class EventEditorDialogComponent {
     // NB: ngModelChange has to be before ngModel (in template) to read
     // the old value
     public updateStart(value: Date) {
+        if (this.event_start && this.event_end) {
+            const startDeltaMs = value.getTime() - this.event_start.getTime();
+            this.event_end = new Date(this.event_end.getTime() + startDeltaMs);
+        }
+
         // Do this always, in case we fiddle with dates, then
         // set event_recurs:
         if (!this.event_recurs) {
