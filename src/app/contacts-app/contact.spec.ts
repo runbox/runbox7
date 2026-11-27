@@ -240,6 +240,25 @@ END:VCARD`);
         expect(sut.department).toBe('department');
     });
 
+    it('can update and clear a single-value company', () => {
+        let sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+FN:testcontact
+ORG:runbox
+END:VCARD`);
+
+        sut.company = 'New Company';
+
+        expect(sut.company).toBe('New Company');
+        expect(sut.vcard()).toContain('ORG:New Company');
+
+        sut = Contact.fromVcard(null, sut.vcard());
+        sut.company = '';
+
+        expect(sut.company).toBe('');
+        expect(sut.vcard()).not.toContain('New Company');
+    });
+
     it('can parse grouped properties', () => {
         const sut = Contact.fromVcard(null, `BEGIN:VCARD
 VERSION:3.0
