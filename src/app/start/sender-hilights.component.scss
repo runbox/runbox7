@@ -58,6 +58,13 @@
     .subject li {
         list-style-type: square;
     }
+    .emailDate {
+        color: rgba(0, 0, 0, 0.54);
+        display: inline-block;
+        font-size: 0.75em;
+        margin-right: 0.5em;
+        white-space: nowrap;
+    }
     .subject a {
         text-decoration: none !important;
     }
