@@ -467,7 +467,11 @@ export class CalendarService implements OnDestroy {
             this.rmmapi.importCalendar(calendarId, ics).subscribe(res => {
                 this.reloadEvents();
                 o.next(res);
-            }, e => this.apiErrorHandler(e));
+                o.complete();
+            }, e => {
+                this.apiErrorHandler(e);
+                o.error(e);
+            });
         });
     }
 
