@@ -22,8 +22,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { DraftDeskService, DraftFormModel } from './draftdesk.service';
 import { RecipientsService } from './recipients.service';
+import { filter, take } from 'rxjs/operators';
 
 const MAX_DRAFTS_IN_VIEW = 10;
+const SHARE_TARGET_TITLE_PARAM = 'share-title';
+const SHARE_TARGET_TEXT_PARAM = 'share-text';
+const SHARE_TARGET_URL_PARAM = 'share-url';
 
 @Component({
     templateUrl: 'draftdesk.component.html',
@@ -43,7 +47,7 @@ export class DraftDeskComponent implements OnInit {
         public draftDeskservice: DraftDeskService) {
 
         this.draftDeskservice.draftModels.subscribe(
-            drafts => this.updateDraftsInView(),
+            _drafts => this.updateDraftsInView(),
             err => console.log(err)
         );
     }
@@ -51,21 +55,35 @@ export class DraftDeskComponent implements OnInit {
     ngOnInit() {
         this.route.queryParams
             .subscribe(params => {
+                const sharedTitle = params[SHARE_TARGET_TITLE_PARAM];
+                const sharedText = params[SHARE_TARGET_TEXT_PARAM];
+                const sharedUrl = params[SHARE_TARGET_URL_PARAM];
                 if (params['to']) {
-                    this.draftDeskservice.newDraft(
-                        DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
-                    ).then(() => this.updateDraftsInView());
+                    this.withLoadedFroms(() => {
+                        this.draftDeskservice.newDraft(
+                            DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
+                        ).then(() => this.updateDraftsInView());
+                    });
+                } else if (sharedTitle || sharedText || sharedUrl) {
+                    this.withLoadedFroms(() => {
+                        this.draftDeskservice.newSharedDraft(sharedTitle, sharedText, sharedUrl)
+                            .then(() => this.updateDraftsInView());
+                    });
                 } else if (params['new']) {
-                    // Can't create a new draft until froms has been loaded
-                    // FIXME: This needs to only happen once (after froms loaded)
-                    this.draftDeskservice.fromsSubject.subscribe((froms) => {
-                        if (froms.length > 0 && !this.hasInitialized) {
+                    this.withLoadedFroms(() => {
+                        if (!this.hasInitialized) {
                             this.newDraft();
                             this.hasInitialized = true;
                         }
                     });
                 }
             });
+    }
+
+    private withLoadedFroms(action: () => void): void {
+        this.draftDeskservice.fromsSubject
+            .pipe(filter((froms) => froms.length > 0), take(1))
+            .subscribe(() => action());
     }
 
     updateDraftsInView() {

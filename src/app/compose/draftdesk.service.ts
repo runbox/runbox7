@@ -396,6 +396,26 @@ export class DraftDeskService {
         await this.newDraft(draftObj);
     }
 
+    public async newSharedDraft(title: string, text: string, url: string) {
+        const draftObj = DraftFormModel.create(
+            -1,
+            this.mainIdentity(),
+            null,
+            (title || '').trim()
+        );
+        draftObj.msg_body = DraftDeskService.joinSharedContent(text, url);
+
+        await this.newDraft(draftObj);
+    }
+
+    private static joinSharedContent(text?: string, url?: string): string {
+        const sharedParts = [text, url]
+            .map(part => (part || '').trim())
+            .filter(part => part.length > 0);
+
+        return [...new Set(sharedParts)].join('\n\n');
+    }
+
     public newDraft(model: DraftFormModel): Promise<void> {
         return new Promise((resolve, _) => {
             const afterPrepare = () => {
