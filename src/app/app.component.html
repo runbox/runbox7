@@ -99,7 +99,10 @@
 
     <mat-divider></mat-divider>
 
-    <app-saved-searches (searchClicked)="searchFor($event)"></app-saved-searches>
+    <app-saved-searches
+        [selectedSearch]="selectedSavedSearch"
+        (searchClicked)="savedSearchSelected($event)"
+    ></app-saved-searches>
 
     <mat-divider></mat-divider>
 
