@@ -273,6 +273,29 @@ END:VCALENDAR
         expect(rbevents[0].recurringFrequency).toEqual('DAILY', 'recurrence is DAILY');
     });
 
+    it('should decode quoted-printable text when importing an .ics file', () => {
+        const imported = sut.importFromIcal(undefined,
+`BEGIN:VCALENDAR
+X-LOTUS-CHARSET:UTF-8
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260610T100000Z
+DTEND:20260610T110000Z
+SUMMARY;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=C3=98ystein m=C3=B8te
+LOCATION;ENCODING=QUOTED-PRINTABLE;CHARSET=UTF-8:Bl=C3=A5b=C3=A6rveien 1
+DESCRIPTION;ENCODING=QUOTED-PRINTABLE:F=C3=B8rste linje=0AAndre linje
+UID:quoted-printable-import
+END:VEVENT
+END:VCALENDAR
+`, false);
+        const rbevents = sut.generateEvents(undefined, undefined, [imported]);
+        const overview = rbevents[0].get_overview()[0];
+
+        expect(overview.title).toBe('\u00d8ystein m\u00f8te');
+        expect(overview.location).toBe('Bl\u00e5b\u00e6rveien 1');
+        expect(overview.description).toBe('F\u00f8rste linje\nAndre linje');
+    });
+
     it('should be possible to import an .ics file with exceptions', () => {
         sut.loadVTimezone('Europe/Stockholm');
         sut.importFromIcal(undefined,
