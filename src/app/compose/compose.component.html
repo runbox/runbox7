@@ -1,3 +1,4 @@
+
 <mat-card [ngClass]="{'draftPreview': !editing}" class="draft-card" [formGroup]="formGroup">
     <mat-card-actions class="draft-actions">
         <div class="draft-title">
@@ -51,6 +52,7 @@
                 [initialfocus]="model.to.length === 0"
                 placeholder="To"
                 [recipients]="model.to"
+                recipientField="to"
                 (updateRecipient)="onUpdateRecipient('to', $event)"
                 (drop)="recipientDropped($event, 'to')"
                 id="fieldTo"
@@ -87,6 +89,7 @@
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
                 placeholder="CC"
                 [recipients]="model.cc"
+                recipientField="cc"
                 (updateRecipient)="onUpdateRecipient('cc', $event)"
             ></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.cc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>
@@ -95,6 +98,7 @@
             <mailrecipient-input *ngIf="editing" style="width: auto; flex-grow: 1"
                 placeholder="BCC"
                 [recipients]="model.bcc"
+                recipientField="bcc"
                 (updateRecipient)="onUpdateRecipient('bcc', $event)"
             ></mailrecipient-input>
             <button mat-icon-button (click)="formGroup.controls.bcc.setValue(null)"><mat-icon svgIcon="close"></mat-icon></button>

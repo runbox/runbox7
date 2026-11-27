@@ -1,3 +1,4 @@
+
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2018 Runbox Solutions AS (runbox.com).
 // 
@@ -51,6 +52,7 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
     @Input() recipients: MailAddressInfo[];
     @Input() placeholder: string;
     @Input() initialfocus = false;
+    @Input() recipientField: string;
 
     @Output() updateRecipient: EventEmitter<MailAddressInfo[]> = new EventEmitter();
 
@@ -95,6 +97,11 @@ export class MailRecipientInputComponent implements OnChanges, AfterViewInit {
 
     notifyChangeListener() {
         this.updateRecipient.emit(this.recipientsList);
+    }
+
+    dragRecipient(ev: DragEvent, recipient: MailAddressInfo) {
+        ev.dataTransfer.setData('recipient', recipient.nameAndAddress);
+        ev.dataTransfer.setData('recipientSource', this.recipientField);
     }
 
     removeRecipient(ndx: number) {

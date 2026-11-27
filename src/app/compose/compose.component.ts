@@ -1,3 +1,4 @@
+
 // --------- BEGIN RUNBOX LICENSE ---------
 // Copyright (C) 2016-2022 Runbox Solutions AS (runbox.com).
 //
@@ -899,11 +900,24 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     recipientDropped(ev: DragEvent, target: string) {
         const addressLine = ev.dataTransfer.getData('recipient');
-
+        const source = ev.dataTransfer.getData('recipientSource');
         const newMAI = MailAddressInfo.parse(addressLine);
-        const newRecipients = this.model[target].concat(newMAI);
 
-        this.onUpdateRecipient(target, newRecipients);
+        if (source === target) {
+            return;
+        }
+
+        if (source) {
+            const sourceRecipients = this.model[source].filter(
+                recipient => recipient.address !== newMAI[0].address
+            );
+            this.onUpdateRecipient(source, sourceRecipients);
+        }
+
+        const targetRecipients = this.model[target].filter(
+            recipient => recipient.address !== newMAI[0].address
+        );
+        this.onUpdateRecipient(target, targetRecipients.concat(newMAI));
     }
 
     /// updates the displayed `suggestedRecipients`
