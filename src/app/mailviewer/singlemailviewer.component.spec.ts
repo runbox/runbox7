@@ -231,6 +231,49 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('sets plain and HTML view modes without toggling the selected mode', () => {
+    const htmlControls = component as unknown as {
+      setHtmlView(mode: 'Plain' | 'HTML'): void;
+    };
+
+    component.showHTMLDecision = 'dontask';
+    component.showHTML = false;
+
+    htmlControls.setHtmlView('HTML');
+    expect(component.showHTML).toBeTrue();
+
+    htmlControls.setHtmlView('HTML');
+    expect(component.showHTML).toBeTrue();
+
+    htmlControls.setHtmlView('Plain');
+    expect(component.showHTML).toBeFalse();
+
+    htmlControls.setHtmlView('Plain');
+    expect(component.showHTML).toBeFalse();
+  });
+
+  it('sets external image visibility from the checkbox state', () => {
+    const htmlControls = component as unknown as {
+      setExternalImages(showImages: boolean): void;
+    };
+
+    component.mailContentHTMLWithImages = '<img src="remote.jpg">';
+    component.mailContentHTMLWithoutImages = '<p>No remote images</p>';
+    component.showImages = false;
+
+    htmlControls.setExternalImages(true);
+    expect(component.showImages).toBeTrue();
+    expect(component.mailContentHTML).toBe(component.mailContentHTMLWithImages);
+
+    htmlControls.setExternalImages(true);
+    expect(component.showImages).toBeTrue();
+    expect(component.mailContentHTML).toBe(component.mailContentHTMLWithImages);
+
+    htmlControls.setExternalImages(false);
+    expect(component.showImages).toBeFalse();
+    expect(component.mailContentHTML).toBe(component.mailContentHTMLWithoutImages);
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;
