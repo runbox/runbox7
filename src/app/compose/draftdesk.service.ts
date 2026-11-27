@@ -61,6 +61,7 @@ export class DraftFormModel {
     in_reply_to: string;
     reply_to_id: string = null;
     replying = false;
+    skipSignature = false;
     tags: string;
     useHTML = false;
     save = 'Save';
@@ -209,11 +210,51 @@ ${mailObj.sanitized_html}`;
         return ret;
     }
 
+    public static sendAgain(mailObj, froms: Identity[]): DraftFormModel {
+        const ret = new DraftFormModel();
+
+        if (froms.length > 0) {
+            const originalFrom = mailObj.from && mailObj.from[0] && mailObj.from[0].address
+                ? mailObj.from[0].address.toLowerCase()
+                : null;
+            ret.from = (
+                froms.find(fromObj => fromObj.email.toLowerCase() === originalFrom) || froms[0]
+            ).email;
+        } else {
+            console.error('DraftDesk: No froms passed to sendAgain');
+        }
+
+        ret.subject = mailObj.subject;
+        ret.skipSignature = true;
+        ret.to = DraftFormModel.copyAddresses(mailObj.to);
+        ret.cc = DraftFormModel.copyAddresses(mailObj.cc);
+        ret.bcc = DraftFormModel.copyAddresses(mailObj.bcc);
+        ret.msg_body = mailObj.rawtext || (mailObj.text && mailObj.text.text) || '';
+        ret.preview = DraftFormModel.trimmedPreview(ret.msg_body);
+
+        if (mailObj.sanitized_html) {
+            ret.html = mailObj.sanitized_html;
+            ret.useHTML = true;
+        }
+
+        ret.attachments = (mailObj.attachments || []).map((attachment, ndx) =>
+            new ForwardedAttachment(String(mailObj.mid), ndx, attachment.cid)
+        );
+
+        return ret;
+    }
+
     public isUnsaved(): boolean {
         if (this.mid <= -1) {
             return true;
         }
         return false;
+    }
+
+    private static copyAddresses(addresses): MailAddressInfo[] {
+        return Array.isArray(addresses)
+            ? addresses.map((addr) => new MailAddressInfo(addr.name, addr.address))
+            : [];
     }
 
     private setFromForResponse(mailObj, froms: Identity[]): void {

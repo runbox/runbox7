@@ -138,7 +138,7 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.draftDeskservice.fromsSubject.value[0].nameAndAddress : '';
             } else {
                 this.model.from = from.nameAndAddress;
-                if ( !this.has_pasted_signature && from.signature ) {
+                if ( !this.model.skipSignature && !this.has_pasted_signature && from.signature ) {
                     this.has_pasted_signature = true;
                     this.signature = from.signature;
                     // Sig is HTML, or Reply/Fwd Draft is HTML (contains .html)
