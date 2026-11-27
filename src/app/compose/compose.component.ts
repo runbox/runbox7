@@ -625,6 +625,11 @@ export class ComposeComponent implements AfterViewInit, OnDestroy, OnInit {
     }
 
     exitToTable() {
+        if (this.draftDeskservice.shouldReturnToPreviousPage) {
+            this.exitIfNeeded();
+            return;
+        }
+
         this.router.navigate(['/']);
     }
 
