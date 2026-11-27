@@ -40,6 +40,8 @@ describe('Identity', () => {
 
 describe('ProfileService', () => {
     let service: ProfileService;
+    let deletedProfileIds: number[];
+    let profileList: Array<Partial<Identity>>;
 
     const DEFAULT_EMAIL = 'a2@example.com';
     const PROFILES =        [{
@@ -137,6 +139,8 @@ describe('ProfileService', () => {
     const ALLOWED_DOMAINS = ['runbox.com', 'example.com'];
 
     beforeEach(waitForAsync(() => {
+        deletedProfileIds = [];
+        profileList = JSON.parse(JSON.stringify(PROFILES)) as Array<Partial<Identity>>;
         TestBed.configureTestingModule({
             imports: [
                 HttpClientTestingModule,
@@ -144,11 +148,16 @@ describe('ProfileService', () => {
             providers: [
                 { provide: RunboxWebmailAPI, useValue: {
                     me: of({first_name: 'Test', last_name: 'User'}),
-                    getProfiles: () => of(PROFILES),
-                    createProfile: (newprofile) => {
+                    getProfiles: () => of(profileList.map(p => Identity.fromObject(p))),
+                    createProfile: (newprofile: Partial<Identity>) => {
                         newprofile['reference_type'] = 'aliases';
-                        PROFILES.unshift(newprofile);
-                        return of(PROFILES.length);
+                        profileList.unshift(newprofile);
+                        return of(profileList.length);
+                    },
+                    deleteProfile: (id: number) => {
+                        deletedProfileIds.push(id);
+                        profileList = profileList.filter(profile => profile.id !== id);
+                        return of(true);
                     },
                     getRunboxDomains: () => of([{ 'id': 1, name: 'runbox.com'}]),
                 } },
@@ -167,13 +176,13 @@ describe('ProfileService', () => {
     });
     it('loads all profiles', (done) => {
         service.profiles.subscribe(profiles => {
-            expect(profiles.length).toBe(PROFILES.length);
+            expect(profiles.length).toBe(profileList.length);
             done();
         });
     });
     it('loads alias profile subsets', (done) => {
         service.aliases.subscribe(profiles => {
-            expect(profiles.length).toBe(PROFILES.filter(p => p.reference_type === 'aliases').length);
+            expect(profiles.length).toBe(profileList.filter(p => p.reference_type === 'aliases').length);
             done();
         });
     });
@@ -199,5 +208,41 @@ describe('ProfileService', () => {
                 done();
             });
                              
+    });
+
+    it('deletes alias identities associated with a deleted alias', (done) => {
+        service.deleteAssociatedAliasIdentities({
+            id: 278,
+            localpart: 'aa1',
+            domain: 'example.com',
+        }).subscribe((res) => {
+            expect(res.length).toBe(1);
+            expect(deletedProfileIds).toEqual([16456]);
+            done();
+        });
+    });
+
+    it('falls back to alias email when matching associated identities', (done) => {
+        service.deleteAssociatedAliasIdentities({
+            id: 999,
+            localpart: 'testmail',
+            domain: 'testmail.com',
+        }).subscribe((res) => {
+            expect(res.length).toBe(1);
+            expect(deletedProfileIds).toEqual([16457]);
+            done();
+        });
+    });
+
+    it('does not delete the main identity when alias email matches it', (done) => {
+        service.deleteAssociatedAliasIdentities({
+            id: 999,
+            localpart: 'a2',
+            domain: 'example.com',
+        }).subscribe((res) => {
+            expect(res).toEqual([]);
+            expect(deletedProfileIds).toEqual([]);
+            done();
+        });
     });
 });
