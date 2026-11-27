@@ -302,6 +302,38 @@ Subject: Test subject <br />
         expect(draft.isUnsaved()).toBe(true);
         done();
     });
+    it('Reply: Address with object, reply to all with empty To and CC', (done) => {
+        console.log('Reply test: Address with object, reply to all with empty To and CC');
+        const draft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'themessageid12123abcdef',
+            },
+            from: [
+                {address: 'from@runbox.com', name: 'From'}
+            ],
+            to: '',
+            cc: [
+                {address: 'to@runbox.com', name: 'To'},
+                {address: 'cc@runbox.com', name: 'CC'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            text: 'blabla\nabcde',
+            rawtext: 'blabla\nabcde',
+            html: '<p>blabla</p><p>abcde</p>'
+        },
+        [ Identity.fromObject({'email':'to@runbox.com'})],
+        true, false);
+
+        expect(draft.subject).toBe('Re: Test subject');
+        expect(draft.from).toBe('to@runbox.com');
+        expect(draft.to[0].nameAndAddress).toBe('"From" <from@runbox.com>');
+        expect(draft.cc.length).toBe(1);
+        expect(draft.cc[0].nameAndAddress).toBe('"CC" <cc@runbox.com>');
+        expect(draft.msg_body).toBe(`\n\nOn ${formatDate(mailDate)}, "From" <from@runbox.com> wrote:\n> blabla\n> abcde`);
+        expect(draft.isUnsaved()).toBe(true);
+        done();
+    });
     it('Reply: Address with MAI', (done) => {
         console.log('Reply test: Address with MAI');
         const draft = DraftFormModel.reply({
