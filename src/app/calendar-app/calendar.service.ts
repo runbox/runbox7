@@ -44,6 +44,12 @@ enum Activity {
     GeneratingEvents    = 'Generating Events',
 }
 
+interface RawCalendarEvent {
+    calendar?: string;
+    id:        string;
+    ical:      string;
+}
+
 @Injectable()
 export class CalendarService implements OnDestroy {
     calendars:    RunboxCalendar[]      = [];
@@ -112,17 +118,24 @@ export class CalendarService implements OnDestroy {
         });
 
         this.calendarSubject.subscribe(cals => {
-            const updatedCals = [];
+            const updatedCals: string[] = [];
+            const currentCals = cals.map(cal => cal.id);
             for (const cal of cals) {
                 if (cal.syncToken !== this.syncTokens[cal.id]) {
                     updatedCals.push(cal.id);
                     this.syncTokens[cal.id] = cal.syncToken;
                 }
             }
+            for (const calId of Object.keys(this.syncTokens)) {
+                if (!currentCals.includes(calId)) {
+                    updatedCals.push(calId);
+                    delete this.syncTokens[calId];
+                }
+            }
 
             if (updatedCals.length > 0) {
                 console.log('Changes detected in calendars', updatedCals);
-                this.reloadEvents();
+                this.reloadEvents(updatedCals);
             } else {
                 console.log('Nothing new in calendars');
                 this.lastUpdate = moment();
@@ -497,21 +510,56 @@ export class CalendarService implements OnDestroy {
         });
     }
 
-    reloadEvents() {
+    private calendarIdFromEventId(id: string): string {
+        return id ? id.split('/')[0] : '';
+    }
+
+    private calendarIdFromRawEvent(event: RawCalendarEvent): string {
+        return event['calendar'] || this.calendarIdFromEventId(event['id']);
+    }
+
+    reloadEvents(calendarIds?: string[]) {
+        const changedCalendarIds = calendarIds && calendarIds.length > 0
+            ? new Set(calendarIds)
+            : undefined;
+
         console.log('Fetching events');
         this.activities.begin(Activity.RefreshingEvents);
         this.rmmapi.getCalendarEvents().subscribe(events => {
-            this.events = [];
-            this.icalevents = [];
-            events.forEach((e: any) => {
-                // store events into this.icalevents
-                this.importFromIcal(e.id, e.ical);
+            const importedEvents: { id: string, event: ICAL.Event}[] = [];
+            const rawEvents = events as RawCalendarEvent[];
+
+            if (changedCalendarIds) {
+                this.events = this.events.filter(
+                    e => !changedCalendarIds.has(e.calendar)
+                );
+                this.icalevents = this.icalevents.filter(
+                    e => !changedCalendarIds.has(this.calendarIdFromEventId(e.id))
+                );
+            } else {
+                this.events = [];
+                this.icalevents = [];
+            }
+
+            rawEvents.forEach((e: RawCalendarEvent) => {
+                if (changedCalendarIds && !changedCalendarIds.has(this.calendarIdFromRawEvent(e))) {
+                    return;
+                }
+
+                const importedEvent = this.importFromIcal(e.id, e.ical);
+                if (importedEvent) {
+                    importedEvents.push(importedEvent);
+                }
             });
 
             // generate RBE events for just this set, for current month+1:
             // TODO: what if user runs import while not looking at "today"?
             // Returns an array of RunboxCalendarEvent objects
-            const runboxevents = this.generateEvents();
+            const runboxevents = this.generateEvents(
+                undefined,
+                undefined,
+                changedCalendarIds ? importedEvents : undefined
+            );
             this.events = this.events.concat(runboxevents);
             this.eventSubject.next(this.events);
             this.activities.end(Activity.RefreshingEvents);
