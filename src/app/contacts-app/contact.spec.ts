@@ -253,6 +253,41 @@ END:VCARD`);
         expect(sut.addresses.length).toBe(2);
     });
 
+    it('can display custom x-prefixed field types from Android vcards', () => {
+        const sut = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:3.0
+PRODID:-//Sabre//Sabre VObject 4.2.0//EN
+UID:f205d9d6-f5cb-4625-be9f-54557a6c3bf0
+FN:Name Surname
+N:Surname;Name;;;
+GROUP1.TEL;TYPE=x-starý,PREF:+1234567890
+TEL;TYPE=cell:+0987654321
+GROUP1.X-ABLABEL:Starý
+GROUP2.X-ABLABEL:Obsolete
+EMAIL;TYPE=PREF:name@domain.com
+GROUP2.EMAIL;TYPE=x-obsolete:name@anotherdomain.com
+END:VCARD`);
+
+        expect(sut.phones[0].types).toEqual(['starý', 'pref']);
+        expect(sut.phones[1].types).toEqual(['cell']);
+        expect(sut.emails[0].types).toEqual(['pref']);
+        expect(sut.emails[1].types).toEqual(['obsolete']);
+    });
+
+    it('can save custom field types with x-prefixes in vcards', () => {
+        const sut = new Contact({});
+
+        sut.phones = [
+            { types: ['cell'], value: '+0987654321' },
+            { types: ['starý'], value: '+1234567890' },
+        ];
+
+        const vcard = sut.vcard();
+
+        expect(vcard).toContain('TEL;TYPE=cell:+0987654321');
+        expect(vcard).toContain('TEL;TYPE=x-starý:+1234567890');
+    });
+
     it('contact with exceptionally empty name shows up as email', () => {
         /* eslint-disable no-trailing-spaces */
         const sut = Contact.fromVcard(null, `BEGIN:VCARD
