@@ -352,7 +352,7 @@ export class SearchService {
 
           try {
             // just fyi, we don't need this for reading
-            console.log('Last index timestamp ', FS.stat('xapianglasswr/docdata.glass').mtime);
+            console.log('Last index timestamp ', FS.stat('xapianglasswr/iamglass').mtime);
 
             this.openStoredMainPartition();
 
@@ -509,13 +509,25 @@ export class SearchService {
         mergeMap(() => this.checkIfDownloadableIndexExists()),
         mergeMap((res) => new Observable<boolean>( (observer) => {
         if (!res) {
-          this.localSearchActivated = false;
-          this.indexLastUpdateTime = 0;
-          this.indexDownloadingInProgress = false;
-          // restart updates
-          this.indexWorker.postMessage({'action': PostMessageAction.updateIndexWithNewChanges });
-          this.stopIndexDownloadingInProgress = true;
-          observer.next(false);
+          if (this.stopIndexDownloadingInProgress) {
+            observer.next(false);
+            observer.complete();
+            return;
+          }
+          // A new account can have mail before its server index is generated.
+          // Start an empty database so the worker can populate it from message history.
+          if (!this.localSearchActivated) {
+            this.api.initXapianIndex(XAPIAN_GLASS_WR);
+            this.api.commitXapianUpdates();
+            this.api.closeXapianDatabase();
+            this.openStoredMainPartition();
+            this.indexLastUpdateTime = 0;
+          }
+          this.localSearchActivated = true;
+          this.downloadProgress = null;
+          this.messagelistservice.refreshFolderList();
+          observer.next(true);
+          observer.complete();
           return;
         }
 
