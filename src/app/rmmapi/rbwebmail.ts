@@ -53,13 +53,35 @@ export class MessageFields {
     to: string;
 }
 
+export interface AliasData {
+    id: number;
+    localpart: string;
+    name?: string;
+    email?: string;
+    domain?: string;
+    forward_to?: string;
+}
+
+interface AliasListResponse {
+    result?: {
+        aliases?: AliasData[];
+    };
+}
+
 export class Alias {
     constructor(
         public id: number,
         public localpart: string,
         public name: string,
-        public email: string
+        public email: string,
+        public domain?: string,
+        public forward_to?: string
     ) { }
+
+    public static fromObject(obj: AliasData): Alias {
+        const email = obj.email || (obj.localpart && obj.domain ? `${obj.localpart}@${obj.domain}` : '');
+        return new Alias(obj.id, obj.localpart, obj.name || '', email, obj.domain, obj.forward_to);
+    }
 }
 
 export class ContactSyncResult {
@@ -622,6 +644,15 @@ export class RunboxWebmailAPI {
 
     public getAliasLimits(): Observable<any> {
         return this.http.get('/rest/v1/aliases/limits');
+    }
+
+    public getAliases(): Observable<Alias[]> {
+        return this.http.get('/rest/v1/aliases').pipe(
+            map((res: AliasListResponse) => {
+                const aliases = res.result && res.result.aliases ? res.result.aliases : [];
+                return aliases.map(alias => Alias.fromObject(alias));
+            })
+        );
     }
 
     public getRunboxDomains(): Observable<string[]> {
