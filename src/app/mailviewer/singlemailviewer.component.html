@@ -77,7 +77,7 @@
         matTooltip="Original HTML" [href]="'/rest/v1/email/'+messageId+'/html'" target="_blank">
         <mat-icon svgIcon="alert"></mat-icon>
       </a>
-      <button mat-icon-button *ngIf="morebuttonindex < 12" [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
+      <button mat-icon-button [matMenuTriggerFor]="moreMailActionsMenu" matTooltip="More message actions">
         <mat-icon svgIcon="dots-vertical"></mat-icon>
       </button>
 
@@ -139,6 +139,10 @@
         <button *ngIf="morebuttonindex<3" mat-menu-item (click)="messageActionsHandler.reply(showHTML)">
           <mat-icon svgIcon="reply"></mat-icon>
           <span>Reply</span>
+        </button>
+        <button mat-menu-item (click)="messageActionsHandler.replyAndMove(showHTML)">
+          <mat-icon svgIcon="folder"></mat-icon>
+          <span>Reply and move</span>
         </button>
         <button *ngIf="morebuttonindex<4" mat-menu-item (click)="messageActionsHandler.replyToAll(showHTML)">
           <mat-icon svgIcon="reply-all"></mat-icon>

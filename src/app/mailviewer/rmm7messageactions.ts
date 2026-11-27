@@ -65,30 +65,37 @@ export class RMM7MessageActions implements MessageActions {
         });
     }
 
+    private moveCurrentMessageToFolder(folder: number, closeAfterMove: boolean, afterwards?: (result) => void) {
+        this.updateMessages({
+            messageIds: [this.mailViewerComponent.messageId],
+            updateLocal: (msgIds: number[]) => {
+                let folderPath;
+                this.messageListService.folderListSubject.pipe(take(1))
+                    .subscribe((folders) => {
+                        folderPath = folders.find(fld => fld.folderId === folder).folderPath;
+                    });
+                console.log('Moving to folder', folderPath, this.mailViewerComponent.messageId);
+                this.searchService.moveMessagesToFolder(msgIds, folderPath);
+                this.messageListService.moveMessages(msgIds, folderPath);
+                if (closeAfterMove) {
+                    this.mailViewerComponent.close();
+                }
+            },
+            updateRemote: (msgIds: number[]) => {
+                const userFolders = this.messageListService.folderListSubject.value;
+                const currentFolderId = userFolders.find(fld => fld.folderPath === this.messageListService.currentFolder).folderId;
+                return this.messageListService.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
+            },
+            afterwards,
+        });
+    }
+
     public moveToFolder() {
         const dialogRef = this.dialog.open(MoveMessageDialogComponent);
 
         dialogRef.afterClosed().subscribe(folder => {
             if (folder) {
-                this.updateMessages({
-                    messageIds: [this.mailViewerComponent.messageId],
-                    updateLocal: (msgIds: number[]) => {
-                        let folderPath;
-                        this.messageListService.folderListSubject.pipe(take(1))
-                            .subscribe((folders) => {
-                                folderPath = folders.find(fld => fld.folderId === folder).folderPath;
-                            });
-                        console.log('Moving to folder', folderPath, this.mailViewerComponent.messageId);
-                        this.searchService.moveMessagesToFolder(msgIds, folderPath);
-                        this.messageListService.moveMessages(msgIds, folderPath);
-                        this.mailViewerComponent.close();
-                    },
-                    updateRemote: (msgIds: number[]) => {
-                        const userFolders = this.messageListService.folderListSubject.value;
-                        const currentFolderId = userFolders.find(fld => fld.folderPath === this.messageListService.currentFolder).folderId;
-                        return this.messageListService.rmmapi.moveToFolder(msgIds, folder, currentFolderId);
-                    }
-                });
+                this.moveCurrentMessageToFolder(folder, true);
             }
         });
     }
@@ -113,6 +120,16 @@ export class RMM7MessageActions implements MessageActions {
         useHTML
       ));
       this.mailViewerComponent.close('goToDraftDesk');
+    }
+
+    public replyAndMove(useHTML: boolean) {
+        const dialogRef = this.dialog.open(MoveMessageDialogComponent);
+
+        dialogRef.afterClosed().subscribe(folder => {
+            if (folder) {
+                this.moveCurrentMessageToFolder(folder, false, () => this.reply(useHTML));
+            }
+        });
     }
 
     public replyToAll(useHTML: boolean) {

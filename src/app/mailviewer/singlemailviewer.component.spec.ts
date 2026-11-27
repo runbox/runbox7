@@ -192,6 +192,9 @@ describe('SingleMailViewerComponent', () => {
       reply(useHTML?: boolean) {
         throw new Error('Method not implemented.');
       }
+      replyAndMove(useHTML?: boolean) {
+        throw new Error('Method not implemented.');
+      }
       replyToAll(useHTML?: boolean) {
         throw new Error('Method not implemented.');
       }
