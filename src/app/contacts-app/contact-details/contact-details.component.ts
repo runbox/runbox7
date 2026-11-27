@@ -373,6 +373,22 @@ export class ContactDetailsComponent {
         this.loadGroupMembers();
     }
 
+    async composeGroupRecipients(recipientField: 'to' | 'cc' | 'bcc'): Promise<void> {
+        const members = await Promise.all(this.loadedGroupMembers);
+        const recipientQuery = Contact.groupRecipientQuery(members);
+
+        if (!recipientQuery) {
+            this.snackBar.open('This group has no email addresses', 'Ok');
+            return;
+        }
+
+        this.router.navigate(['/compose'], {
+            queryParams: {
+                [recipientField]: recipientQuery
+            }
+        });
+    }
+
     onPicUploaded(uploadEvent: any) {
         const file = uploadEvent.target.files[0];
 

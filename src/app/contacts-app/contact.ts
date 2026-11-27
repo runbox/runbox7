@@ -140,6 +140,30 @@ export class Contact {
     component: ICAL.Component;
     url:       string;
 
+    static groupRecipientEmails(members: Array<Contact | GroupMember>): string[] {
+        const seenEmails = new Set<string>();
+        const emails: string[] = [];
+
+        for (const member of members) {
+            const email = member instanceof Contact ? member.primary_email() : member.email;
+            const normalizedEmail = email ? email.trim() : '';
+            const normalizedKey = normalizedEmail.toLowerCase();
+
+            if (!normalizedKey || seenEmails.has(normalizedKey)) {
+                continue;
+            }
+
+            seenEmails.add(normalizedKey);
+            emails.push(normalizedEmail);
+        }
+
+        return emails;
+    }
+
+    static groupRecipientQuery(members: Array<Contact | GroupMember>): string {
+        return Contact.groupRecipientEmails(members).join(',');
+    }
+
     private static preprocessVcf(vcf: string): string {
         // since ical.js can't parse these
         // (not until https://github.com/mozilla-comm/ical.js/pull/442/files is merged anyway)

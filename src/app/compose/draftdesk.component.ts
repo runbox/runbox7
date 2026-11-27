@@ -51,9 +51,18 @@ export class DraftDeskComponent implements OnInit {
     ngOnInit() {
         this.route.queryParams
             .subscribe(params => {
-                if (params['to']) {
+                if (params['to'] || params['cc'] || params['bcc']) {
                     this.draftDeskservice.newDraft(
-                        DraftFormModel.create(-1, this.draftDeskservice.fromsSubject.value[0], params['to'], '')
+                        DraftFormModel.createWithRecipients(
+                            -1,
+                            this.draftDeskservice.fromsSubject.value[0],
+                            {
+                                to: params['to'],
+                                cc: params['cc'],
+                                bcc: params['bcc'],
+                            },
+                            ''
+                        )
                     ).then(() => this.updateDraftsInView());
                 } else if (params['new']) {
                     // Can't create a new draft until froms has been loaded
