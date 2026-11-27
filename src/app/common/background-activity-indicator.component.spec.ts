@@ -89,4 +89,14 @@ describe('BackgroundActivityIndicatorComponent', () => {
         await new Promise(r => setTimeout(r, 0));
         expect(comp.shownActivities.length).toBe(0);
     });
+
+    it('should display a unit label for multipart activities when provided', async () => {
+        service.begin(TestActivity.Activity1, 3, 'items');
+        await new Promise(r => setTimeout(r, 0));
+        expect(comp.shownActivities[0]).toBe('processing (1/3 items)');
+
+        service.end(TestActivity.Activity1);
+        await new Promise(r => setTimeout(r, 0));
+        expect(comp.shownActivities[0]).toBe('processing (2/3 items)');
+    });
 });
