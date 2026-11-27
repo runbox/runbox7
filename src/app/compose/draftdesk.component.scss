@@ -2,9 +2,12 @@
     padding: 15px;
 
     .appPageHeader {
-	position: absolute;
-	top: 8px;
-	left: 70px;
+        position: absolute;
+        top: 8px;
+        left: 70px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 }
 

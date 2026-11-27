@@ -448,7 +448,8 @@ describe('DraftDeskService', () => {
                 headers: { subject: 'Test Subject' },
                 text: { text: 'Test body', html: '<p>Test body</p>' }
             })),
-            copyAttachmentToDraft: jasmine.createSpy('copyAttachmentToDraft').and.returnValue(of({ filename: 'attachment.txt' }))
+            copyAttachmentToDraft: jasmine.createSpy('copyAttachmentToDraft').and.returnValue(of({ filename: 'attachment.txt' })),
+            deleteMessages: jasmine.createSpy('deleteMessages').and.returnValue(of({ status: 'success' }))
         };
 
         draftDeskService = new DraftDeskService(
@@ -519,6 +520,53 @@ describe('DraftDeskService', () => {
             const draftsAfter = draftDeskService.draftModels.value;
             expect(draftsAfter.length).toBe(initialCount - 1);
             expect(draftsAfter.find((d: DraftFormModel) => d.mid === 12345)).toBeUndefined();
+        });
+    });
+
+    describe('deleteDrafts', () => {
+        it('should batch-delete saved drafts and remove them locally', (done) => {
+            const firstDraft = DraftFormModel.create(
+                12345,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'First Draft'
+            );
+            const secondDraft = DraftFormModel.create(
+                23456,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'Second Draft'
+            );
+            const unsavedDraft = DraftFormModel.create(
+                -1,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'Unsaved Draft'
+            );
+            draftDeskService.draftModels.next([firstDraft, secondDraft, unsavedDraft]);
+
+            draftDeskService.deleteDrafts([firstDraft.mid, secondDraft.mid, unsavedDraft.mid]).subscribe(() => {
+                expect(mockRmmapi.deleteMessages).toHaveBeenCalledOnceWith([firstDraft.mid, secondDraft.mid]);
+                expect(draftDeskService.draftModels.value).toEqual([unsavedDraft]);
+                done();
+            });
+        });
+
+        it('should not call the backend when there are no saved drafts', (done) => {
+            const unsavedDraft = DraftFormModel.create(
+                -1,
+                mockProfileService.composeProfile,
+                'to@runbox.com',
+                'Unsaved Draft'
+            );
+            draftDeskService.draftModels.next([unsavedDraft]);
+            mockRmmapi.deleteMessages.calls.reset();
+
+            draftDeskService.deleteDrafts([unsavedDraft.mid]).subscribe(() => {
+                expect(mockRmmapi.deleteMessages).not.toHaveBeenCalled();
+                expect(draftDeskService.draftModels.value).toEqual([unsavedDraft]);
+                done();
+            });
         });
     });
 
