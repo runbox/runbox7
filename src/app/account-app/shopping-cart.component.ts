@@ -63,6 +63,7 @@ export class ShoppingCartComponent implements OnInit {
     domregHash: string;
 
     orderError: CartError;
+    paymentError: string;
     // needed so that templates can refer to enum values through `errors.ERROR_CODE`
     errors = CartError;
 
@@ -240,41 +241,53 @@ export class ShoppingCartComponent implements OnInit {
         this.cart.add(new ProductOrder(p.pid, p.type, new Decimal(1)));
     }
 
+    async startPayment(method: string) {
+        this.paymentError = undefined;
+
+        try {
+            await this.initiatePayment(method);
+        } catch (e) {
+            console.error(`Failed to initiate ${method} payment`, e);
+            this.paymentError = 'Could not start the payment. Try again later, or contact Runbox Support.';
+        }
+    }
+
     async initiatePayment(method: string) {
         const items = this.items.map(i => {
             return { pid: i.pid, apid: i.apid, quantity: i.quantity };
         });
         const currency = this.items[0].product.currency;
-        this.rmmapi.orderProducts(items, method, currency, this.domregHash).subscribe(tx => {
-            let dialogRef: MatDialogRef<any>;
-            if (method === 'stripe') {
-                dialogRef = this.dialog.open(StripePaymentDialogComponent, {
-                    'height': '90%',
-                    data: { tx }
-                });
-            } else if (method === 'coinbase') {
-                dialogRef = this.dialog.open(BitpayPaymentDialogComponent, {
-                    data: { tx }
-                });
-            } else if (method === 'paypal') {
-                dialogRef = this.dialog.open(PaypalPaymentDialogComponent, {
-                    'height': '300px',
-                    'width': '500px',
-                    data: { tx }
-                });
-            } else if (method === 'giro') {
-                this.router.navigateByUrl('/account/receipt/' + tx.tid);
-                if (!this.fromUrl) {
-                    this.cart.clear();
-                }
-                return;
-            }
 
-            dialogRef.afterClosed().subscribe(paid => {
-                if (paid && !this.fromUrl) {
-                    this.cart.clear();
-                }
+        const tx = await firstValueFrom(this.rmmapi.orderProducts(items, method, currency, this.domregHash));
+
+        let dialogRef: MatDialogRef<any>;
+        if (method === 'stripe') {
+            dialogRef = this.dialog.open(StripePaymentDialogComponent, {
+                'height': '90%',
+                data: { tx }
             });
+        } else if (method === 'coinbase') {
+            dialogRef = this.dialog.open(BitpayPaymentDialogComponent, {
+                data: { tx }
+            });
+        } else if (method === 'paypal') {
+            dialogRef = this.dialog.open(PaypalPaymentDialogComponent, {
+                'height': '300px',
+                'width': '500px',
+                data: { tx }
+            });
+        } else if (method === 'giro') {
+            await this.router.navigateByUrl('/account/receipt/' + tx.tid);
+            if (!this.fromUrl) {
+                this.cart.clear();
+            }
+            return;
+        }
+
+        dialogRef.afterClosed().subscribe(paid => {
+            if (paid && !this.fromUrl) {
+                this.cart.clear();
+            }
         });
     }
 }
