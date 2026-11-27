@@ -14,8 +14,14 @@
                 <mat-grid-tile colspan="4" rowspan="2">
                     <span class="float-left">{{item.email}}</span>
                 </mat-grid-tile>
-                <mat-grid-tile colspan="1" rowspan="8" *ngIf="!mobile">
+                <mat-grid-tile colspan="1" rowspan="10" *ngIf="!mobile">
                     <button mat-raised-button (click)="edit(item)" color="primary">Edit</button>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="2" rowspan="2">
+                    <span class="float-right">Description:</span>
+                </mat-grid-tile>
+                <mat-grid-tile colspan="4" rowspan="2">
+                    <span class="float-left">{{item.name}}</span>
                 </mat-grid-tile>
                 <mat-grid-tile colspan="2" rowspan="2">
                     <span class="float-right">From Name:</span>
