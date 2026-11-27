@@ -51,6 +51,10 @@ export class SearchMessageDisplay extends MessageDisplay {
     return msgId;
   }
 
+  getRowFolder(index: number): string {
+    return this.searchService.getDocData(this.getRowId(index)).folder;
+  }
+
   filterBy(options: Map<string, any>) {
   }
 

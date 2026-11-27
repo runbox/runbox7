@@ -44,6 +44,9 @@ export class MessageList extends MessageDisplay {
     return msg.id;
   }
 
+  getRowFolder(index: number): string {
+    return this.getRow(index).folder;
+  }
 
   // columns
   getFromColumnValueForRow(rowIndex: number): string {
