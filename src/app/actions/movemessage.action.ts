@@ -56,9 +56,7 @@ export class MoveMessageDialogComponent implements OnInit {
         this.rmmapi.getFolderList()
             .subscribe((folderListEntries) => this.folderListEntries = folderListEntries
                 .filter(fce =>
-                    fce.folderType !== 'drafts' &&
-                    fce.folderType !== 'sent' &&
-                    fce.folderType !== 'templates'
+                    fce.folderType !== 'drafts'
                 ));
     }
 
