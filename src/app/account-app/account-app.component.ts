@@ -21,6 +21,7 @@ import { Component } from '@angular/core';
 import { CartService } from './cart.service';
 import { MobileQueryService } from '../mobile-query.service';
 import { RunboxMe, RunboxWebmailAPI } from '../rmmapi/rbwebmail';
+import { RunboxSidenavService } from '../runbox-components/runbox-sidenav.service';
 
 @Component({
     selector: 'app-account-app-component',
@@ -34,6 +35,7 @@ export class AccountAppComponent {
     constructor(
         public  cart:        CartService,
         public  mobileQuery: MobileQueryService,
+        public  sidenavService: RunboxSidenavService,
                 rmmapi:      RunboxWebmailAPI,
     ) {
         rmmapi.me.subscribe((me: RunboxMe) => {
