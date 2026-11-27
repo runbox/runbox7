@@ -59,6 +59,49 @@ export class RenameFolderEvent {
     name: string;
 }
 
+export function newFolderOrder(
+    folders: FolderListEntry[], parentFolderId: number, folderName: string
+): number[] {
+    const order = folders.map(folder => folder.folderId);
+    const parentIndex = folders.findIndex(folder => folder.folderId === parentFolderId);
+    const parentLevel = parentIndex === -1 ? -1 : folders[parentIndex].folderLevel;
+    let insertIndex = parentIndex === -1 ? 0 : parentIndex + 1;
+
+    for (let index = parentIndex + 1; index < folders.length; index++) {
+        const folder = folders[index];
+        if (folder.folderLevel <= parentLevel) {
+            break;
+        }
+        if (folder.folderLevel === parentLevel + 1) {
+            if (folderName.localeCompare(folder.folderName, undefined, {
+                numeric: true,
+                sensitivity: 'base'
+            }) < 0) {
+                insertIndex = index;
+                break;
+            }
+        }
+        if (insertIndex > parentIndex) {
+            insertIndex = index + 1;
+        }
+    }
+
+    if (parentIndex === -1) {
+        insertIndex = folders.findIndex(folder => folder.folderLevel === 0 &&
+            folder.folderType === 'user' &&
+            folderName.localeCompare(folder.folderName, undefined, {
+                numeric: true,
+                sensitivity: 'base'
+            }) < 0);
+        if (insertIndex === -1) {
+            insertIndex = folders.length;
+        }
+    }
+
+    order.splice(insertIndex, 0, -1);
+    return order;
+}
+
 @Component({
     templateUrl: 'folderlist.component.html',
     // eslint-disable-next-line @angular-eslint/component-selector
@@ -289,13 +332,10 @@ export class FolderListComponent implements OnChanges {
                 // order needs to be: this.folders, with newFolder inserted
                 // after its parent .. put a "-1" there
                 this.folders.pipe(take(1)).subscribe((folders) => {
-                    const order = folders.map(folder => folder.folderId);
-                    const parentInd = order.findIndex((ind) => parentFolderId);
-                    order.splice(parentInd > -1 ? parentInd : 0, 0, -1);
                     this.createFolder.emit({
                         parentId: parentFolderId,
                         name:     newFolderName,
-                        order:    order,
+                        order:    newFolderOrder(folders, parentFolderId, newFolderName),
                     });
                 });
             });
@@ -316,13 +356,10 @@ export class FolderListComponent implements OnChanges {
             filter(res => res && res.length > 0),
         ).subscribe(newFolderName => {
             this.folders.pipe(take(1)).subscribe((folders) => {
-                const order = folders.map(f => f.folderId);
-                const parentInd = order.findIndex((ind) => folder.folderId);
-                order.splice(parentInd > -1 ? parentInd : 0, 0, -1);
                 this.createFolder.emit({
                     parentId: folder.folderId,
                     name:     newFolderName,
-                    order:    order,
+                    order:    newFolderOrder(folders, folder.folderId, newFolderName),
                 });
             });
         });

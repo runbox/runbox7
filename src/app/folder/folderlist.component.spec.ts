@@ -17,7 +17,9 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent } from './folderlist.component';
+import {
+    FolderListComponent, DropPosition, CreateFolderEvent, MoveFolderEvent, newFolderOrder
+} from './folderlist.component';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { FolderListEntry } from '../common/folderlistentry';
 import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
@@ -56,6 +58,31 @@ describe('FolderListComponent', () => {
         });
         dialog = TestBed.inject(MatDialog);
         hotkeyMock = { add: _ => null } as HotkeysService;
+    });
+
+    it('orders a new folder before a later alphanumeric sibling', () => {
+        const folders = [
+            new FolderListEntry(1, 0, 0, 'user', 'Parent', 'Parent', 0),
+            new FolderListEntry(2, 0, 0, 'user', 'B folder', 'Parent.B folder', 1)
+        ];
+
+        expect(newFolderOrder(folders, 1, 'A folder')).toEqual([1, -1, 2]);
+        expect(newFolderOrder(folders, 1, 'C folder')).toEqual([1, 2, -1]);
+    });
+
+    it('orders a new subfolder alphabetically after reverse creation order', () => {
+        const comp = new FolderListComponent(dialog, hotkeyMock);
+        const folders = [
+            new FolderListEntry(1, 0, 0, 'user', 'Parent', 'Parent', 0),
+            new FolderListEntry(2, 0, 0, 'user', 'B folder', 'Parent.B folder', 1)
+        ];
+        comp.folders = new BehaviorSubject(folders);
+        let createEvent: CreateFolderEvent;
+        comp.createFolder.subscribe(event => createEvent = event);
+
+        comp.addSubFolderDialog(folders[0]);
+
+        expect(createEvent.order).toEqual([1, -1, 2]);
     });
 
     it('folderReorderingDrop', async () => {
