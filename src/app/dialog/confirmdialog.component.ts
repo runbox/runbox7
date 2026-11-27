@@ -32,6 +32,7 @@ import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dia
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ConfirmDialog {
     yesOptionTitle = 'ok';
+    yesOptionHref: string = null;
     noOptionTitle = 'cancel';
     title = 'Please confirm action';
     question = 'Are you sure?';

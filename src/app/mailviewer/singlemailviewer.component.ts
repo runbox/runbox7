@@ -47,6 +47,7 @@ import { loadLocalMailParser } from './mailparser';
 import { RunboxContactSupportSnackBar } from '../common/contact-support-snackbar.service';
 import { ContactsService } from '../contacts-app/contacts.service';
 import { Contact, ContactKind } from '../contacts-app/contact';
+import { ConfirmDialog } from '../dialog/dialog.module';
 import { ShowHTMLDialogComponent } from '../dialog/htmlconfirm.dialog';
 import { MessageTableRowTool} from '../messagetable/messagetablerow';
 import { PreferencesService } from '../common/preferences.service';
@@ -72,6 +73,7 @@ type Mail = any;
 })
 export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit {
   private lastMailtoInterceptorNode: HTMLElement | null = null;
+  private lastIframeInterceptorDocument: Document | null = null;
 
 
   _messageId = null; // Message id or filename
@@ -183,8 +185,8 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   }
 
   /**
-   * Intercepts clicks on mailto: links in the message content area,
-   * opens compose view instead of default browser email client.
+   * Intercepts clicks on message links to route mailto: links internally and
+   * warn before opening links where the visible URL differs from the href.
    */
   private initMailtoInterceptor() {
     // Remove old listener if any
@@ -196,28 +198,127 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
 
     // Use a bound handler to guarantee removal works
     this._mailtoInterceptorListener = (event: MouseEvent) => {
-      let target = event.target as HTMLElement;
-      while (target && target.tagName !== 'A' && target !== messageContents) {
-        target = target.parentElement;
-      }
-      if (
-        target &&
-        target.tagName === 'A' &&
-        target.getAttribute('href')?.toLowerCase().startsWith('mailto:')
-      ) {
-        event.preventDefault();
-        const href = target.getAttribute('href');
-        if (href) {
-          const matches = /^mailto:([^?]+)/i.exec(href);
-          const emailTo = matches ? matches[1] : '';
-          this.goToDraftDeskWithTo(emailTo);
-        }
-      }
+      this.handleMessageLinkClick(event, messageContents);
     };
     messageContents.addEventListener('click', this._mailtoInterceptorListener, true);
     this.lastMailtoInterceptorNode = messageContents;
   }
-  private _mailtoInterceptorListener: any;
+  private _mailtoInterceptorListener: ((event: MouseEvent) => void) | null = null;
+  private _iframeLinkInterceptorListener: ((event: MouseEvent) => void) | null = null;
+
+  private initIframeLinkInterceptor() {
+    if (this.lastIframeInterceptorDocument && this._iframeLinkInterceptorListener) {
+      this.lastIframeInterceptorDocument.removeEventListener('click', this._iframeLinkInterceptorListener, true);
+    }
+
+    const iframeDocument = this.htmliframe?.nativeElement?.contentWindow?.document;
+    if (!iframeDocument) return;
+
+    this._iframeLinkInterceptorListener = (event: MouseEvent) => {
+      this.handleMessageLinkClick(event, iframeDocument);
+    };
+    iframeDocument.addEventListener('click', this._iframeLinkInterceptorListener, true);
+    this.lastIframeInterceptorDocument = iframeDocument;
+  }
+
+  private handleMessageLinkClick(event: MouseEvent, boundary: HTMLElement | Document) {
+    const target = this.findClickedAnchor(event.target, boundary);
+    const href = target?.getAttribute('href');
+    if (!target || !href) return;
+
+    if (href.toLowerCase().startsWith('mailto:')) {
+      event.preventDefault();
+      const matches = /^mailto:([^?]+)/i.exec(href);
+      const emailTo = matches ? matches[1] : '';
+      this.goToDraftDeskWithTo(emailTo);
+      return;
+    }
+
+    const linkMismatch = this.getDisplayedUrlMismatch(target);
+    if (linkMismatch) {
+      event.preventDefault();
+      this.warnBeforeOpeningMismatchedLink(linkMismatch);
+    }
+  }
+
+  private findClickedAnchor(eventTarget: EventTarget | null, boundary: HTMLElement | Document): HTMLAnchorElement | null {
+    let target = eventTarget as Node;
+    if (target && target.nodeType === 3) {
+      target = target.parentElement;
+    }
+
+    while (target && target !== boundary) {
+      const element = target as HTMLElement;
+      if (element.tagName === 'A') {
+        return element as HTMLAnchorElement;
+      }
+      target = element.parentElement;
+    }
+
+    return null;
+  }
+
+  private getDisplayedUrlMismatch(anchor: HTMLAnchorElement): { visibleUrl: string; href: string } | null {
+    const href = anchor.getAttribute('href');
+    if (!href) return null;
+
+    const actualUrl = this.parseAbsoluteNavigableUrl(href);
+    const visibleUrlText = this.extractDisplayedUrl(anchor.textContent || '');
+    if (!actualUrl || !visibleUrlText) return null;
+
+    const visibleUrl = this.parseDisplayedUrl(visibleUrlText, actualUrl.protocol);
+    if (!visibleUrl || visibleUrl.href === actualUrl.href) return null;
+
+    return {
+      visibleUrl: visibleUrl.href,
+      href: actualUrl.href
+    };
+  }
+
+  private extractDisplayedUrl(text: string): string | null {
+    const normalizedText = text.replace(/\s+/g, ' ').trim();
+    const match = /(?:https?:\/\/|ftp:\/\/|www\.)[^\s<>"']+/i.exec(normalizedText);
+    return match ? this.trimUrlPunctuation(match[0]) : null;
+  }
+
+  private trimUrlPunctuation(urlText: string): string {
+    return urlText
+      .replace(/^[([{'"<]+/, '')
+      .replace(/[)\].,;:!?'"<>]+$/, '');
+  }
+
+  private parseDisplayedUrl(urlText: string, defaultProtocol: string): URL | null {
+    const normalizedUrlText = /^www\./i.test(urlText)
+      ? `${defaultProtocol}//${urlText}`
+      : urlText;
+
+    return this.parseAbsoluteNavigableUrl(normalizedUrlText);
+  }
+
+  private parseAbsoluteNavigableUrl(urlText: string): URL | null {
+    const normalizedUrlText = urlText.startsWith('//')
+      ? `${window.location.protocol}${urlText}`
+      : urlText;
+
+    if (!/^(https?:\/\/|ftp:\/\/)/i.test(normalizedUrlText)) return null;
+
+    try {
+      const url = new URL(normalizedUrlText);
+      return ['http:', 'https:', 'ftp:'].includes(url.protocol) ? url : null;
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  private warnBeforeOpeningMismatchedLink(linkMismatch: { visibleUrl: string; href: string }) {
+    const confirmDialog = this.dialog.open(ConfirmDialog);
+    confirmDialog.componentInstance.title = 'Check link before opening';
+    confirmDialog.componentInstance.question =
+      `The link text shows ${linkMismatch.visibleUrl}, but it opens ${linkMismatch.href}. Open it anyway?`;
+    confirmDialog.componentInstance.noOptionTitle = 'cancel';
+    confirmDialog.componentInstance.yesOptionTitle = 'open link';
+    confirmDialog.componentInstance.yesOptionHref = linkMismatch.href;
+  }
 
 
   /**
@@ -685,6 +786,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
       const iframe = document.getElementById('iframe');
       const newHeight = this.htmliframe.nativeElement.contentWindow.document.body.scrollHeight;
       iframe.style.cssText = `height: ${newHeight + 70}px !important`;
+      this.initIframeLinkInterceptor();
     }
   }
 
