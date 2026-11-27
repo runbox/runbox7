@@ -410,6 +410,78 @@ Subject: Test subject <br />
         expect(draft.isUnsaved()).toBe(false);
         done();
     });
+
+    it('Create: applies identity default bcc only to new drafts', (done) => {
+        let draft = DraftFormModel.create(
+            -1,
+            Identity.fromObject({'email': 'sender@runbox.com', 'default_bcc': 'archive@runbox.com'}),
+            'recipient@runbox.com',
+            'Test subject');
+
+        expect(draft.bcc.length).toBe(1);
+        expect(draft.bcc[0].address).toBe('archive@runbox.com');
+
+        draft = DraftFormModel.create(
+            12345,
+            Identity.fromObject({'email': 'sender@runbox.com', 'default_bcc': 'archive@runbox.com'}),
+            'recipient@runbox.com',
+            'Saved subject');
+
+        expect(draft.bcc).toEqual([]);
+        done();
+    });
+
+    it('Reply: applies identity default bcc from the selected From identity', (done) => {
+        const replydraft = DraftFormModel.reply({
+            headers: {
+                'message-id': 'reply-default-bcc',
+            },
+            from: [
+                {address: 'sender@runbox.com', name: 'Sender'}
+            ],
+            to: [
+                {address: 'identity@runbox.com', name: 'Identity'}
+            ],
+            date: mailDate,
+            subject: 'Test subject',
+            rawtext: 'blabla',
+            sanitized_html: '<p>blabla</p>',
+        },
+        [ Identity.fromObject({'email': 'identity@runbox.com', 'default_bcc': 'archive@runbox.com'})],
+        false,
+        false);
+
+        expect(replydraft.from).toBe('identity@runbox.com');
+        expect(replydraft.bcc.length).toBe(1);
+        expect(replydraft.bcc[0].address).toBe('archive@runbox.com');
+        done();
+    });
+
+    it('Forward: applies identity default bcc from the selected From identity', (done) => {
+        const draft = DraftFormModel.forward({
+            headers: {
+                'message-id': 'forward-default-bcc',
+            },
+            from: [
+                {address: 'sender@runbox.com', name: 'Sender'}
+            ],
+            to: [
+                {address: 'identity@runbox.com', name: 'Identity'}
+            ],
+            attachments: [],
+            date: mailDate,
+            subject: 'Test subject',
+            rawtext: 'blabla',
+            sanitized_html: '<p>blabla</p>',
+        },
+        [ Identity.fromObject({'email': 'identity@runbox.com', 'default_bcc': 'archive@runbox.com'})],
+        false);
+
+        expect(draft.from).toBe('identity@runbox.com');
+        expect(draft.bcc.length).toBe(1);
+        expect(draft.bcc[0].address).toBe('archive@runbox.com');
+        done();
+    });
 });
 
 describe('DraftDeskService', () => {
