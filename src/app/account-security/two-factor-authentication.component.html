@@ -114,8 +114,10 @@
                     <p>
                         <span><strong>Label:</strong></span>
                         <mat-form-field>
-                            <input matInput name="totp_label" [value]="rmm.account_security.tfa.totp_label"
-                                disabled="" readonly >
+                            <input matInput name="totp_label" placeholder="Label"
+                                [(ngModel)]="rmm.account_security.tfa.totp_label"
+                                (ngModelChange)="totp_label_change()"
+                                [disabled]="!rmm.account_security.tfa.new_totp_code">
                         </mat-form-field>
                     </p>
                 </div>

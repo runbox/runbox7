@@ -69,6 +69,10 @@ export class TwoFactorAuthenticationComponent implements OnInit {
         this.rmm.account_security.tfa.totp_regenerate({});
     }
 
+    totp_label_change() {
+        this.rmm.account_security.tfa.update_totp_qr_code();
+    }
+
     otp_generate() {
         this.is_busy_otp_update = true;
         if (!this.rmm.account_security.user_password) {
