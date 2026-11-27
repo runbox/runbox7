@@ -138,6 +138,8 @@ Also check out the tips & tricks page at [Tips & Tricks](https://github.com/runb
 
 Depending on what type of development you wish to do, you may want to set up a Runbox trial account to avoid affecting data stored in your own Runbox account.
 
+Compose edits are saved as drafts after a short delay. After a successful send, an edit still queued for autosave must not create another draft. The regression specs in `src/app/compose/compose.component.spec.ts` cover new and existing drafts and check that the post-send guard does not block saving after a transport error.
+
 We warmly welcome bug reports, feature requests, and contributions via pull requests.
 
 ## Contributing
