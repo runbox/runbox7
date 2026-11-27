@@ -21,6 +21,8 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { RMM } from '../rmm';
 import { share, timeout } from 'rxjs/operators';
 
+const PASSWORD_SPECIAL_CHARACTER = /[^A-Za-z0-9]/;
+
 @Component({
     selector: 'app-account-password',
     styleUrls: ['account.security.component.scss'],
@@ -73,8 +75,8 @@ export class AccountPasswordComponent {
                 return;
             }
 
-            if (!/[#?!@$%^&*-]/i.test(new_password)) {
-                this.error = 'Your new password must contain at least 1 special character. Allowed special characters include: # ? ! @ $ % ^ & *';
+            if (!PASSWORD_SPECIAL_CHARACTER.test(new_password)) {
+                this.error = 'Your new password must contain at least 1 special character';
                 return;
             }
 
