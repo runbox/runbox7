@@ -57,6 +57,7 @@ const getCSSClassProperty = (className, propertyName) => {
 
 export interface CanvasTableSelectListener {
   rowSelected(rowIndex: number, colIndex: number, multiSelect?: boolean): void;
+  rowDoubleClicked?(rowIndex: number, colIndex: number): void;
   saveColumnWidthsPreference(widths);
 }
 
@@ -541,6 +542,16 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
       this.dragSelectionDirectionIsDown = null;
     };
 
+    this.canv.ondblclick = (event: MouseEvent) => {
+      event.preventDefault();
+
+      if (this.visibleColumnSeparatorIndex > 0 || this.scrollbarArea || this.scrollbarDragInProgress) {
+        return;
+      }
+
+      this.doubleClickRow(event.clientX, event.clientY);
+    };
+
 
     this.renderer.listen('window', 'resize', () => true);
 
@@ -771,6 +782,27 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
     this.selectListener.rowSelected(selectedRowIndex,
       this.getColIndexByClientX(clientX),
       multiSelect);
+
+    this.hasChanges = true;
+  }
+
+  public doubleClickRow(clientX: number, clientY: number) {
+    const selectedRowIndex = this.getRowIndexByClientY(clientY);
+    this.doubleClickRowByIndex(clientX, selectedRowIndex);
+  }
+
+  public doubleClickRowByIndex(clientX: number, selectedRowIndex: number) {
+    if (!this.rows?.rowExists(selectedRowIndex) || !this.selectListener?.rowDoubleClicked) {
+      return;
+    }
+
+    const canvrect = this.canv.getBoundingClientRect();
+    clientX -= canvrect.left;
+
+    this.selectListener.rowDoubleClicked(
+      selectedRowIndex,
+      this.getColIndexByClientX(clientX)
+    );
 
     this.hasChanges = true;
   }
