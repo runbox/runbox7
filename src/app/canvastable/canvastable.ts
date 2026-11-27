@@ -465,12 +465,14 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         const colIndex = this.getColIndexByClientX(clientX);
         let colStartX = this.columns.reduce((prev, curr, ndx) => ndx < colIndex ? prev + curr.width : prev, 0);
 
-        let tooltipText: string | ((rowIndex: any) => string) =
-              this.columns[colIndex] && this.columns[colIndex].tooltipText;
+        const columnTooltipText = this.columns[colIndex] && this.columns[colIndex].tooltipText;
+        let tooltipText: string = null;
 
         // FIXME: message display class
-        if (typeof tooltipText === 'function' && this.rows.rowExists(this.hoverRowIndex)) {
-          tooltipText = tooltipText(this.hoverRowIndex);
+        if (typeof columnTooltipText === 'function') {
+          tooltipText = this.rows.rowExists(this.hoverRowIndex) ? columnTooltipText(this.hoverRowIndex) : null;
+        } else {
+          tooltipText = columnTooltipText;
         }
 
         if (!event.shiftKey && !this.lastMouseDownEvent &&
