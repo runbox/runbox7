@@ -404,6 +404,25 @@ export class ContactDetailsComponent {
         this.loadContactPhoto(this.contact.photo = undefined);
     }
 
+    downloadContactVcard(): void {
+        const vcardUrl = URL.createObjectURL(new Blob([this.contact.vcard()], { type: 'text/vcard;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = vcardUrl;
+        link.download = this.contactExportFilename();
+        link.click();
+        URL.revokeObjectURL(vcardUrl);
+    }
+
+    private contactExportFilename(): string {
+        const name = (this.contact.display_name() || this.contact.id || 'contact')
+            .trim()
+            .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+            .replace(/\s+/g, ' ')
+            .replace(/[. ]+$/g, '');
+
+        return `${name || 'contact'}.vcf`;
+    }
+
     showUploadDialog() {
         this.picUploadInput.nativeElement.click();
     }
