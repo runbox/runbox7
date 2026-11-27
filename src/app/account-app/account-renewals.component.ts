@@ -24,6 +24,8 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 
 import { CartService } from './cart.service';
 import { MobileQueryService } from '../mobile-query.service';
+import { PaymentsService } from './payments.service';
+import { Product } from './product';
 import { ProductOrder } from './product-order';
 import { RunboxWebmailAPI } from '../rmmapi/rbwebmail';
 import { SubAccountRenewalDialogComponent } from './sub-account-renewal-dialog';
@@ -31,6 +33,7 @@ import { DataUsageInterface } from '../rmm/account-storage';
 import { AsyncSubject } from 'rxjs';
 import { RMM } from '../rmm';
 
+import { Decimal } from 'decimal.js-light';
 import moment from 'moment';
 
 const columnsDefault = ['renewal_name', 'quantity', 'price', 'active_from', 'active_until', 'hints', 'recur', 'renew'];
@@ -39,6 +42,53 @@ const columnsMobile = ['renewal_name'];
 // TODO define it as an interface
 type ActiveProduct = any;
 
+function getSubaccountDiskQuota(product: ActiveProduct | Product): number | undefined {
+    return product?.sub_product_quota?.Disk?.quota;
+}
+
+function getProductPrice(product: ActiveProduct | Product): Decimal | undefined {
+    if (product?.price === undefined || product.price === null) {
+        return undefined;
+    }
+    return new Decimal(product.price);
+}
+
+export function findThreeYearSubaccountProduct(activeProduct: ActiveProduct, products: Product[]): Product | undefined {
+    if (activeProduct?.subtype !== 'subaccount') {
+        return undefined;
+    }
+
+    const currentProduct = products.find(product => product.pid === activeProduct.pid) || activeProduct;
+    const activeDiskQuota = getSubaccountDiskQuota(currentProduct);
+    const activePrice = getProductPrice(currentProduct);
+    if (activeDiskQuota === undefined || activePrice === undefined) {
+        return undefined;
+    }
+
+    const minimumThreeYearPrice = activePrice.times(2);
+    const maximumThreeYearPrice = activePrice.times(3.1);
+
+    return products
+        .filter(product => product.subtype === 'subaccount')
+        .filter(product => product.type === activeProduct.type)
+        .filter(product => product.pid !== activeProduct.pid)
+        .filter(product => getSubaccountDiskQuota(product) === activeDiskQuota)
+        .filter(product => {
+            const productPrice = getProductPrice(product);
+            return productPrice
+                && productPrice.greaterThanOrEqualTo(minimumThreeYearPrice)
+                && productPrice.lessThanOrEqualTo(maximumThreeYearPrice);
+        })
+        .sort((a, b) => {
+            const priceA = getProductPrice(a);
+            const priceB = getProductPrice(b);
+            if (priceA === undefined || priceB === undefined) {
+                return 0;
+            }
+            return priceB.comparedTo(priceA);
+        })[0];
+}
+
 @Component({
     selector: 'app-account-renewals-component',
     templateUrl: './account-renewals.component.html',
@@ -46,6 +96,7 @@ type ActiveProduct = any;
 export class AccountRenewalsComponent {
     active_products: ActiveProduct[] = [];
     all_products: ActiveProduct[] = [];
+    available_products: Product[] = [];
     current_subscription: number;
 
     loadedProducts = false;
@@ -64,9 +115,15 @@ export class AccountRenewalsComponent {
         private router: Router,
         private snackbar: MatSnackBar,
         private rmm: RMM,
+        private paymentsservice: PaymentsService,
     ) {
         this.rmmapi.me.subscribe(me => {
             this.current_subscription = me.subscription;
+        });
+
+        this.paymentsservice.products.subscribe(products => {
+            this.available_products = products;
+            this.updateThreeYearRenewalProducts();
         });
 
         // User's current usage:
@@ -95,11 +152,10 @@ export class AccountRenewalsComponent {
             });
 
             this.sortAndFilterProducts();
+            this.updateThreeYearRenewalProducts();
             
             this.cart.items.subscribe(_ => {
-                for (const p of this.active_products) {
-                    this.cart.contains(p.pid, p.apid).then(ordered => p.ordered = ordered);
-                }
+                this.updateOrderedStates();
             });
             this.loadedProducts = true;
         });
@@ -113,9 +169,10 @@ export class AccountRenewalsComponent {
         });
     }
 
-    renew(p: ActiveProduct) {
+    renew(p: ActiveProduct, renewalProduct?: Product) {
         if (p.subtype !== 'domain') {
-            this.cart.add(new ProductOrder(p.pid, p.type, p.quantity, p.apid));
+            const product = renewalProduct || p;
+            this.cart.add(new ProductOrder(product.pid, product.type, p.quantity, p.apid));
         } else {
             this.renewDomain(p);
         }
@@ -164,6 +221,25 @@ export class AccountRenewalsComponent {
                 return 0;
             }
         });
+    }
+
+    updateThreeYearRenewalProducts() {
+        for (const p of this.all_products) {
+            p.three_year_renewal_product = findThreeYearSubaccountProduct(p, this.available_products);
+        }
+        this.updateOrderedStates();
+    }
+
+    updateOrderedStates() {
+        for (const p of this.active_products) {
+            const containsDefaultRenewal = this.cart.contains(p.pid, p.apid);
+            const containsThreeYearRenewal = p.three_year_renewal_product
+                ? this.cart.contains(p.three_year_renewal_product.pid, p.apid)
+                : Promise.resolve(false);
+            Promise.all([containsDefaultRenewal, containsThreeYearRenewal]).then(
+                ([defaultRenewalOrdered, threeYearRenewalOrdered]) => p.ordered = defaultRenewalOrdered || threeYearRenewalOrdered,
+            );
+        }
     }
 
     toggleAutorenew(p: ActiveProduct) {
@@ -218,6 +294,9 @@ Warning: You are close to your quotas for this product
     <button mat-raised-button (click)="clicked.emit()" *ngIf="!p.ordered" color="primary" id="renewButton">
         Renew  <mat-icon svgIcon="cart" color="accent"></mat-icon>
     </button>
+    <button mat-raised-button (click)="clicked.emit(threeYearProduct)" *ngIf="!p.ordered && threeYearProduct" color="accent" id="renewThreeYearButton">
+        Renew for 3 years <mat-icon svgIcon="cart"></mat-icon>
+    </button>
     <span *ngIf="p.ordered">
         Added to shopping cart
     </span>
@@ -235,7 +314,8 @@ Warning: You are close to your quotas for this product
 export class AccountRenewalsRenewNowButtonComponent implements OnInit {
     @Input() p: ActiveProduct;
     @Input() usage: DataUsageInterface;
-    @Output() clicked: EventEmitter<void> = new EventEmitter();
+    @Input() threeYearProduct?: Product;
+    @Output() clicked: EventEmitter<Product | undefined> = new EventEmitter();
 
     close_to_quota = [];
     close_percentage = 90;
