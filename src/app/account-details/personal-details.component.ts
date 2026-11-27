@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
@@ -50,8 +50,9 @@ export class PersonalDetailsComponent implements OnInit {
     details: Subject<AccountDetailsInterface> = new Subject();
     is_alternative_email_validated = false;
 
-    selectedCountry: any;
-    selectedTimezone: any;
+    selectedCountry: string;
+    selectedTimezone: string;
+    private loadedDetails: Partial<AccountDetailsInterface> = {};
 
     constructor(
         private fb: UntypedFormBuilder,
@@ -63,12 +64,14 @@ export class PersonalDetailsComponent implements OnInit {
             if (!details) return;
 
             this.detailsForm.patchValue(details);
+            this.loadedDetails = {...details};
+            this.selectedCountry = details.country;
+            this.selectedTimezone = details.timezone;
             this.is_alternative_email_validated = details.email_alternative_status === 0;
         });
 
         this.loadDetails();
         this.loadCountryList();
-        this.loadSelectFields();
         this.loadTimezones();
     }
 
@@ -110,27 +113,17 @@ export class PersonalDetailsComponent implements OnInit {
 
     loadTimezones() {
         firstValueFrom(this.http
-            .get('/rest/v1/timezones')
-            .pipe(map((res: HttpResponse<any>) => res['result'])))
+            .get<{ result: { timezones: string[] } }>('/rest/v1/timezones')
+            .pipe(map((res) => res.result)))
             .then((data) => this.timezones = data.timezones);
     }
 
     private loadDetails() {
         this.http
-            .get('/rest/v1/account/details')
-            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .get<{ result: AccountDetailsInterface }>('/rest/v1/account/details')
+            .pipe(map((res) => res.result))
             .subscribe((details) => {
                 this.details.next(details);
-            });
-    }
-
-    private loadSelectFields() {
-        firstValueFrom(this.http
-            .get('/rest/v1/account/details')
-            .pipe(map((res: HttpResponse<any>) => res['result'])))
-            .then((data) => {
-                this.selectedCountry = data.country;
-                this.selectedTimezone = data.timezone;
             });
     }
 
@@ -144,21 +137,21 @@ export class PersonalDetailsComponent implements OnInit {
         for (const name of Object.keys(this.detailsForm.controls)) {
             const ctl = this.detailsForm.get(name);
 
-            // Select fields can't be marked as 'dirty', so it
-            // needs a specified case for Countries and Timezones
-            if (ctl.dirty) {
+            if (ctl.dirty && ctl.value !== this.loadedDetails[name]) {
                 updates[name] = ctl.value;
-            } else if (name === 'timezone') {
-                updates[name] = this.selectedTimezone;
-            } else if (name === 'country') {
-                updates[name] = this.selectedCountry;
             }
+        }
+        if (this.selectedTimezone !== this.loadedDetails.timezone) {
+            updates['timezone'] = this.selectedTimezone;
+        }
+        if (this.selectedCountry !== this.loadedDetails.country) {
+            updates['country'] = this.selectedCountry;
         }
         updates['password'] = this.rmm.account_security.user_password;
 
         this.http
-            .post('/rest/v1/account/details', updates)
-            .pipe(map((res: HttpResponse<any>) => res['result']))
+            .post<{ result?: AccountDetailsInterface }>('/rest/v1/account/details', updates)
+            .pipe(map((res) => res.result))
             .subscribe((details) => {
                 if(details && details.email_alternative) {
                     this.details.next(details);
@@ -171,7 +164,7 @@ export class PersonalDetailsComponent implements OnInit {
 
     public validate_alt_email() {
       this.http.post('/rest/v1/account/alt_email_validation', {})
-            .subscribe((res) => {
+            .subscribe(() => {
                 this.rmm.show_error('Validation email resent', 'Dismiss');
             });
     }
