@@ -24,7 +24,7 @@ import { Contact } from './contact';
 import { ContactsService } from './contacts.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RunboxWebmailAPI, RunboxMe, ContactSyncResult } from '../rmmapi/rbwebmail';
-import { of, ReplaySubject, firstValueFrom } from 'rxjs';
+import { of, ReplaySubject, firstValueFrom, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 class MockPrefService {
@@ -43,6 +43,8 @@ class MockRMMAPI {
   prefs =  {'Desktop': {'version': 1, 'entries': new Map<string, any>()},
                  'Global': {'version': 1, 'entries': new Map<string, any>()}};
   me = of({ uid: 13 } as RunboxMe);
+  deletedContacts: Contact[] = [];
+  deleteContactResponse = new Subject<any>();
 
   syncContacts() {
     return of(new ContactSyncResult(`token-${(new Date()).getTime()}`, [
@@ -51,6 +53,11 @@ class MockRMMAPI {
         + 'UID:dead-cafe\r\nPHOTO:http://test.url\r\nEND:VCARD'
     )
     ], [], 0));
+  }
+
+  deleteContact(contact: Contact) {
+    this.deletedContacts.push(contact);
+    return this.deleteContactResponse.asObservable();
   }
 }
 
@@ -61,6 +68,7 @@ describe('ContactsService', () => {
   let sut: ContactsService;
 
   beforeEach(async () => {
+    localStorage.clear();
     rmmapi = new MockRMMAPI();
     storage = new StorageService(rmmapi as unknown as RunboxWebmailAPI);
     sut = new ContactsService(rmmapi as unknown as RunboxWebmailAPI, prefService, storage);
@@ -159,6 +167,50 @@ describe('ContactsService', () => {
           done();
         });
       }, 20);
+    });
+  });
+
+  describe('Contact deletion', () => {
+    it('should remove a deleted contact from local state before the backend request completes', async () => {
+      await firstValueFrom(sut.contactsSubject);
+      const contact = Contact.fromVcard(
+        'delete-url',
+        'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Delete Me\r\nEMAIL:delete-me@runbox.com\r\nUID:delete-me\r\nEND:VCARD'
+      );
+      sut.processContacts([contact]);
+
+      const deletePromise = sut.deleteContact(contact);
+      const contactsAfterLocalDelete = await firstValueFrom(sut.contactsSubject);
+
+      expect(rmmapi.deletedContacts).toEqual([contact]);
+      expect(contactsAfterLocalDelete.find(c => c.id === contact.id)).toBeUndefined();
+
+      rmmapi.deleteContactResponse.next({});
+      rmmapi.deleteContactResponse.complete();
+
+      await deletePromise;
+    });
+
+    it('should restore local contacts when backend deletion fails', async () => {
+      await firstValueFrom(sut.contactsSubject);
+      const initialContacts = [
+        Contact.fromVcard(
+          'delete-url',
+          'BEGIN:VCARD\r\nVERSION:3.0\r\nFN:Delete Me\r\nEMAIL:delete-me@runbox.com\r\nUID:delete-me\r\nEND:VCARD'
+        )
+      ];
+      sut.processContacts(initialContacts);
+      const [contact] = initialContacts;
+      const deleteError = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
+
+      const deletePromise = sut.deleteContact(contact).catch(e => e);
+      await firstValueFrom(sut.contactsSubject);
+
+      rmmapi.deleteContactResponse.error(deleteError);
+
+      expect(await deletePromise).toBe(deleteError);
+      const contactsAfterError = await firstValueFrom(sut.contactsSubject);
+      expect(contactsAfterError.map(c => c.id)).toEqual(initialContacts.map(c => c.id));
     });
   });
 
