@@ -1010,7 +1010,8 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
     }
 }
 .messageListActionButtonsRight {
-    flex-grow: 1;
+    flex: 1 0 120px;
+    min-width: 120px; // Keep at least 3 action icons + overflow menu visible beside toolbar prompts
     overflow: hidden;
 }
 
@@ -1025,12 +1026,32 @@ app-saved-searches .mat-list-base[dense] .mat-list-item {
 #offerLocalIndex {
     display: flex;
     flex-flow: row;
+    align-items: center;
+    flex: 2 1 0%;
+    min-width: 0;
+    max-height: 55px;
     white-space: normal;
-    line-height: 1em;
+    font-size: 13px;
+    line-height: 1.2em;
 
     @media(max-width: 375px) {
         font-size: 10px;
         line-height: 12px;
+    }
+
+    p {
+        flex: 1 1 0%;
+        min-width: 0;
+        margin: 0;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    mat-list {
+        flex-shrink: 0;
+        padding-top: 0;
     }
 
     mat-list-item {
