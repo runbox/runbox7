@@ -17,7 +17,7 @@
 // along with Runbox 7. If not, see <https://www.gnu.org/licenses/>.
 // ---------- END RUNBOX LICENSE ----------
 
-import { Contact, ContactKind, Address, AddressDetails } from './contact';
+import { Contact, ContactKind, Address, AddressDetails, GroupMember } from './contact';
 
 describe('Contact', () => {
     it('can create contact with no name', () => {
@@ -208,6 +208,19 @@ END:VCARD`);
         expect(sut.members[1].uuid).toBe('f00d');
         expect(sut.members[1].name).toBe('Sybilla');
         expect(sut.members[1].email).toBe('sybil@syb.il');
+    });
+
+    it('can display unresolved group members readably', () => {
+        const deletedMember = GroupMember.fromUUID('03a0e51f-d1aa-4385-8a53-e29025acd8ae');
+        expect(deletedMember.display_name()).toBe('Deleted contact');
+
+        const emailMember = Contact.fromVcard(null, `BEGIN:VCARD
+VERSION:4.0
+KIND:group
+MEMBER;X-CN=Jamie:mailto:jamie@me.me
+END:VCARD`).members[0];
+
+        expect(emailMember.display_name()).toBe('Jamie <jamie@me.me>');
     });
 
     it('can parse org and department correctly', () => {
