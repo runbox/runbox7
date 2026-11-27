@@ -24,6 +24,7 @@ import moment from 'moment';
 import 'moment-timezone';
 import ICAL from 'ical.js';
 
+import { formatCalendarDescriptionForDisplay } from './calendar-description';
 import { EventOverview } from './event-overview';
 
 export enum RecurSaveType {
@@ -100,6 +101,10 @@ export class RunboxCalendarEvent implements CalendarEvent {
 
     set description(value: string) {
         this.event.description = value;
+    }
+
+    get displayDescription(): string {
+        return formatCalendarDescriptionForDisplay(this.description);
     }
 
     // This is the start time of an event instance (if recurring)
