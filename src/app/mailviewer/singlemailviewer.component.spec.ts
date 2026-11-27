@@ -231,6 +231,32 @@ describe('SingleMailViewerComponent', () => {
       expect(component.mailObj.attachments[1].downloadURL.indexOf('blob:')).toBe(0);
     }));
 
+  it('treats whitespace-only plain text as unavailable when HTML exists', () => {
+    const processed = component['processMessageContents'](Object.assign(new MessageContents(), {
+      headers: {
+        from: {
+          value: [{
+            address: 'test@runbox.com',
+            name: 'Testy'
+          }]
+        },
+        date: new Date(2016, 0, 1).toJSON(),
+        subject: 'HTML only'
+      },
+      text: {
+        text: ' \r\n\t ',
+        html: '<p>HTML body</p>',
+        textAsHtml: ' \r\n\t '
+      },
+      sanitized_html: '<p>HTML body</p>',
+      sanitized_html_without_images: '<p>HTML body</p>',
+      attachments: []
+    }));
+
+    expect(processed.text).toBe('undefined');
+    expect(processed.html).toBeTruthy();
+  });
+
   describe('mailto: link interceptor', () => {
     let messageContentsElement: HTMLElement;
     let mailtoLink: HTMLAnchorElement;

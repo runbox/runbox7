@@ -61,6 +61,9 @@ const resizerPercentageKey = 'rmm7resizerpercentage';
 
 const TOOLBAR_BUTTON_WIDTH = 30;
 
+function hasVisiblePlainText(text: string): boolean {
+  return typeof text === 'string' && text.trim().length > 0;
+}
 
 type Mail = any;
 
@@ -582,7 +585,7 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     /**
      * Transform the links so that they are clickable
      */
-    let text = res.text.text;
+    let text = res.text ? res.text.text : '';
     res.rawtext = text;
     text = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -621,7 +624,9 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
     text = html.join('');
 
    //  res.text = text;
-    res.text = this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml)); // res.text.textAsHtml;
+    res.text = hasVisiblePlainText(res.rawtext)
+      ? this.domSanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(res.text.textAsHtml))
+      : 'undefined'; // res.text.textAsHtml;
     return res;
   }
 
