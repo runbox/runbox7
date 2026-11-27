@@ -134,8 +134,10 @@ export class ContactsAppComponent {
                             this.showingDetails = false;
                         }
                     });
-                    // for details-only view, when we want the toolbar to be visible too
-                    document.getElementById('contactsPageTop').scrollIntoView(true);
+                    if (this.mobileQuery.matches) {
+                        // for details-only view, when we want the toolbar to be visible too
+                        document.getElementById('contactsPageTop').scrollIntoView(true);
+                    }
                     // for 3-column view, when the toolbar is always visible anyway
                     document.getElementById('detailsPageTop').scrollIntoView(true);
                 } else {
