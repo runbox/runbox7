@@ -33,11 +33,8 @@ describe('canvastable', () => {
     it('should activate draggable column overlay on mouseover', async () => {
         const fixture = TestBed.createComponent(CanvasTableContainerComponent);
         fixture.componentInstance.canvastableselectlistener = {
-            rowSelected: (rowIndex: number, colIndex: number, rowContent: any, multiSelect?: boolean): void => {
-
-            },
-            saveColumnWidthsPreference: (widths: any): void => {
-            }
+            rowSelected: (_rowIndex: number, _colIndex: number, _multiSelect?: boolean): void => undefined,
+            saveColumnWidthsPreference: (_widths: unknown): void => undefined
         };
         fixture.componentInstance.canvastable.columns = [
             {
@@ -72,5 +69,88 @@ describe('canvastable', () => {
         fixture.detectChanges();
         expect(fixture.componentInstance.canvastable.floatingTooltip).toBeTruthy();
         expect(fixture.componentInstance.canvastable.columnOverlay).toBeTruthy();
+    });
+
+    it('should draw row-wrap status icons for hidden status columns', () => {
+        const fixture = TestBed.createComponent(CanvasTableContainerComponent);
+        fixture.componentInstance.canvastableselectlistener = {
+            rowSelected: (_rowIndex: number, _colIndex: number, _multiSelect?: boolean): void => undefined,
+            saveColumnWidthsPreference: (_widths: unknown): void => undefined
+        };
+        fixture.componentInstance.canvastable.columns = [
+            {
+                name: '',
+                cacheKey: 'selectbox',
+                sortColumn: null,
+                getValue: () => false,
+                width: 40,
+                checkbox: true
+            },
+            {
+                name: 'Date',
+                cacheKey: 'date',
+                sortColumn: null,
+                rowWrapModeMuted: true,
+                getValue: () => '2026-06-10',
+                width: 100
+            },
+            {
+                name: 'From',
+                cacheKey: 'from',
+                sortColumn: null,
+                getValue: () => 'sender@example.com',
+                width: 120
+            },
+            {
+                name: 'Subject',
+                cacheKey: 'subject',
+                sortColumn: null,
+                getValue: () => 'Compact status row',
+                width: 200
+            },
+            {
+                name: '',
+                cacheKey: 'answered',
+                sortColumn: null,
+                rowWrapModeHidden: true,
+                rowWrapModeStatusIcon: true,
+                font: '16px \'Material Icons\'',
+                getValue: (rowIndex: number) => fixture.componentInstance.canvastable.rows.getRow(rowIndex).answeredFlag,
+                getFormattedValue: (val) => val ? '\uE15E' : ''
+            },
+            {
+                name: '',
+                cacheKey: 'flagged',
+                sortColumn: null,
+                rowWrapModeHidden: true,
+                rowWrapModeStatusIcon: true,
+                font: '16px \'Material Icons\'',
+                getValue: (rowIndex: number) => fixture.componentInstance.canvastable.rows.getRow(rowIndex).flaggedFlag,
+                getFormattedValue: (val) => val ? '\uE153' : ''
+            },
+        ];
+        fixture.componentInstance.canvastable.rows = new MessageList([
+            {
+                id: 1,
+                seenFlag: true,
+                answeredFlag: true,
+                flaggedFlag: true
+            }
+        ]);
+        fixture.componentInstance.canvastable.rowWrapMode = true;
+        fixture.detectChanges();
+
+        const canvas = fixture.componentInstance.canvastable.canvRef.nativeElement;
+        Object.defineProperty(canvas, 'scrollWidth', { value: 300, configurable: true });
+        Object.defineProperty(canvas, 'scrollHeight', { value: 100, configurable: true });
+        const context = canvas.getContext('2d');
+        spyOn(context, 'fillText').and.callThrough();
+
+        fixture.componentInstance.canvastable['dopaint']();
+
+        const drawnText = (context.fillText as jasmine.Spy).calls.allArgs()
+            .map((args) => args[0]);
+        expect(drawnText).toContain('\uE15E');
+        expect(drawnText).toContain('\uE153');
     });
 });

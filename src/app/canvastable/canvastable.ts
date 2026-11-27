@@ -1070,6 +1070,7 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         this.ctx.stroke();
 
         let x = 0;
+        let rowWrapModeStatusIconCount = 0;
         for (let colindex = 0; colindex < this.columns.length; colindex++) {
           const col: CanvasTableColumn = this.columns[colindex];
           let val: any = col.getValue(rowIndex);
@@ -1089,7 +1090,18 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
             formattedVal = '' + val;
             this.formattedValueCache[formattedValueCacheKey] = formattedVal;
           }
-          if (this.rowWrapMode && col.rowWrapModeHidden) {
+          if (this.rowWrapMode && col.rowWrapModeStatusIcon) {
+            if (formattedVal.length > 0) {
+              this.ctx.save();
+              this.ctx.font = col.font || this.fontheight + 'px ' + this.fontFamily;
+              this.ctx.fillStyle = this.textColor;
+              this.ctx.textAlign = 'center';
+              this.ctx.fillText(formattedVal, canvwidth - 22 - (rowWrapModeStatusIconCount * 22), rowy + halfrowheight - 10);
+              this.ctx.restore();
+              rowWrapModeStatusIconCount++;
+            }
+            continue;
+          } else if (this.rowWrapMode && col.rowWrapModeHidden) {
             continue;
           } else if (this.rowWrapMode && col.rowWrapModeChipCounter && parseInt(val, 10) > 1) {
             this.ctx.save();
