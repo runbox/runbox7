@@ -132,6 +132,39 @@ export class AccountRenewalsComponent {
         );
     }
 
+    formatProductPrice(p: ActiveProduct): string {
+        if (!p || p.price === undefined || p.price === null || p.price === '') {
+            return '';
+        }
+
+        const currency = p.currency ? `${p.currency} ` : '';
+        const numericPrice = this.priceAsNumber(p.price);
+
+        if (numericPrice === null) {
+            return `${currency}${p.price}`;
+        }
+
+        return `${currency}${numericPrice.toFixed(2)}`;
+    }
+
+    private priceAsNumber(price: any): number | null {
+        if (typeof price === 'number') {
+            return Number.isFinite(price) ? price : null;
+        }
+
+        if (typeof price === 'string') {
+            const parsedPrice = Number(price);
+            return Number.isFinite(parsedPrice) ? parsedPrice : null;
+        }
+
+        if (price && typeof price.toNumber === 'function') {
+            const parsedPrice = price.toNumber();
+            return Number.isFinite(parsedPrice) ? parsedPrice : null;
+        }
+
+        return null;
+    }
+
     showSubsDialog(p: ActiveProduct) {
         const dialogRef = this.dialog.open(SubAccountRenewalDialogComponent, { data: p });
         dialogRef.afterClosed().subscribe(renew => {
