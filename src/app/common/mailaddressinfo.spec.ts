@@ -70,6 +70,22 @@ describe('MailAddressInfo', () => {
         expect(ma_list[1].address).toBe('test2@runbox.com');
         expect(ma_list[1].nameAndAddress).toBe('"Test2" <test2@runbox.com>');
     });
+    it('Parse space-separated full address list', () => {
+        const ma_list = MailAddressInfo.parse('Test1 <test1@runbox.com> Test2 <test2@runbox.com>');
+        expect(ma_list.length).toBe(2);
+        expect(ma_list[0].name).toBe('Test1');
+        expect(ma_list[0].address).toBe('test1@runbox.com');
+        expect(ma_list[0].nameAndAddress).toBe('"Test1" <test1@runbox.com>');
+        expect(ma_list[1].name).toBe('Test2');
+        expect(ma_list[1].address).toBe('test2@runbox.com');
+        expect(ma_list[1].nameAndAddress).toBe('"Test2" <test2@runbox.com>');
+    });
+    it('Parse space-separated quoted full address list', () => {
+        const ma_list = MailAddressInfo.parse('"Test One" <test1@runbox.com> "Test Two" <test2@runbox.com>');
+        expect(ma_list.length).toBe(2);
+        expect(ma_list[0].nameAndAddress).toBe('"Test One" <test1@runbox.com>');
+        expect(ma_list[1].nameAndAddress).toBe('"Test Two" <test2@runbox.com>');
+    });
     it('Parse multi-level domain', () => {
         const ma_list = MailAddressInfo.parse('"Fred B" <fred@foo.bar.baz.tld>');
         expect(ma_list[0].name).toBe('Fred B');
