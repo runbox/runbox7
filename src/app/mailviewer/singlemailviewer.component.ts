@@ -81,10 +81,14 @@ export class SingleMailViewerComponent implements OnInit, DoCheck, AfterViewInit
   @Output() afterViewInit: EventEmitter<any> = new EventEmitter();
   @Output() orientationChangeRequest: EventEmitter<string> = new EventEmitter();
   @Output() afterLoadMessage: EventEmitter<boolean> = new EventEmitter();
+  @Output() previousMessage: EventEmitter<void> = new EventEmitter();
+  @Output() nextMessage: EventEmitter<void> = new EventEmitter();
 
   @Input() messageActionsHandler: MessageActions;
   @Input() adjustableHeight: boolean;
   @Input() showVerticalSplitButton = false;
+  @Input() canNavigatePreviousMessage = false;
+  @Input() canNavigateNextMessage = false;
 
   @ViewChild('printFrame') printFrame: ElementRef;
   @ViewChild('messageContents') messageContents: ElementRef;
