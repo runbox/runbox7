@@ -84,6 +84,7 @@ export namespace CanvasTable {
 })
 export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   static incrementalId = 1;
+  private static readonly selectAllBatchSize = 250;
   public elementId: string;
   private _topindex = 0.0;
   public get topindex(): number { return this._topindex; }
@@ -212,6 +213,8 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   public scrollLimitHit: BehaviorSubject<number> = new BehaviorSubject(0);
 
   public floatingTooltip: FloatingTooltip;
+  public bulkSelectionInProgress = false;
+  public bulkSelectionMessage = '';
 
   @Input() selectListener: CanvasTableSelectListener;
   @Output() touchscroll = new EventEmitter();
@@ -723,6 +726,10 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
   }
 
   public selectRows() {
+    if (this.bulkSelectionInProgress) {
+      return;
+    }
+
     if (this.selectWhichRows === CanvasTable.RowSelect.Visible) {
       this.selectAllVisibleRows();
     } else {
@@ -732,14 +739,36 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
 
   public selectAllRows() {
     const allSelected = this.rows.allSelected();
+    const totalRows = this.rows.rowCount();
+    let processedRows = 0;
 
-    this.rows.rows.forEach((rowobj, rowIndex) =>
-      this.selectListener.rowSelected(
-        rowIndex,
-        0,
-        !allSelected
-      )
-    );
+    if (totalRows === 0) {
+      return;
+    }
+
+    this.updateBulkSelectionMessage(allSelected, processedRows, totalRows);
+
+    const selectNextBatch = () => {
+      const batchEnd = Math.min(processedRows + CanvasTableComponent.selectAllBatchSize, totalRows);
+
+      for (let rowIndex = processedRows; rowIndex < batchEnd; rowIndex++) {
+        this.selectListener.rowSelected(rowIndex, 0, !allSelected);
+      }
+
+      processedRows = batchEnd;
+
+      if (processedRows < totalRows) {
+        this.updateBulkSelectionMessage(allSelected, processedRows, totalRows);
+        setTimeout(selectNextBatch);
+        return;
+      }
+
+      this.bulkSelectionInProgress = false;
+      this.bulkSelectionMessage = '';
+      this.hasChanges = true;
+    };
+
+    setTimeout(selectNextBatch);
   }
 
   public selectAllVisibleRows() {
@@ -756,6 +785,13 @@ export class CanvasTableComponent implements AfterViewInit, DoCheck, OnInit {
         !visibleRowsAlreadySelected)
     );
 
+    this.hasChanges = true;
+  }
+
+  private updateBulkSelectionMessage(allSelected: boolean, processedRows: number, totalRows: number) {
+    this.bulkSelectionInProgress = true;
+    this.bulkSelectionMessage =
+      `${allSelected ? 'Clearing' : 'Selecting'} ${processedRows} of ${totalRows} messages...`;
     this.hasChanges = true;
   }
 
