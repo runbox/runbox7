@@ -497,10 +497,6 @@ export class AppComponent implements OnInit, AfterViewInit, CanvasTableSelectLis
     this.calculateWidthDependentElements();
   }
 
-  reload(): void {
-    location.reload();
-  }
-
   selectMessageFromFragment(fragment: string): void {
     const fragmentTarget = this.parseFragment(fragment);
     if (fragmentTarget) {

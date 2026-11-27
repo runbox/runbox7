@@ -18,7 +18,7 @@
 // ---------- END RUNBOX LICENSE ----------
 
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { UpdateAlertComponent } from './updatealert.component';
@@ -27,7 +27,7 @@ import { UpdateAlertService } from './updatealert.service';
 @NgModule({
     imports: [
         CommonModule,
-        MatDialogModule,
+        MatSnackBarModule,
         MatButtonModule
     ],
     declarations: [
@@ -38,7 +38,7 @@ import { UpdateAlertService } from './updatealert.service';
     ]
 })
 export class UpdateAlertModule {
-    constructor(alertservice: UpdateAlertService) {
-
+    constructor(_alertservice: UpdateAlertService) {
+        void _alertservice;
     }
 }
