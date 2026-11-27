@@ -122,7 +122,7 @@
     <mat-nav-list *ngIf="searchService.localSearchActivated">
       <button mat-list-item
         (click)="deleteLocalIndex()"
-        matTooltip="Stop synchronization and remove index stored on your device">
+        [matTooltip]="localIndexStopTooltip">
           <mat-icon  svgIcon="sync-off" mat-list-icon></mat-icon>
           Stop index synchronization
       </button>
