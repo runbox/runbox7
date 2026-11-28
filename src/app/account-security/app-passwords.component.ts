@@ -150,4 +150,12 @@ export class AppPasswordsComponent implements OnInit {
             duration: 2000,
         });
     }
+
+    onPasswordCopied(copied: boolean) {
+        this.snackBar.open(
+            copied ? 'App password copied to clipboard.' : 'Could not copy app password.',
+            'Dismiss',
+            { duration: 2000 }
+        );
+    }
 }

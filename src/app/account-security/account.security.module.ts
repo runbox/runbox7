@@ -19,6 +19,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MenuModule } from '../menu/menu.module';
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog';
@@ -66,6 +67,7 @@ import { AccountPasswordComponent } from './account-password.component';
     ],
     imports: [
         CommonModule,
+        ClipboardModule,
         FormsModule,
         MatButtonModule,
         MatCardModule,
